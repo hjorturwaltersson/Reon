@@ -1,0 +1,17 @@
+# file extensiosn
+*.pyc
+*.pyo
+.*.swp
+*.sublime-project
+*.sublime-workspace
+.coverage
+.idea
+
+# virtualenv directories
+venv
+.env/
+/env
+
+# sub-directories or files within src/
+/test_results
+
