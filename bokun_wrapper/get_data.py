@@ -178,3 +178,4 @@ def add_or_update_extra(session_id, booking_id, extra_id, unit_count):
     }
     reply = make_post_request(path, body)
     return reply.json()
+
