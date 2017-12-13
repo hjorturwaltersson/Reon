@@ -1,4 +1,7 @@
+from bokun_wrapper import get_data
 from rest_framework import viewsets
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
 from .models import Vendor, Place, Product
 from .serializers import ProductSerializer, VendorSerializer, PlaceSerializer
 
@@ -16,3 +19,10 @@ class PlaceViewSet(viewsets.ReadOnlyModelViewSet):
 class VendorViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Vendor.objects.all()
     serializer_class = VendorSerializer
+
+
+@api_view(['GET'])
+def get_availability(request):
+    product_id = request.query_params['product_id']
+    date = request.query_params['date']
+    return Response(get_data.get_availability(product_id, date))

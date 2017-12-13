@@ -18,6 +18,7 @@ from django.contrib import admin
 from django.urls import path, include
 from rest_framework import routers
 from .views import ProductViewSet, PlaceViewSet, VendorViewSet
+from .views import get_availability
 
 router = routers.DefaultRouter()
 router.register(r'products', ProductViewSet)
@@ -28,7 +29,8 @@ router.register(r'vendors', VendorViewSet)
 urlpatterns = [
     url(r'', include(router.urls)),
     path('admin/', admin.site.urls),
-    url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework'))
+    url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+    url(r'get_availability', get_availability),
 ]
 
 urlpatterns += router.urls

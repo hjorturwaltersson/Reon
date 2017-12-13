@@ -158,8 +158,8 @@ def add_to_cart(activity_id, start_time_id, date, pricing_category_id,
     return reply.json()
 
 
-def remove_activity_from_cart(session_id, activity_booking_id):
-    path = '/shopping-cart.json/session/{}/remove-activity/{}'.format(session_id, activity_booking_id)
+def remove_activity_from_cart(session_id, booking_id):
+    path = '/shopping-cart.json/session/{}/remove-activity/{}'.format(session_id, booking_id)
     reply = make_get_request(path)
     return reply.json()
 
