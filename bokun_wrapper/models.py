@@ -21,7 +21,7 @@ class Product(models.Model):
     bokun_id = models.CharField(unique=True, max_length=1000, primary_key=True)
     title = models.CharField(max_length=1000)
     excerpt = models.CharField(max_length=1000)
-    summary = models.CharField(max_length=1000)
+    bookable_extras = JSONField(null=True)
     price = models.CharField(max_length=1000)
     photos = JSONField(null=True)
     vendor = models.ForeignKey(Vendor, null=True, on_delete=models.SET_NULL)

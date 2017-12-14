@@ -45,31 +45,39 @@ def make_post_request(path, body):
     return reply
 
 
-def get_vendor_products(vendor_id):
+def get_vendor_product_ids(vendor_id):
     reply = make_post_request('/activity.json/search', {"vendorId": vendor_id})
     items_dict = reply.json()['items']
-    return items_dict
+    ids = [p['id'] for p in items_dict]
+    return ids
+
+
+def get_product(product_id):
+    reply = make_get_request('/activity.json/{}'.format(product_id))
+    return reply.json()
 
 
 def update_vendor_products(vendor_id):
-    items_dict = get_vendor_products(vendor_id)
+    product_ids = get_vendor_product_ids(vendor_id)
     vendor_model = apps.get_model('bokun_wrapper', 'Vendor')
     product_model = apps.get_model('bokun_wrapper', 'Product')
     vendor = vendor_model.objects.get(bokun_id=vendor_id)
-    for item_dict in items_dict:
+    for product_id in product_ids:
         try:
-            product = product_model.objects.get(bokun_id=item_dict['id'])
+            product = product_model.objects.get(bokun_id=product_id)
         except product_model.DoesNotExist as e:
-            product = product_model(bokun_id=item_dict['id'])
+            product = product_model(bokun_id=product_id)
+        item_dict = get_product(product_id)
         product.title = item_dict['title']
         product.excerpt = item_dict['excerpt']
-        product.summary = item_dict['summary']
-        product.price = item_dict['price']
+        product.price = item_dict['nextDefaultPrice']
         product.photos = item_dict['photos']
         product.vendor = vendor
-        product.external_id = item_dict['id']
+        product.external_id = item_dict['externalId']
+        product.bookable_extras = item_dict['bookableExtras']
         product.json = item_dict
         product.save()
+        get_places(product_id)
 
 
 def create_or_update_place(places):
