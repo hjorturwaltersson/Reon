@@ -15,9 +15,10 @@ class ProductViewSet(viewsets.ReadOnlyModelViewSet):
         pickup_place = self.request.query_params.get('pickup_place', None)
         dropoff_place = self.request.query_params.get('dropoff_place', None)
         if pickup_place:
-            queryset = queryset.filter(pickup_places=pickup_place)
+            queryset = queryset.filter(pickup_places=pickup_place) | queryset.filter(pickup_places=None)
+            queryset
         if dropoff_place:
-            queryset = queryset.filter(dropoff_places=dropoff_place)
+            queryset = queryset.filter(dropoff_places=dropoff_place) | queryset.filter(dropoff_places=None)
         return queryset
 
 
