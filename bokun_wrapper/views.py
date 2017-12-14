@@ -10,6 +10,16 @@ class ProductViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
 
+    def get_queryset(self):
+        queryset = Product.objects.all()
+        pickup_place = self.request.query_params.get('pickup_place', None)
+        dropoff_place = self.request.query_params.get('dropoff_place', None)
+        if pickup_place:
+            queryset = queryset.filter(pickup_places=pickup_place)
+        if dropoff_place:
+            queryset = queryset.filter(dropoff_places=dropoff_place)
+        return queryset
+
 
 class PlaceViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Place.objects.all()
