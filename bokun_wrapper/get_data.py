@@ -139,7 +139,7 @@ def get_cart(session_id=None):
     return reply.json()
 
 
-def add_to_cart(activity_id, start_time_id, date, pricing_category_id,
+def add_to_cart(activity_id, start_time_id, date, pricing_category_bookings, return_trip=False,
                 session_id=None, dropoff_place_id=None, pickup_place_id=None, extras=None):
     if not session_id:
         session_id = get_cart()['sessionId']
@@ -148,11 +148,22 @@ def add_to_cart(activity_id, start_time_id, date, pricing_category_id,
         'activityId': activity_id,
         'startTimeId': start_time_id,
         'date': date,
-        'pricingCategoryBookings': [{
-            "pricingCategoryId": pricing_category_id
-        }],
         'pickup': False
     }
+    pricing_category_bookings_list = []
+    for pricing_category_booking in pricing_category_bookings:
+        extra_list = []
+        for extra in pricing_category_booking['extras']:
+            extra_list.append({
+                "answers": [],
+                "extraId": extra['extra_id'],
+                "unitCount": extra['unit_count']
+            })
+        pricing_category_bookings_list.append({
+            "extras": extra_list,
+            "pricingCategoryId": pricing_category_booking['pricing_category_id']
+        })
+    body['pricingCategoryBookings'] = pricing_category_bookings_list
     if dropoff_place_id:
         body['dropoffPlaceId'] = dropoff_place_id
     if pickup_place_id:
