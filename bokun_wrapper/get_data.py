@@ -139,7 +139,7 @@ def get_cart(session_id=None):
     return reply.json()
 
 
-def add_to_cart(activity_id, start_time_id, date, pricing_category_bookings, return_trip=False,
+def add_to_cart(activity_id, start_time_id, date, pricing_category_bookings,
                 session_id=None, dropoff_place_id=None, pickup_place_id=None, extras=None):
     if not session_id:
         session_id = get_cart()['sessionId']

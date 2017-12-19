@@ -1,5 +1,5 @@
 from rest_framework import serializers, fields
-from .models import Vendor, Place, Product
+from .models import Vendor, Place, Product, FrontPageProduct
 
 
 class PlaceSerializer(serializers.ModelSerializer):
@@ -30,3 +30,11 @@ class VendorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Vendor
         fields = '__all__'
+
+
+class FrontPageProductSerializer(serializers.ModelSerializer):
+    bokun_product = ProductSerializer()
+
+    class Meta:
+        model = FrontPageProduct
+        exclude = ['return_product', 'bluelagoon_product']

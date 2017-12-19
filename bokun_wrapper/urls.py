@@ -18,7 +18,8 @@ from django.contrib import admin
 from django.urls import path, include
 from rest_framework import routers
 from .views import ProductViewSet, PlaceViewSet, VendorViewSet
-from .views import get_availability
+from .views import get_availability, get_frontpage_products, get_cart
+from .views import add_to_cart, add_extra_to_cart
 
 router = routers.DefaultRouter()
 router.register(r'products', ProductViewSet)
@@ -31,6 +32,10 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     url(r'get_availability', get_availability),
+    url(r'get_cart', get_cart),
+    url(r'get_frontpage_products', get_frontpage_products),
+    url(r'add_to_cart', add_to_cart),
+    url(r'add_extra_to_cart', add_extra_to_cart),
 ]
 
 urlpatterns += router.urls
