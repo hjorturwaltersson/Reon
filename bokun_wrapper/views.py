@@ -81,6 +81,8 @@ def get_frontpage_products(request):
     traveler_count_teenagers = int(traveler_count_teenagers)
     location_from = request.query_params['location_from']
     location_to = request.query_params.get('location_to', None)
+    date_from = request.query_params.get('date_from', None)
+    date_to = request.query_params.get('date_to', None)
 
     queryset = Product.objects.all()
     if location_from:
@@ -95,6 +97,16 @@ def get_frontpage_products(request):
         single_product_dict = FrontPageProductSerializer(product).data
         price = traveler_count_adults * product.adult_price + traveler_count_teenagers * product.teenager_price
         single_product_dict['total_price'] = price
+        if date_from:
+            availability = get_data.get_availability(product.bokun_product.bokun_id, date_from)
+            single_product_dict['availability'] = availability
+        else:
+            single_product_dict['availability'] = None
+        if date_to:
+            return_availability = get_data.get_availability(product.bokun_product.bokun_id, date_to)
+            single_product_dict['availability_return'] = return_availability
+        else:
+            single_product_dict['availability_return'] = None
         reply.append(single_product_dict)
 
     return Response(reply)
