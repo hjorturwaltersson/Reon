@@ -33,7 +33,7 @@ urlpatterns = [
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     url(r'get_availability', get_availability),
     url(r'get_cart', get_cart),
-    url(r'get_frontpage_products/<int:id>/', get_single_frontpage_product),
+    path(r'get_frontpage_products/<int:id>/', get_single_frontpage_product),
     url(r'get_frontpage_products', get_frontpage_products),
     url(r'add_to_cart', add_to_cart),
     url(r'add_extra_to_cart', add_extra_to_cart),
