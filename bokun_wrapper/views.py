@@ -99,11 +99,15 @@ def get_frontpage_products(request):
         single_product_dict['total_price'] = price
         if date_from:
             availability = get_data.get_availability(product.bokun_product.bokun_id, date_from)
+            if not availability:
+                continue
             single_product_dict['availability'] = availability
         else:
             single_product_dict['availability'] = None
         if date_to:
             return_availability = get_data.get_availability(product.bokun_product.bokun_id, date_to)
+            if not return_availability:
+                continue
             single_product_dict['availability_return'] = return_availability
         else:
             single_product_dict['availability_return'] = None
