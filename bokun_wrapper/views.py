@@ -4,7 +4,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .models import Vendor, Place, Product, FrontPageProduct
 from .serializers import ProductSerializer, VendorSerializer, PlaceSerializer, FrontPageProductSerializer
-
+import json
 
 class ProductViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Product.objects.all()
@@ -40,7 +40,7 @@ def get_availability(request):
 
 @api_view(['POST'])
 def add_to_cart(request):
-    body = request.body.decode('utf8')
+    body = json.loads(request.body)
     product_type_id = body['product_type_id']
     start_time_id = body['start_time_id']
     date = body['date']
