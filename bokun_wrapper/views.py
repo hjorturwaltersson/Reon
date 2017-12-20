@@ -148,3 +148,29 @@ def get_cart(request):
     session_id = request.query_params.get('session_id', None)
     return Response(get_data.get_cart(session_id))
 
+
+@api_view(['POST'])
+def pay(request):
+    body = request.body.decode('utf8')
+    session_id = body['session_id']
+    address_city = body['address_city']
+    address_country = body['address_country']
+    address_line_1 = body['address_line_1']
+    address_line_2 = body['address_line_2']
+    address_post_code = body['address_post_code']
+    card_number = body['card_number']
+    cvc = body['cvc']
+    exp_month = body['exp_month']
+    exp_year = body['exp_year']
+    name = body['name']
+    return Response(get_data.reserve_pay_confirm(session_id=session_id,
+                                                 address_city=address_city,
+                                                 address_country=address_country,
+                                                 address_line_1=address_line_1,
+                                                 address_line_2=address_line_2,
+                                                 address_post_code=address_post_code,
+                                                 card_number=card_number,
+                                                 cvc=cvc,
+                                                 exp_month=exp_month,
+                                                 exp_year=exp_year,
+                                                 name=name))
