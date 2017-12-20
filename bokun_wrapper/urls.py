@@ -18,7 +18,7 @@ from django.contrib import admin
 from django.urls import path, include
 from rest_framework import routers
 from .views import ProductViewSet, PlaceViewSet, VendorViewSet
-from .views import get_availability, get_frontpage_products, get_cart
+from .views import get_availability, get_frontpage_products, get_cart, get_single_frontpage_product
 from .views import add_to_cart, add_extra_to_cart
 
 router = routers.DefaultRouter()
@@ -34,6 +34,7 @@ urlpatterns = [
     url(r'get_availability', get_availability),
     url(r'get_cart', get_cart),
     url(r'get_frontpage_products', get_frontpage_products),
+    url(r'get_frontpage_products/<int:id>/', get_single_frontpage_product),
     url(r'add_to_cart', add_to_cart),
     url(r'add_extra_to_cart', add_extra_to_cart),
 ]

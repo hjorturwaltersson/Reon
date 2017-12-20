@@ -101,6 +101,19 @@ def get_frontpage_products(request):
 
 
 @api_view(['GET'])
+def get_single_frontpage_product(request, **kwargs):
+    traveler_count_adults = request.query_params.get('traveler_count_adults', 0)
+    traveler_count_adults = int(traveler_count_adults)
+    traveler_count_teenagers = request.query_params.get('traveler_count_teenagers', 0)
+    traveler_count_teenagers = int(traveler_count_teenagers)
+    product = FrontPageProduct.objects.get(id=kwargs['id'])
+    data = FrontPageProductSerializer(product).data
+    price = traveler_count_adults * product.adult_price + traveler_count_teenagers * product.teenager_price
+    data['total_price'] = price
+    return Response(data)
+
+
+@api_view(['GET'])
 def get_cart(request):
     session_id = request.query_params.get('session_id', None)
     return Response(get_data.get_cart(session_id))
