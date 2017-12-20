@@ -122,10 +122,22 @@ def get_single_frontpage_product(request, **kwargs):
     traveler_count_adults = int(traveler_count_adults)
     traveler_count_teenagers = request.query_params.get('traveler_count_teenagers', 0)
     traveler_count_teenagers = int(traveler_count_teenagers)
+    date_from = request.query_params.get('date_from', None)
+    date_to = request.query_params.get('date_to', None)
     product = FrontPageProduct.objects.get(id=kwargs['id'])
     data = FrontPageProductSerializer(product).data
     price = traveler_count_adults * product.adult_price + traveler_count_teenagers * product.teenager_price
     data['total_price'] = price
+    if date_from:
+        availability = get_data.get_availability(product.bokun_product.bokun_id, date_from)
+        data['availability'] = availability
+    else:
+        data['availability'] = None
+    if date_to:
+        return_availability = get_data.get_availability(product.bokun_product.bokun_id, date_to)
+        data['availability_return'] = return_availability
+    else:
+        data['availability_return'] = None
     return Response(data)
 
 
