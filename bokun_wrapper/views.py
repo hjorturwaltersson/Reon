@@ -40,18 +40,19 @@ def get_availability(request):
 
 @api_view(['POST'])
 def add_to_cart(request):
-    product_type_id = request.body['product_type_id']
-    start_time_id = request.body['start_time_id']
-    date = request.body['date']
-    pricing_category_bookings = request.body['pricing_category_bookings']
-    session_id = request.body.get('session_id', None)
-    pickup_place_id = request.body['pickup_place_id']
-    dropoff_place_id = request.body['dropoff_place_id']
-    extras = request.body['extras']
-    round_trip = request.body['round_trip']
-    blue_lagoon = request.body['blue_lagoon']
-    return_start_time_id = request.body.get('return_start_time_id', None)
-    return_date = request.body.get('return_date', None)
+    body = request.body.decode('utf8')
+    product_type_id = body['product_type_id']
+    start_time_id = body['start_time_id']
+    date = body['date']
+    pricing_category_bookings = body['pricing_category_bookings']
+    session_id = body.get('session_id', None)
+    pickup_place_id = body['pickup_place_id']
+    dropoff_place_id = body['dropoff_place_id']
+    extras = body['extras']
+    round_trip = body['round_trip']
+    blue_lagoon = body['blue_lagoon']
+    return_start_time_id = body.get('return_start_time_id', None)
+    return_date = body.get('return_date', None)
     product = FrontPageProduct.objects.get(id=product_type_id)
     reply = get_data.add_to_cart(activity_id=product.bokun_product.bokun_id,
                                  start_time_id=start_time_id,
@@ -66,10 +67,11 @@ def add_to_cart(request):
 
 @api_view(['POST'])
 def add_extra_to_cart(request):
-    session_id = request.body['session_id']
-    booking_id = request.body['booking_id']
-    extra_id = request.body['extra_id']
-    unit_count = request.body['unit_count']
+    body = request.body.decode('utf8')
+    session_id = body['session_id']
+    booking_id = body['booking_id']
+    extra_id = body['extra_id']
+    unit_count = body['unit_count']
     return Response(get_data.add_or_update_extra(session_id, booking_id, extra_id, unit_count))
 
 
