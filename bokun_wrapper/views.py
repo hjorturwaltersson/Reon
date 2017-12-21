@@ -6,6 +6,7 @@ from .models import Vendor, Place, Product, FrontPageProduct
 from .serializers import ProductSerializer, VendorSerializer, PlaceSerializer, FrontPageProductSerializer
 import json
 
+
 class ProductViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
@@ -66,11 +67,11 @@ def add_to_cart(request):
     product_type_id = body['product_type_id']
     start_time_id = body['start_time_id']
     date = body['date']
-    traveler_count_adults = request.query_params.get('traveler_count_adults', 0)
+    traveler_count_adults = body.get('traveler_count_adults', 0)
     traveler_count_adults = int(traveler_count_adults)
-    traveler_count_teenagers = request.query_params.get('traveler_count_teenagers', 0)
+    traveler_count_teenagers = body.get('traveler_count_teenagers', 0)
     traveler_count_teenagers = int(traveler_count_teenagers)
-    traveler_count_children = request.query_params.get('traveler_count_children', 0)
+    traveler_count_children = body.get('traveler_count_children', 0)
     traveler_count_children = int(traveler_count_children)
     session_id = body.get('session_id', None)
     pickup_place_id = body['pickup_place_id']
