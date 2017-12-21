@@ -49,4 +49,7 @@ class FrontPageProduct(models.Model):
     teenager_price = models.IntegerField()
 
     def __str__(self):
-        return self.bokun_product.title
+        if self.bokun_product:
+            return self.bokun_product.title
+        else:
+            return "untitled"
