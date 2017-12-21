@@ -38,13 +38,40 @@ def get_availability(request):
     return Response(get_data.get_availability(product_id, date))
 
 
+def get_pricing_category_bookings(product, traveler_count_adults, traveler_count_teenagers, traveler_count_children):
+    category_id = product.default_price_category_id
+    pricing_category_bookings = []
+    for x in range(traveler_count_adults):
+        pricing_category_bookings.append({
+            'pricingCategoryId': category_id
+        })
+    if product.teenager_price_category_id:
+        category_id = product.teenager_price_category_id
+    for x in range(traveler_count_teenagers):
+        pricing_category_bookings.append({
+            'pricingCategoryId': category_id
+        })
+    if product.child_price_category_id:
+        category_id = product.child_price_category_id
+    for x in range(traveler_count_children):
+        pricing_category_bookings.append({
+            'pricingCategoryId': category_id
+        })
+    return pricing_category_bookings
+
+
 @api_view(['POST'])
 def add_to_cart(request):
     body = json.loads(request.body)
     product_type_id = body['product_type_id']
     start_time_id = body['start_time_id']
     date = body['date']
-    pricing_category_bookings = body['pricing_category_bookings']
+    traveler_count_adults = request.query_params.get('traveler_count_adults', 0)
+    traveler_count_adults = int(traveler_count_adults)
+    traveler_count_teenagers = request.query_params.get('traveler_count_teenagers', 0)
+    traveler_count_teenagers = int(traveler_count_teenagers)
+    traveler_count_children = request.query_params.get('traveler_count_children', 0)
+    traveler_count_children = int(traveler_count_children)
     session_id = body.get('session_id', None)
     pickup_place_id = body['pickup_place_id']
     dropoff_place_id = body['dropoff_place_id']
@@ -57,7 +84,7 @@ def add_to_cart(request):
     reply = get_data.add_to_cart(activity_id=product.bokun_product.bokun_id,
                                  start_time_id=start_time_id,
                                  date=date,
-                                 pricing_category_bookings=pricing_category_bookings,
+                                 pricing_category_bookings=get_pricing_category_bookings(product, traveler_count_adults, traveler_count_teenagers, traveler_count_children),
                                  session_id=session_id,
                                  dropoff_place_id=dropoff_place_id,
                                  pickup_place_id=pickup_place_id,

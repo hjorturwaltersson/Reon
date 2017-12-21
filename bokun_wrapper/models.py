@@ -29,6 +29,9 @@ class Product(models.Model):
     json = JSONField(null=True)
     pickup_places = models.ManyToManyField(Place, related_name='+', blank=True)
     dropoff_places = models.ManyToManyField(Place, related_name='+', blank=True)
+    default_price_category_id = models.IntegerField(null=True)
+    teenager_price_category_id = models.IntegerField(null=True)
+    child_price_category_id = models.IntegerField(null=True)
 
     def get_availability(self, date):
         return api_availability(self.bokun_id, date)
