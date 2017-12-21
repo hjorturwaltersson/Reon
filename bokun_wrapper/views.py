@@ -44,19 +44,22 @@ def get_pricing_category_bookings(product, traveler_count_adults, traveler_count
     pricing_category_bookings = []
     for x in range(traveler_count_adults):
         pricing_category_bookings.append({
-            'pricingCategoryId': category_id
+            'pricingCategoryId': category_id,
+            'extras': []
         })
     if product.teenager_price_category_id:
         category_id = product.teenager_price_category_id
     for x in range(traveler_count_teenagers):
         pricing_category_bookings.append({
-            'pricingCategoryId': category_id
+            'pricingCategoryId': category_id,
+            'extras': []
         })
     if product.child_price_category_id:
         category_id = product.child_price_category_id
     for x in range(traveler_count_children):
         pricing_category_bookings.append({
-            'pricingCategoryId': category_id
+            'pricingCategoryId': category_id,
+            'extras': []
         })
     return pricing_category_bookings
 
@@ -85,7 +88,7 @@ def add_to_cart(request):
     reply = get_data.add_to_cart(activity_id=product.bokun_product.bokun_id,
                                  start_time_id=start_time_id,
                                  date=date,
-                                 pricing_category_bookings=get_pricing_category_bookings(product, traveler_count_adults, traveler_count_teenagers, traveler_count_children),
+                                 pricing_category_bookings=get_pricing_category_bookings(product.bokun_product, traveler_count_adults, traveler_count_teenagers, traveler_count_children),
                                  session_id=session_id,
                                  dropoff_place_id=dropoff_place_id,
                                  pickup_place_id=pickup_place_id,
