@@ -44,21 +44,21 @@ def get_pricing_category_bookings(product, traveler_count_adults, traveler_count
     pricing_category_bookings = []
     for x in range(traveler_count_adults):
         pricing_category_bookings.append({
-            'pricingCategoryId': category_id,
+            'pricing_category_id': category_id,
             'extras': []
         })
     if product.teenager_price_category_id:
         category_id = product.teenager_price_category_id
     for x in range(traveler_count_teenagers):
         pricing_category_bookings.append({
-            'pricingCategoryId': category_id,
+            'pricing_category_id': category_id,
             'extras': []
         })
     if product.child_price_category_id:
         category_id = product.child_price_category_id
     for x in range(traveler_count_children):
         pricing_category_bookings.append({
-            'pricingCategoryId': category_id,
+            'pricing_category_id': category_id,
             'extras': []
         })
     return pricing_category_bookings
