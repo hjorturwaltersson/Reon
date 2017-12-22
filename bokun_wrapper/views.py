@@ -39,27 +39,33 @@ def get_availability(request):
     return Response(get_data.get_availability(product_id, date))
 
 
-def get_pricing_category_bookings(product, traveler_count_adults, traveler_count_teenagers, traveler_count_children):
+def get_pricing_category_bookings(product, traveler_count_adults, traveler_count_teenagers, traveler_count_children, extra_ids):
     category_id = product.default_price_category_id
     pricing_category_bookings = []
     for x in range(traveler_count_adults):
         pricing_category_bookings.append({
             'pricing_category_id': category_id,
-            'extras': []
+            'extras': [{
+                'extraId': extra_id,
+                'unitCount': 1} for extra_id in extra_ids]
         })
     if product.teenager_price_category_id:
         category_id = product.teenager_price_category_id
     for x in range(traveler_count_teenagers):
         pricing_category_bookings.append({
             'pricing_category_id': category_id,
-            'extras': []
+            'extras': [{
+                'extraId': extra_id,
+                'unitCount': 1} for extra_id in extra_ids]
         })
     if product.child_price_category_id:
         category_id = product.child_price_category_id
     for x in range(traveler_count_children):
         pricing_category_bookings.append({
             'pricing_category_id': category_id,
-            'extras': []
+            'extras': [{
+                'extraId': extra_id,
+                'unitCount': 1} for extra_id in extra_ids]
         })
     return pricing_category_bookings
 
@@ -79,7 +85,7 @@ def add_to_cart(request):
     session_id = body.get('session_id', None)
     pickup_place_id = body['pickup_place_id']
     dropoff_place_id = body['dropoff_place_id']
-    extras = body['extras']
+    extra_ids = body['extra_ids']
     round_trip = body['round_trip']
     blue_lagoon = body['blue_lagoon']
     return_start_time_id = body.get('return_start_time_id', None)
@@ -88,11 +94,11 @@ def add_to_cart(request):
     reply = get_data.add_to_cart(activity_id=product.bokun_product.bokun_id,
                                  start_time_id=start_time_id,
                                  date=date,
-                                 pricing_category_bookings=get_pricing_category_bookings(product.bokun_product, traveler_count_adults, traveler_count_teenagers, traveler_count_children),
+                                 pricing_category_bookings=get_pricing_category_bookings(product.bokun_product, traveler_count_adults, traveler_count_teenagers, traveler_count_children, extra_ids),
                                  session_id=session_id,
                                  dropoff_place_id=dropoff_place_id,
                                  pickup_place_id=pickup_place_id,
-                                 extras=extras)
+                                 )
     return Response(reply)
 
 
