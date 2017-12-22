@@ -205,3 +205,12 @@ def pay(request):
                                                  exp_month=exp_month,
                                                  exp_year=exp_year,
                                                  name=name))
+
+
+@api_view(['POST'])
+def remove_extra_from_cart(request):
+    body = request.body.decode('utf8')
+    session_id = body['session_id']
+    booking_id = body['booking_id']
+    extra_id = body['extra_id']
+    return Response(get_data.remove_extra_from_cart(session_id, booking_id, extra_id))
