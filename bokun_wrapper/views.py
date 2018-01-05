@@ -186,6 +186,8 @@ def get_cart(request):
     return Response(get_data.get_cart(session_id))
 
 
+
+
 @api_view(['POST'])
 def pay(request):
     body = request.body.decode('utf8')
@@ -220,3 +222,10 @@ def remove_extra_from_cart(request):
     booking_id = body['booking_id']
     extra_id = body['extra_id']
     return Response(get_data.remove_extra_from_cart(session_id, booking_id, extra_id))
+
+
+@api_view(['POST'])
+def payment_info(request):
+    body = json.loads(request.body)
+    session_id = body['session_id']
+    return Response(get_data.get_payment(session_id))

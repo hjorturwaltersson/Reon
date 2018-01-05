@@ -229,3 +229,23 @@ def reserve_pay_confirm(session_id, address_city, address_country, address_line_
     }
     reply = make_post_request(path, body)
     return reply.json()
+
+
+def get_payment(session_id):
+    path = '/booking.json/guest/{}/reserve-pay-confirm'.format(session_id)
+    url = baseurl + path
+    now_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    method = "POST"
+    token = "{}{}{}{}".format(now_date, access_key, method, path)
+    digester = hmac.new(bytes(secret_key, "ascii"), bytes(token, "ascii"), hashlib.sha1)
+    signature = base64.standard_b64encode(digester.digest())
+    headers = {
+        "X-Bokun-Date": now_date,
+        "X-Bokun-AccessKey": access_key,
+        "X-Bokun-Signature": signature.decode("ascii"),
+        "Content-Type": "application/json"
+    }
+    return {
+        "url": url,
+        "headers": headers
+    }
