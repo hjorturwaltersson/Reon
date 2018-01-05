@@ -233,7 +233,6 @@ def reserve_pay_confirm(session_id, address_city, address_country, address_line_
 
 def get_payment(session_id):
     path = '/booking.json/guest/{}/reserve-pay-confirm'.format(session_id)
-    url = baseurl + path
     now_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     method = "POST"
     token = "{}{}{}{}".format(now_date, access_key, method, path)
@@ -246,6 +245,6 @@ def get_payment(session_id):
         "Content-Type": "application/json"
     }
     return {
-        "url": url,
+        "path": path,
         "headers": headers
     }
