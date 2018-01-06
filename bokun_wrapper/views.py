@@ -6,6 +6,17 @@ from .models import Vendor, Place, Product, FrontPageProduct
 from .serializers import ProductSerializer, VendorSerializer, PlaceSerializer, FrontPageProductSerializer
 import json
 
+def get_private_price(count):
+    if count < 5:
+        return 19990
+    elif count < 15:
+        return 34990
+
+def get_luxury_price(count):
+    if count < 4:
+        return 27990
+    elif count < 8:
+        return 34990
 
 class ProductViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Product.objects.all()
@@ -117,10 +128,14 @@ def get_frontpage_products(request):
     traveler_count_adults = int(traveler_count_adults)
     traveler_count_teenagers = request.query_params.get('traveler_count_teenagers', 0)
     traveler_count_teenagers = int(traveler_count_teenagers)
+    traveler_count_children = request.query_params.get('traveler_count_children', 0)
+    traveler_count_children = int(traveler_count_children)
     location_from = request.query_params.get('location_from', None)
     location_to = request.query_params.get('location_to', None)
     date_from = request.query_params.get('date_from', None)
     date_to = request.query_params.get('date_to', None)
+
+    total_traveler_count = traveler_count_adults + traveler_count_teenagers + traveler_count_children
 
     queryset = Product.objects.all()
     # if location_from:
@@ -134,7 +149,12 @@ def get_frontpage_products(request):
     for product in products:
         single_product_dict = FrontPageProductSerializer(product).data
         price = traveler_count_adults * product.adult_price + traveler_count_teenagers * product.teenager_price
+        if product.private:
+            price = get_private_price(total_traveler_count)
+        elif product.luxury:
+            price = get_luxury_price(total_traveler_count)
         single_product_dict['total_price'] = price
+        availability = None
         if date_from:
             availability = get_data.get_availability(product.bokun_product.bokun_id, date_from)
             if not availability:
@@ -142,13 +162,25 @@ def get_frontpage_products(request):
             single_product_dict['availability'] = availability
         else:
             single_product_dict['availability'] = None
+        single_product_dict['available'] = False
+        if price:
+            for time_slot in availability:
+                if time_slot['availability_count'] >= total_traveler_count:
+                    single_product_dict['available'] = True
+                    break
+        return_availability = None
         if date_to:
-            return_availability = get_data.get_availability(product.bokun_product.bokun_id, date_to)
+            return_availability = get_data.get_availability(product.return_product.bokun_id, date_to)
             if not return_availability:
                 continue
             single_product_dict['availability_return'] = return_availability
         else:
             single_product_dict['availability_return'] = None
+        single_product_dict['available_return'] = False
+        for time_slot in return_availability:
+            if time_slot['availability_count'] >= total_traveler_count:
+                single_product_dict['available_return'] = True
+                break
         reply.append(single_product_dict)
 
     return Response(reply)

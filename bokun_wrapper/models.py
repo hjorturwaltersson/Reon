@@ -47,6 +47,8 @@ class FrontPageProduct(models.Model):
     tagline = models.CharField(max_length=200)
     adult_price = models.IntegerField()
     teenager_price = models.IntegerField()
+    private = models.BooleanField(default=False)
+    luxury = models.BooleanField(default=False)
 
     def __str__(self):
         if self.bokun_product:
