@@ -24,6 +24,9 @@ class Place(models.Model):
     json = JSONField()
     type = models.CharField(choices=TYPE_CHOICES, max_length=200, default="hotel")
 
+    def __str__(self):
+        return self.title
+
 
 class Product(models.Model):
     bokun_id = models.CharField(unique=True, max_length=1000, primary_key=True)
