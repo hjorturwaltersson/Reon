@@ -125,7 +125,7 @@ def get_places(product_id):
 
 
 def get_availability(product_id, date):
-    reply = make_get_request('/activity.json/{}/availabilities?start={}&end={}'.format(product_id, date, date))
+    reply = make_get_request('/activity.json/{}/availabilities?start={}&end={}&includeSoldOut=true'.format(product_id, date, date))
     returnlist = [{
         'extra_prices': a['extraPrices'],
         'prices_by_category': a['pricesByCategory'],
@@ -134,7 +134,8 @@ def get_availability(product_id, date):
         'sold_out': a['soldOut'],
         'start_time': a['startTime'],
         'start_time_id': a['startTimeId'],
-        'unavailable': a['unavailable']
+        'unavailable': a['unavailable'],
+        'availability_count': a['availabilityCount']
     } for a in reply.json()]
     return returnlist
 

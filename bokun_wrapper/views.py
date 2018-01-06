@@ -85,7 +85,6 @@ def add_to_cart(request):
     session_id = body.get('session_id', None)
     pickup_place_id = body['pickup_place_id']
     dropoff_place_id = body['dropoff_place_id']
-    extra_ids = body['extra_ids']
     round_trip = body['round_trip']
     blue_lagoon = body['blue_lagoon']
     return_start_time_id = body.get('return_start_time_id', None)
@@ -94,7 +93,7 @@ def add_to_cart(request):
     reply = get_data.add_to_cart(activity_id=product.bokun_product.bokun_id,
                                  start_time_id=start_time_id,
                                  date=date,
-                                 pricing_category_bookings=get_pricing_category_bookings(product.bokun_product, traveler_count_adults, traveler_count_teenagers, traveler_count_children, extra_ids),
+                                 pricing_category_bookings=get_pricing_category_bookings(product.bokun_product, traveler_count_adults, traveler_count_teenagers, traveler_count_children, []),
                                  session_id=session_id,
                                  dropoff_place_id=dropoff_place_id,
                                  pickup_place_id=pickup_place_id,
@@ -104,7 +103,7 @@ def add_to_cart(request):
 
 @api_view(['POST'])
 def add_extra_to_cart(request):
-    body = request.body.decode('utf8')
+    body = json.loads(request.body)
     session_id = body['session_id']
     booking_id = body['booking_id']
     extra_id = body['extra_id']
@@ -190,7 +189,7 @@ def get_cart(request):
 
 @api_view(['POST'])
 def pay(request):
-    body = request.body.decode('utf8')
+    body = json.loads(request.body)
     session_id = body['session_id']
     address_city = body['address_city']
     address_country = body['address_country']
@@ -217,7 +216,7 @@ def pay(request):
 
 @api_view(['POST'])
 def remove_extra_from_cart(request):
-    body = request.body.decode('utf8')
+    body = json.loads(request.body)
     session_id = body['session_id']
     booking_id = body['booking_id']
     extra_id = body['extra_id']
