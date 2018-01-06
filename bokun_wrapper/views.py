@@ -186,7 +186,7 @@ def get_frontpage_products(request):
 
     for product in unavailable_products:
         single_product_dict = FrontPageProductSerializer(product).data
-        single_product_dict['availability'] = False
+        single_product_dict['available'] = False
         reply.append(single_product_dict)
 
     return Response(reply)
