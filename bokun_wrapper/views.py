@@ -144,7 +144,8 @@ def get_frontpage_products(request):
         queryset = queryset.filter(dropoff_places=location_to) | queryset.filter(dropoff_places=None)
 
     products = FrontPageProduct.objects.filter(bokun_product__in=queryset)
-    unavailable_products = FrontPageProduct.objects.filter(bokun_product__in=Product.objects.filter(id__not_in=queryset))
+    unavailable = Product.objects.all().exclude(bokun_id__in=queryset)
+    unavailable_products = FrontPageProduct.objects.filter(bokun_product__in=unavailable)
     reply = []
 
     for product in products:
@@ -158,8 +159,6 @@ def get_frontpage_products(request):
         availability = None
         if date_from:
             availability = get_data.get_availability(product.bokun_product.bokun_id, date_from)
-            if not availability:
-                continue
             single_product_dict['availability'] = availability
         else:
             single_product_dict['availability'] = None
