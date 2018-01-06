@@ -123,10 +123,10 @@ def get_frontpage_products(request):
     date_to = request.query_params.get('date_to', None)
 
     queryset = Product.objects.all()
-    if location_from:
-        queryset = queryset.filter(pickup_places=location_from) | queryset.filter(pickup_places=None)
-    if location_to:
-        queryset = queryset.filter(dropoff_places=location_to) | queryset.filter(dropoff_places=None)
+    # if location_from:
+    #     queryset = queryset.filter(pickup_places=location_from) | queryset.filter(pickup_places=None)
+    # if location_to:
+    #     queryset = queryset.filter(dropoff_places=location_to) | queryset.filter(dropoff_places=None)
 
     products = FrontPageProduct.objects.filter(bokun_product__in=queryset)
     reply = []
