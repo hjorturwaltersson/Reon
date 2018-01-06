@@ -117,7 +117,7 @@ def get_frontpage_products(request):
     traveler_count_adults = int(traveler_count_adults)
     traveler_count_teenagers = request.query_params.get('traveler_count_teenagers', 0)
     traveler_count_teenagers = int(traveler_count_teenagers)
-    location_from = request.query_params['location_from']
+    location_from = request.query_params.get('location_from', None)
     location_to = request.query_params.get('location_to', None)
     date_from = request.query_params.get('date_from', None)
     date_to = request.query_params.get('date_to', None)
