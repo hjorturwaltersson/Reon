@@ -3,6 +3,13 @@ from jsonfield import JSONField
 from .api_sync_model_py import ApiSyncModel
 from .get_data import get_availability as api_availability
 
+TYPE_CHOICES = (
+    ("hotel", "Hotel"),
+    ("terminal", "Terminal"),
+    ("airport", "Airport"),
+    ("other", "Other")
+)
+
 
 class Vendor(models.Model):
     bokun_id = models.CharField(unique=True, max_length=1000)
@@ -15,6 +22,7 @@ class Place(models.Model):
     title = models.CharField(max_length=1000)
     location = JSONField()
     json = JSONField()
+    type = models.CharField(choices=TYPE_CHOICES, max_length=200, default="hotel")
 
 
 class Product(models.Model):
@@ -49,6 +57,7 @@ class FrontPageProduct(models.Model):
     teenager_price = models.IntegerField()
     private = models.BooleanField(default=False)
     luxury = models.BooleanField(default=False)
+    photo_path = models.CharField(max_length=200, null=True)
 
     def __str__(self):
         if self.bokun_product:
