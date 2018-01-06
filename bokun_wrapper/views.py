@@ -138,12 +138,13 @@ def get_frontpage_products(request):
     total_traveler_count = traveler_count_adults + traveler_count_teenagers + traveler_count_children
 
     queryset = Product.objects.all()
-    # if location_from:
-    #     queryset = queryset.filter(pickup_places=location_from) | queryset.filter(pickup_places=None)
-    # if location_to:
-    #     queryset = queryset.filter(dropoff_places=location_to) | queryset.filter(dropoff_places=None)
+    if location_from:
+        queryset = queryset.filter(pickup_places=location_from) | queryset.filter(pickup_places=None)
+    if location_to:
+        queryset = queryset.filter(dropoff_places=location_to) | queryset.filter(dropoff_places=None)
 
     products = FrontPageProduct.objects.filter(bokun_product__in=queryset)
+    unavailable_products = FrontPageProduct.objects.filter(bokun_product__in=Product.objects.filter(id__not_in=queryset))
     reply = []
 
     for product in products:
@@ -182,6 +183,11 @@ def get_frontpage_products(request):
                 if time_slot['availability_count'] >= total_traveler_count:
                     single_product_dict['available_return'] = True
                     break
+        reply.append(single_product_dict)
+
+    for product in unavailable_products:
+        single_product_dict = FrontPageProductSerializer(product).data
+        single_product_dict['availability'] = False
         reply.append(single_product_dict)
 
     return Response(reply)
