@@ -126,7 +126,6 @@ def add_to_cart(request):
     return_start_time_id = body.get('return_start_time_id', None)
     return_date = body.get('return_date', None)
     hotel_connection = body.get('hotel_connection', False)
-    hotel = body.get('hotel', '')
     flight_delay_guarantee = body.get('flight_delay_guarantee', False)
     flight_number = body.get('flight_number', "")
     extra_baggage_count = body.get('extra_baggage_count', 0)
@@ -136,16 +135,36 @@ def add_to_cart(request):
 
     traveler_count_adults = int(traveler_count_adults)
     traveler_count_children = int(traveler_count_children)
+    total_traveler_count = traveler_count_children + traveler_count_adults
     extra_baggage_count = int(extra_baggage_count)
     odd_size_baggage_count = int(odd_size_baggage_count)
     child_seat_child_count = int(child_seat_child_count)
     child_seat_infant_count = int(child_seat_infant_count)
     product = FrontPageProduct.objects.get(id=product_type_id)
+    if hotel_connection:
+        main_product = product.bokun_product_hotel_connection
+        return_product = product.return_product_hotel_connection
+    elif product.luxury:
+        if total_traveler_count < 4:
+            main_product = Product.objects.get(bokun_id=13282)
+        else:
+            main_product = Product.objects.get(bokun_id=13289)
+        return_product = main_product
+    elif product.private:
+        if total_traveler_count < 5:
+            main_product = Product.objects.get(bokun_id=11008)
+        elif total_traveler_count < 9:
+            main_product = Product.objects.get(bokun_id=11610)
+        else:
+            main_product = Product.objects.get(bokun_id=11611)
+        return_product = main_product
+    else:
+        main_product = product.bokun_product
+        return_product = product.return_product
     pricing_category_bookings = get_pricing_category_bookings(
-        product.bokun_product,
+        main_product,
         traveler_count_adults,
         traveler_count_children,
-        # hotel_connection,
         flight_delay_guarantee,
         flight_number,
         extra_baggage_count,
@@ -153,18 +172,35 @@ def add_to_cart(request):
         child_seat_child_count,
         child_seat_infant_count)
 
-    reply = get_data.add_to_cart(activity_id=product.bokun_product.bokun_id,
-                                 start_time_id=start_time_id,
-                                 date=date,
-                                 pricing_category_bookings=pricing_category_bookings,
-                                 session_id=session_id,
-                                 dropoff_place_id=dropoff_place_id,
-                                 pickup_place_id=pickup_place_id,
-                                 )
+    reply1 = get_data.add_to_cart(activity_id=main_product.bokun_id,
+                                  start_time_id=start_time_id,
+                                  date=date,
+                                  pricing_category_bookings=pricing_category_bookings,
+                                  session_id=session_id,
+                                  dropoff_place_id=dropoff_place_id,
+                                  pickup_place_id=pickup_place_id,
+                                  )
     if round_trip:
-        #todo add return trip
-        pass
-    return Response(reply)
+        pricing_category_bookings = get_pricing_category_bookings(
+            return_product,
+            traveler_count_adults,
+            traveler_count_children,
+            flight_delay_guarantee,
+            flight_number,
+            extra_baggage_count,
+            odd_size_baggage_count,
+            child_seat_child_count,
+            child_seat_infant_count)
+        reply2 = get_data.add_to_cart(activity_id=return_product.bokun_id,
+                                      start_time_id=return_start_time_id,
+                                      date=return_date,
+                                      pricing_category_bookings=pricing_category_bookings,
+                                      session_id=session_id,
+                                      dropoff_place_id=pickup_place_id,
+                                      pickup_place_id=dropoff_place_id,
+                                      )
+
+    return Response(reply1)
 
 
 @api_view(['POST'])
@@ -276,8 +312,6 @@ def get_single_frontpage_product(request, **kwargs):
 def get_cart(request):
     session_id = request.query_params.get('session_id', None)
     return Response(get_data.get_cart(session_id))
-
-
 
 
 @api_view(['POST'])
