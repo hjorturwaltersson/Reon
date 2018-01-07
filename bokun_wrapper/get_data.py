@@ -62,6 +62,9 @@ def update_vendor_products(vendor_id):
     vendor_model = apps.get_model('bokun_wrapper', 'Vendor')
     product_model = apps.get_model('bokun_wrapper', 'Product')
     vendor = vendor_model.objects.get(bokun_id=vendor_id)
+    for product in product_model.objects.all():
+        if product.bokun_id not in product_ids:
+            product.delete()
     for product_id in product_ids:
         try:
             product = product_model.objects.get(bokun_id=product_id)
@@ -83,6 +86,18 @@ def update_vendor_products(vendor_id):
             product.teenager_price_category_id = pricing_categories[1]['id']
         if len(pricing_categories) > 2:
             product.child_price_category_id = pricing_categories[2]['id']
+        for bookable_extra in item_dict['bookableExtras']:
+            if bookable_extra['external_id'] is 'flightdelayguarantee':
+                product.flight_delay_id = bookable_extra['id']
+                product.flight_delay_question_id = bookable_extra['questions'][0]['id']
+            if bookable_extra['external_id'] is 'ChildSeat14-36kg':
+                product.child_seat_child_id = bookable_extra['id']
+            if bookable_extra['external_id'] is 'ChildSeat0-13kg':
+                product.child_seat_infant_id = bookable_extra['id']
+            if bookable_extra['external_id'] is 'ExtraBaggage':
+                product.extra_baggage_id = bookable_extra['id']
+            if bookable_extra['external_id'] is 'OddSizeBaggage':
+                product.odd_size_id = bookable_extra['id']
         product.save()
         get_places(product_id)
 
@@ -148,7 +163,7 @@ def get_cart(session_id=None):
 
 
 def add_to_cart(activity_id, start_time_id, date, pricing_category_bookings,
-                session_id=None, dropoff_place_id=None, pickup_place_id=None, extras=None):
+                session_id=None, dropoff_place_id=None, pickup_place_id=None):
     if not session_id:
         session_id = get_cart()['sessionId']
     path = '/shopping-cart.json/session/{}/activity'.format(session_id)
@@ -176,11 +191,6 @@ def add_to_cart(activity_id, start_time_id, date, pricing_category_bookings,
         body['dropoffPlaceId'] = dropoff_place_id
     if pickup_place_id:
         body['pickupPlaceId'] = pickup_place_id
-    if extras:
-        body['extras'] = [{
-            'extraId': e['extra_id'],
-            'unitCount': e['unit_count']
-        } for e in extras]
     reply = make_post_request(path, body)
     return reply.json()
 

@@ -43,6 +43,12 @@ class Product(models.Model):
     default_price_category_id = models.IntegerField(null=True)
     teenager_price_category_id = models.IntegerField(null=True)
     child_price_category_id = models.IntegerField(null=True)
+    flight_delay_id = models.IntegerField(null=True)
+    flight_delay_question_id = models.IntegerField(null=True)
+    odd_size_id = models.IntegerField(null=True)
+    extra_baggage_id = models.IntegerField(null=True)
+    child_seat_infant_id = models.IntegerField(null=True)
+    child_seat_child_id = models.IntegerField(null=True)
 
     def get_availability(self, date):
         return api_availability(self.bokun_id, date)
@@ -61,6 +67,7 @@ class FrontPageProduct(models.Model):
     private = models.BooleanField(default=False)
     luxury = models.BooleanField(default=False)
     photo_path = models.CharField(max_length=200, null=True)
+    title = models.CharField(max_length=200, null=True)
 
     def __str__(self):
         if self.bokun_product:

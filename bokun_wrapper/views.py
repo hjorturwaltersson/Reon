@@ -50,34 +50,61 @@ def get_availability(request):
     return Response(get_data.get_availability(product_id, date))
 
 
-def get_pricing_category_bookings(product, traveler_count_adults, traveler_count_teenagers, traveler_count_children, extra_ids):
+def get_pricing_category_bookings(product, traveler_count_adults,
+                                  traveler_count_children,
+                                  flight_delay_guarantee, flight_number,
+                                  extra_baggage_count, odd_size_baggage_count,
+                                  child_seat_child_count, child_seat_infant_count):
     category_id = product.default_price_category_id
     pricing_category_bookings = []
     for x in range(traveler_count_adults):
         pricing_category_bookings.append({
             'pricing_category_id': category_id,
-            'extras': [{
-                'extraId': extra_id,
-                'unitCount': 1} for extra_id in extra_ids]
-        })
-    if product.teenager_price_category_id:
-        category_id = product.teenager_price_category_id
-    for x in range(traveler_count_teenagers):
-        pricing_category_bookings.append({
-            'pricing_category_id': category_id,
-            'extras': [{
-                'extraId': extra_id,
-                'unitCount': 1} for extra_id in extra_ids]
+            'extras': []
         })
     if product.child_price_category_id:
         category_id = product.child_price_category_id
     for x in range(traveler_count_children):
         pricing_category_bookings.append({
             'pricing_category_id': category_id,
-            'extras': [{
-                'extraId': extra_id,
-                'unitCount': 1} for extra_id in extra_ids]
+            'extras': []
         })
+    for pricing_category_booking in pricing_category_bookings:
+        if flight_delay_guarantee:
+            pricing_category_booking['extras'].append({
+                'extra_id': product.flight_delay_id,
+                'unit_count': 1,
+                'answers': [{
+                    'answers': [{
+                        'answer': flight_number,
+                        'questionId': product.flight_delay_question_id
+                    }]
+                }]
+            })
+        if extra_baggage_count > 0:
+            pricing_category_booking['extras'].append({
+                'extra_id': product.extra_baggage_id,
+                'unit_count': extra_baggage_count
+            })
+            extra_baggage_count = 0
+        if odd_size_baggage_count > 0:
+            pricing_category_booking['extras'].append({
+                'extra_id': product.odd_size_id,
+                'unit_count': odd_size_baggage_count
+            })
+            odd_size_baggage_count = 0
+        if child_seat_child_count > 0:
+            pricing_category_booking['extras'].append({
+                'extra_id': product.child_seat_child_id,
+                'unit_count': child_seat_child_count
+            })
+            child_seat_child_count = 0
+        if child_seat_infant_count > 0:
+            pricing_category_booking['extras'].append({
+                'extra_id': product.child_seat_infant_id,
+                'unit_count': child_seat_child_count
+            })
+            child_seat_infant_count = 0
     return pricing_category_bookings
 
 
@@ -87,28 +114,49 @@ def add_to_cart(request):
     product_type_id = body['product_type_id']
     start_time_id = body['start_time_id']
     date = body['date']
-    traveler_count_adults = body.get('traveler_count_adults', 0)
-    traveler_count_adults = int(traveler_count_adults)
-    traveler_count_teenagers = body.get('traveler_count_teenagers', 0)
-    traveler_count_teenagers = int(traveler_count_teenagers)
-    traveler_count_children = body.get('traveler_count_children', 0)
-    traveler_count_children = int(traveler_count_children)
-    session_id = body.get('session_id', None)
     pickup_place_id = body['pickup_place_id']
     dropoff_place_id = body['dropoff_place_id']
     round_trip = body['round_trip']
-    blue_lagoon = body['blue_lagoon']
+    traveler_count_adults = body.get('traveler_count_adults', 0)
+    traveler_count_children = body.get('traveler_count_children', 0)
+    session_id = body.get('session_id', None)
     return_start_time_id = body.get('return_start_time_id', None)
     return_date = body.get('return_date', None)
+    # hotel_connection = body.get('hotel_connection', False)
+    # hotel = body.get('hotel', '')
+    flight_delay_guarantee = body.get('flight_delay_guarantee', False)
+    flight_number = body.get('flight_number', "")
+    extra_baggage_count = body.get('extra_baggage_count')
+    odd_size_baggage_count = body.get('odd_size_baggage_count')
+    child_seat_child_count = body.get('child_seat_child_count')
+    child_seat_infant_count = body.get('child_seat_infant_count')
+
+    traveler_count_adults = int(traveler_count_adults)
+    traveler_count_children = int(traveler_count_children)
     product = FrontPageProduct.objects.get(id=product_type_id)
+    pricing_category_bookings = get_pricing_category_bookings(
+        product.bokun_product,
+        traveler_count_adults,
+        traveler_count_children,
+        # hotel_connection,
+        flight_delay_guarantee,
+        flight_number,
+        extra_baggage_count,
+        odd_size_baggage_count,
+        child_seat_child_count,
+        child_seat_infant_count)
+
     reply = get_data.add_to_cart(activity_id=product.bokun_product.bokun_id,
                                  start_time_id=start_time_id,
                                  date=date,
-                                 pricing_category_bookings=get_pricing_category_bookings(product.bokun_product, traveler_count_adults, traveler_count_teenagers, traveler_count_children, []),
+                                 pricing_category_bookings=pricing_category_bookings,
                                  session_id=session_id,
                                  dropoff_place_id=dropoff_place_id,
                                  pickup_place_id=pickup_place_id,
                                  )
+    if round_trip:
+        #todo add return trip
+        pass
     return Response(reply)
 
 
@@ -239,6 +287,10 @@ def pay(request):
     exp_month = body['exp_month']
     exp_year = body['exp_year']
     name = body['name']
+    first_name = body.get('first_name')
+    last_name = body.get('last_name')
+    phone_number = body.get('phone_number')
+    email = body.get('email')
     return Response(get_data.reserve_pay_confirm(session_id=session_id,
                                                  address_city=address_city,
                                                  address_country=address_country,
