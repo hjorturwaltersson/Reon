@@ -6,17 +6,20 @@ from .models import Vendor, Place, Product, FrontPageProduct
 from .serializers import ProductSerializer, VendorSerializer, PlaceSerializer, FrontPageProductSerializer
 import json
 
+
 def get_private_price(count):
     if count < 5:
         return 19990
     elif count < 15:
         return 34990
 
+
 def get_luxury_price(count):
     if count < 4:
         return 27990
     elif count < 8:
         return 34990
+
 
 class ProductViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Product.objects.all()
@@ -122,17 +125,21 @@ def add_to_cart(request):
     session_id = body.get('session_id', None)
     return_start_time_id = body.get('return_start_time_id', None)
     return_date = body.get('return_date', None)
-    # hotel_connection = body.get('hotel_connection', False)
-    # hotel = body.get('hotel', '')
+    hotel_connection = body.get('hotel_connection', False)
+    hotel = body.get('hotel', '')
     flight_delay_guarantee = body.get('flight_delay_guarantee', False)
     flight_number = body.get('flight_number', "")
-    extra_baggage_count = body.get('extra_baggage_count')
-    odd_size_baggage_count = body.get('odd_size_baggage_count')
-    child_seat_child_count = body.get('child_seat_child_count')
-    child_seat_infant_count = body.get('child_seat_infant_count')
+    extra_baggage_count = body.get('extra_baggage_count', 0)
+    odd_size_baggage_count = body.get('odd_size_baggage_count', 0)
+    child_seat_child_count = body.get('child_seat_child_count', 0)
+    child_seat_infant_count = body.get('child_seat_infant_count', 0)
 
     traveler_count_adults = int(traveler_count_adults)
     traveler_count_children = int(traveler_count_children)
+    extra_baggage_count = int(extra_baggage_count)
+    odd_size_baggage_count = int(odd_size_baggage_count)
+    child_seat_child_count = int(child_seat_child_count)
+    child_seat_infant_count = int(child_seat_infant_count)
     product = FrontPageProduct.objects.get(id=product_type_id)
     pricing_category_bookings = get_pricing_category_bookings(
         product.bokun_product,
