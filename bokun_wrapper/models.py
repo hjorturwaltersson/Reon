@@ -58,16 +58,18 @@ class Product(models.Model):
 
 
 class FrontPageProduct(models.Model):
-    bokun_product = models.ForeignKey(Product, null=True, on_delete=models.SET_NULL, related_name='+')
-    return_product = models.ForeignKey(Product, null=True, on_delete=models.SET_NULL, related_name='+')
-    bluelagoon_product = models.ForeignKey(Product, null=True, on_delete=models.SET_NULL, related_name='+')
-    tagline = models.CharField(max_length=200)
+    bokun_product = models.ForeignKey(Product, null=True, blank=True, on_delete=models.SET_NULL, related_name='+')
+    bokun_product_hotel_connection = models.ForeignKey(Product, null=True, blank=True, on_delete=models.SET_NULL, related_name='+')
+    return_product = models.ForeignKey(Product, null=True, blank=True, on_delete=models.SET_NULL, related_name='+')
+    return_product_hotel_connection = models.ForeignKey(Product, null=True, blank=True, on_delete=models.SET_NULL, related_name='+')
+    bluelagoon_product = models.ForeignKey(Product, null=True, blank=True, on_delete=models.SET_NULL, related_name='+')
+    tagline = models.CharField(max_length=200, default="")
     adult_price = models.IntegerField()
     teenager_price = models.IntegerField()
     private = models.BooleanField(default=False)
     luxury = models.BooleanField(default=False)
-    photo_path = models.CharField(max_length=200, null=True)
-    title = models.CharField(max_length=200, null=True)
+    photo_path = models.CharField(max_length=200, default="")
+    title = models.CharField(max_length=200, default="")
 
     def __str__(self):
         if self.bokun_product:
