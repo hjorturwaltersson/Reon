@@ -49,6 +49,7 @@ def get_vendor_product_ids(vendor_id):
     reply = make_post_request('/activity.json/search', {"vendorId": vendor_id})
     items_dict = reply.json()['items']
     ids = [p['id'] for p in items_dict]
+    ids = ['22257', '22442', '22246', '22443', '9882', '22141', '22112', '9883', '13282', '13289', '9217', '22318', '9652', '22319', '22290', '22287', '11008', '11610', '11611', '17989']
     return ids
 
 
@@ -59,16 +60,20 @@ def get_product(product_id):
 
 def update_vendor_products(vendor_id):
     product_ids = get_vendor_product_ids(vendor_id)
+    print(product_ids)
     vendor_model = apps.get_model('bokun_wrapper', 'Vendor')
     product_model = apps.get_model('bokun_wrapper', 'Product')
     vendor = vendor_model.objects.get(bokun_id=vendor_id)
     for product in product_model.objects.all():
         if product.bokun_id not in product_ids:
+            print("Deleting product: {}".format(product.bokun_id))
             product.delete()
     for product_id in product_ids:
         try:
             product = product_model.objects.get(bokun_id=product_id)
+            print("Found existing product: {}".format(product_id))
         except product_model.DoesNotExist as e:
+            print("Creating new product: {}".format(product_id))
             product = product_model(bokun_id=product_id)
         item_dict = get_product(product_id)
         product.title = item_dict['title']
@@ -87,16 +92,16 @@ def update_vendor_products(vendor_id):
         if len(pricing_categories) > 2:
             product.child_price_category_id = pricing_categories[2]['id']
         for bookable_extra in item_dict['bookableExtras']:
-            if bookable_extra['external_id'] is 'flightdelayguarantee':
+            if bookable_extra['externalId'] == 'flightdelayguarantee':
                 product.flight_delay_id = bookable_extra['id']
                 product.flight_delay_question_id = bookable_extra['questions'][0]['id']
-            if bookable_extra['external_id'] is 'ChildSeat14-36kg':
+            if bookable_extra['externalId'] == 'ChildSeat14-36kg':
                 product.child_seat_child_id = bookable_extra['id']
-            if bookable_extra['external_id'] is 'ChildSeat0-13kg':
+            if bookable_extra['externalId'] == 'ChildSeat0-13kg':
                 product.child_seat_infant_id = bookable_extra['id']
-            if bookable_extra['external_id'] is 'ExtraBaggage':
+            if bookable_extra['externalId'] == 'ExtraBaggage':
                 product.extra_baggage_id = bookable_extra['id']
-            if bookable_extra['external_id'] is 'OddSizeBaggage':
+            if bookable_extra['externalId'] == 'OddSizeBaggage':
                 product.odd_size_id = bookable_extra['id']
         product.save()
         get_places(product_id)
@@ -122,6 +127,7 @@ def create_or_update_place(places):
                                           title=place['title'],
                                           location=place['location'],
                                           json=place))
+    print("Creating {} new places".format(len(missing_places)))
     place_model.objects.bulk_create(missing_places)
 
 
