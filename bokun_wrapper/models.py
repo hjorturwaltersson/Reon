@@ -23,6 +23,8 @@ class Place(models.Model):
     location = JSONField()
     json = JSONField()
     type = models.CharField(choices=TYPE_CHOICES, max_length=200, default="hotel")
+    ordering = models.IntegerField(default=0)
+
 
     def __str__(self):
         return self.title

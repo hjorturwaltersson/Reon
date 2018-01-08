@@ -37,7 +37,7 @@ class ProductViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class PlaceViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Place.objects.all()
+    queryset = Place.objects.all().order_by('ordering', 'title')
     serializer_class = PlaceSerializer
 
 
