@@ -88,9 +88,7 @@ def update_vendor_products(vendor_id):
         if len(pricing_categories) > 0:
             product.default_price_category_id = pricing_categories[0]['id']
         if len(pricing_categories) > 1:
-            product.teenager_price_category_id = pricing_categories[1]['id']
-        if len(pricing_categories) > 2:
-            product.child_price_category_id = pricing_categories[2]['id']
+            product.child_price_category_id = pricing_categories[1]['id']
         for bookable_extra in item_dict['bookableExtras']:
             if bookable_extra['externalId'] == 'flightdelayguarantee':
                 product.flight_delay_id = bookable_extra['id']
