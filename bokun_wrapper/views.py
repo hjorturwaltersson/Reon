@@ -185,7 +185,10 @@ def add_to_cart(request):
                                   dropoff_place_id=dropoff_place_id,
                                   pickup_place_id=pickup_place_id,
                                   )
-    session_id = reply1['sessionId']
+    try:
+        session_id = reply1['sessionId']
+    except KeyError as e:
+        return Response(reply1)
     if round_trip:
         pricing_category_bookings = get_pricing_category_bookings(
             return_product,
