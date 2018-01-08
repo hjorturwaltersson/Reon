@@ -29,6 +29,9 @@ class Place(models.Model):
     def __str__(self):
         return self.title
 
+    class Meta:
+        ordering = ['ordering', 'title']
+
 
 class Product(models.Model):
     bokun_id = models.CharField(unique=True, max_length=1000, primary_key=True)
