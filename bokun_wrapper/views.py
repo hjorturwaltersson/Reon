@@ -150,6 +150,8 @@ def add_to_cart(request):
         else:
             main_product = Product.objects.get(bokun_id=13289)
         return_product = main_product
+        traveler_count_children = 0
+        traveler_count_adults = 1
     elif product.private:
         if total_traveler_count < 5:
             main_product = Product.objects.get(bokun_id=11008)
@@ -158,6 +160,8 @@ def add_to_cart(request):
         else:
             main_product = Product.objects.get(bokun_id=11611)
         return_product = main_product
+        traveler_count_children = 0
+        traveler_count_adults = 1
     else:
         main_product = product.bokun_product
         return_product = product.return_product
