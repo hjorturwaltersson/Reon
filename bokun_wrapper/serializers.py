@@ -34,6 +34,7 @@ class VendorSerializer(serializers.ModelSerializer):
 
 class FrontPageProductSerializer(serializers.ModelSerializer):
     bokun_product = ProductSerializer()
+    return_product = ProductSerializer()
 
     class Meta:
         model = FrontPageProduct

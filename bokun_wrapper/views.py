@@ -222,13 +222,21 @@ def add_extra_to_cart(request):
     unit_count = body['unit_count']
     return Response(get_data.add_or_update_extra(session_id, booking_id, extra_id, unit_count))
 
-def get_product_price(product, traveler_count_adults, traveler_count_teenagers):
-    price = traveler_count_adults * product.adult_price + traveler_count_teenagers * product.teenager_price
-    total_traveler_count = traveler_count_adults + traveler_count_teenagers
+
+def get_product_price(product, traveler_count_adults, traveler_count_children, round_trip):
+    price = traveler_count_adults * product.adult_price + traveler_count_children * product.child_price
+    if round_trip:
+        returnprice = traveler_count_adults * product.adult_price_return + traveler_count_children * product.child_price_return
+        price = price + returnprice
+    total_traveler_count = traveler_count_adults + traveler_count_children
     if product.private:
         price = get_private_price(total_traveler_count)
+        if round_trip:
+            price = price * 2
     elif product.luxury:
         price = get_luxury_price(total_traveler_count)
+        if round_trip:
+            price = price * 2
     return price
 
 
@@ -236,8 +244,6 @@ def get_product_price(product, traveler_count_adults, traveler_count_teenagers):
 def get_frontpage_products(request):
     traveler_count_adults = request.query_params.get('traveler_count_adults', 0)
     traveler_count_adults = int(traveler_count_adults)
-    traveler_count_teenagers = request.query_params.get('traveler_count_teenagers', 0)
-    traveler_count_teenagers = int(traveler_count_teenagers)
     traveler_count_children = request.query_params.get('traveler_count_children', 0)
     traveler_count_children = int(traveler_count_children)
     location_from = request.query_params.get('location_from', None)
@@ -245,7 +251,7 @@ def get_frontpage_products(request):
     date_from = request.query_params.get('date_from', None)
     date_to = request.query_params.get('date_to', None)
 
-    total_traveler_count = traveler_count_adults + traveler_count_teenagers + traveler_count_children
+    total_traveler_count = traveler_count_adults + traveler_count_children
 
     queryset = Product.objects.all()
     if location_from:
@@ -260,7 +266,7 @@ def get_frontpage_products(request):
 
     for product in products:
         single_product_dict = FrontPageProductSerializer(product).data
-        price = get_product_price(product, traveler_count_adults, traveler_count_teenagers)
+        price = get_product_price(product, traveler_count_adults, traveler_count_children)
         single_product_dict['total_price'] = price
         availability = None
         if date_from:
@@ -302,13 +308,13 @@ def get_frontpage_products(request):
 def get_single_frontpage_product(request, **kwargs):
     traveler_count_adults = request.query_params.get('traveler_count_adults', 0)
     traveler_count_adults = int(traveler_count_adults)
-    traveler_count_teenagers = request.query_params.get('traveler_count_teenagers', 0)
-    traveler_count_teenagers = int(traveler_count_teenagers)
+    traveler_count_children = request.query_params.get('traveler_count_children', 0)
+    traveler_count_children = int(traveler_count_children)
     date_from = request.query_params.get('date_from', None)
     date_to = request.query_params.get('date_to', None)
     product = FrontPageProduct.objects.get(id=kwargs['id'])
     data = FrontPageProductSerializer(product).data
-    data['total_price'] = get_product_price(product, traveler_count_adults, traveler_count_teenagers)
+    data['total_price'] = get_product_price(product, traveler_count_adults, traveler_count_children)
     if date_from:
         availability = get_data.get_availability(product.bokun_product.bokun_id, date_from)
         data['availability'] = availability
