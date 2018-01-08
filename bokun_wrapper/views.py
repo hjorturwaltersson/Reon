@@ -184,6 +184,7 @@ def add_to_cart(request):
                                   dropoff_place_id=dropoff_place_id,
                                   pickup_place_id=pickup_place_id,
                                   )
+    session_id = reply1['sessionId']
     if round_trip:
         pricing_category_bookings = get_pricing_category_bookings(
             return_product,
@@ -203,6 +204,7 @@ def add_to_cart(request):
                                       dropoff_place_id=pickup_place_id,
                                       pickup_place_id=dropoff_place_id,
                                       )
+        return Response(reply2)
 
     return Response(reply1)
 
