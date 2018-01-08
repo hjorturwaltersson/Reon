@@ -76,9 +76,13 @@ class FrontPageProduct(models.Model):
     luxury = models.BooleanField(default=False)
     photo_path = models.CharField(max_length=200, default="")
     title = models.CharField(max_length=200, default="")
+    ordering = models.IntegerField(default=0)
 
     def __str__(self):
         if self.bokun_product:
             return self.bokun_product.title
         else:
             return "untitled"
+
+    class Meta:
+        ordering = ['ordering', 'title']

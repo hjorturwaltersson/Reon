@@ -9,6 +9,11 @@ class PlaceAdmin(admin.ModelAdmin):
     list_display = ('title', 'ordering',)
     list_per_page = 10000
 
-admin.site.register(FrontPageProduct)
+
+@admin.register(FrontPageProduct)
+class FrontPageAdmin(admin.ModelAdmin):
+    list_display = ('title', 'ordering',)
+    list_editable = ('ordering',)
+
 admin.site.register(Product)
 

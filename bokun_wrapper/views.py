@@ -263,8 +263,8 @@ def get_frontpage_products(request):
         queryset = queryset.filter(dropoff_places=location_to) | queryset.filter(dropoff_places=None)
 
     products = FrontPageProduct.objects.filter(bokun_product__in=queryset)
-    unavailable = Product.objects.all().exclude(bokun_id__in=queryset)
-    unavailable_products = FrontPageProduct.objects.filter(bokun_product__in=unavailable)
+    # unavailable = Product.objects.all().exclude(bokun_id__in=queryset)
+    # unavailable_products = FrontPageProduct.objects.filter(bokun_product__in=unavailable)
     reply = []
 
     for product in products:
@@ -299,10 +299,10 @@ def get_frontpage_products(request):
                     break
         reply.append(single_product_dict)
 
-    for product in unavailable_products:
-        single_product_dict = FrontPageProductSerializer(product).data
-        single_product_dict['available'] = False
-        reply.append(single_product_dict)
+    # for product in unavailable_products:
+    #     single_product_dict = FrontPageProductSerializer(product).data
+    #     single_product_dict['available'] = False
+    #     reply.append(single_product_dict)
 
     return Response(reply)
 
