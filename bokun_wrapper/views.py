@@ -242,9 +242,9 @@ def get_product_price(product, traveler_count_adults, traveler_count_children, r
 
 @api_view(['GET'])
 def get_frontpage_products(request):
-    traveler_count_adults = request.query_params.get('traveler_count_adults', 0)
+    traveler_count_adults = request.query_params.get('traveler_count_adults', 0) or 0
     traveler_count_adults = int(traveler_count_adults)
-    traveler_count_children = request.query_params.get('traveler_count_children', 0)
+    traveler_count_children = request.query_params.get('traveler_count_children', 0) or 0
     traveler_count_children = int(traveler_count_children)
     location_from = request.query_params.get('location_from', None)
     location_to = request.query_params.get('location_to', None)
@@ -306,9 +306,9 @@ def get_frontpage_products(request):
 
 @api_view(['GET'])
 def get_single_frontpage_product(request, **kwargs):
-    traveler_count_adults = request.query_params.get('traveler_count_adults', 0)
+    traveler_count_adults = request.query_params.get('traveler_count_adults', 0) or 0
     traveler_count_adults = int(traveler_count_adults)
-    traveler_count_children = request.query_params.get('traveler_count_children', 0)
+    traveler_count_children = request.query_params.get('traveler_count_children', 0) or 0
     traveler_count_children = int(traveler_count_children)
     date_from = request.query_params.get('date_from', None)
     date_to = request.query_params.get('date_to', None)
