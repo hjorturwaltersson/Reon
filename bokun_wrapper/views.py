@@ -269,7 +269,7 @@ def get_frontpage_products(request):
         single_product_dict = FrontPageProductSerializer(product).data
         price = get_product_price(product, traveler_count_adults, traveler_count_children, round_trip)
         single_product_dict['total_price'] = price
-        if round_trip:
+        if round_trip and product.discount_product:
             main_product = product.discount_product
         else:
             main_product = product.bokun_product
@@ -321,7 +321,7 @@ def get_single_frontpage_product(request, **kwargs):
     if date_to:
         round_trip = True
     product = FrontPageProduct.objects.get(id=kwargs['id'])
-    if round_trip:
+    if round_trip and product.discount_product:
         main_product = product.discount_product
     else:
         main_product = product.bokun_product
