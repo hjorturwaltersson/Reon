@@ -63,15 +63,13 @@ class Product(models.Model):
 
 class FrontPageProduct(models.Model):
     bokun_product = models.ForeignKey(Product, null=True, blank=True, on_delete=models.SET_NULL, related_name='+')
-    bokun_product_hotel_connection = models.ForeignKey(Product, null=True, blank=True, on_delete=models.SET_NULL, related_name='+')
     return_product = models.ForeignKey(Product, null=True, blank=True, on_delete=models.SET_NULL, related_name='+')
-    return_product_hotel_connection = models.ForeignKey(Product, null=True, blank=True, on_delete=models.SET_NULL, related_name='+')
-    bluelagoon_product = models.ForeignKey(Product, null=True, blank=True, on_delete=models.SET_NULL, related_name='+')
+    discount_product = models.ForeignKey(Product, null=True, blank=True, on_delete=models.SET_NULL, related_name='+')
     tagline = models.CharField(max_length=200, default="")
     adult_price = models.IntegerField(default=0)
     child_price = models.IntegerField(default=0)
-    adult_price_return = models.IntegerField(default=0)
-    child_price_return = models.IntegerField(default=0)
+    adult_price_round_trip = models.IntegerField(default=0)
+    child_price_round_trip = models.IntegerField(default=0)
     private = models.BooleanField(default=False)
     luxury = models.BooleanField(default=False)
     photo_path = models.CharField(max_length=200, default="")

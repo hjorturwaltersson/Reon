@@ -125,7 +125,6 @@ def add_to_cart(request):
     session_id = body.get('session_id', None)
     return_start_time_id = body.get('return_start_time_id', None)
     return_date = body.get('return_date', None)
-    hotel_connection = body.get('hotel_connection', False)
     flight_delay_guarantee = body.get('flight_delay_guarantee', False)
     flight_number = body.get('flight_number', "")
     flight_number_return = body.get('flight_number_return', '')
@@ -142,10 +141,7 @@ def add_to_cart(request):
     child_seat_child_count = int(child_seat_child_count)
     child_seat_infant_count = int(child_seat_infant_count)
     product = FrontPageProduct.objects.get(id=product_type_id)
-    if hotel_connection:
-        main_product = product.bokun_product_hotel_connection
-        return_product = product.return_product_hotel_connection
-    elif product.luxury:
+    if product.luxury:
         if total_traveler_count < 4:
             main_product = Product.objects.get(bokun_id=13282)
         else:
@@ -163,6 +159,9 @@ def add_to_cart(request):
         return_product = main_product
         traveler_count_children = 0
         traveler_count_adults = 1
+    elif round_trip and product.discount_product:
+        main_product = product.discount_product
+        return_product = product.return_product
     else:
         main_product = product.bokun_product
         return_product = product.return_product
@@ -226,8 +225,7 @@ def add_extra_to_cart(request):
 def get_product_price(product, traveler_count_adults, traveler_count_children, round_trip):
     price = traveler_count_adults * product.adult_price + traveler_count_children * product.child_price
     if round_trip:
-        returnprice = traveler_count_adults * product.adult_price_return + traveler_count_children * product.child_price_return
-        price = price + returnprice
+        price = traveler_count_adults * product.adult_price_round_trip + traveler_count_children * product.child_price_round_trip
     total_traveler_count = traveler_count_adults + traveler_count_children
     if product.private:
         price = get_private_price(total_traveler_count)
