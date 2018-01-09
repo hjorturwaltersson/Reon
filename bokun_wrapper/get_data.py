@@ -233,7 +233,7 @@ def add_or_update_extra(session_id, booking_id, extra_id, unit_count):
 
 def reserve_pay_confirm(session_id, address_city, address_country, address_line_1,
                         address_line_2, address_post_code, card_number, cvc, exp_month,
-                        exp_year, name):
+                        exp_year, name, first_name, last_name, email):
     path = '/booking.json/guest/{}/reserve-pay-confirm'.format(session_id)
     body = {
         'chargeRequest': {
@@ -250,26 +250,24 @@ def reserve_pay_confirm(session_id, address_city, address_country, address_line_
                 'expYear': exp_year,
                 'name': name
             }
+        },
+        'answers': {
+            'answers': [
+                {
+                    'type': 'first-name',
+                    'answer': first_name
+                },
+                {
+                    'type': 'last-name',
+                    'answer': last_name
+                },
+                {
+                    'type': 'email',
+                    'answer': email
+                }
+            ]
         }
     }
     reply = make_post_request(path, body)
     return reply.json()
 
-
-def get_payment(session_id):
-    path = '/booking.json/guest/{}/reserve-pay-confirm'.format(session_id)
-    now_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    method = "POST"
-    token = "{}{}{}{}".format(now_date, access_key, method, path)
-    digester = hmac.new(bytes(secret_key, "ascii"), bytes(token, "ascii"), hashlib.sha1)
-    signature = base64.standard_b64encode(digester.digest())
-    headers = {
-        "X-Bokun-Date": now_date,
-        "X-Bokun-AccessKey": access_key,
-        "X-Bokun-Signature": signature.decode("ascii"),
-        "Content-Type": "application/json"
-    }
-    return {
-        "path": path,
-        "headers": headers
-    }

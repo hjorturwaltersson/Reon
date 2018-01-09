@@ -19,8 +19,10 @@ def get_private_price(count):
 def get_luxury_price(count):
     if count < 4:
         return 27990
-    else:
+    elif count < 8:
         return 34990
+    else:
+        return 43990
 
 
 class ProductViewSet(viewsets.ReadOnlyModelViewSet):
@@ -364,7 +366,6 @@ def pay(request):
     name = body['name']
     first_name = body.get('first_name')
     last_name = body.get('last_name')
-    phone_number = body.get('phone_number')
     email = body.get('email')
     return Response(get_data.reserve_pay_confirm(session_id=session_id,
                                                  address_city=address_city,
@@ -376,7 +377,10 @@ def pay(request):
                                                  cvc=cvc,
                                                  exp_month=exp_month,
                                                  exp_year=exp_year,
-                                                 name=name))
+                                                 name=name,
+                                                 first_name=first_name,
+                                                 last_name=last_name,
+                                                 email=email))
 
 
 @api_view(['POST'])
@@ -388,14 +392,92 @@ def remove_extra_from_cart(request):
     return Response(get_data.remove_extra_from_cart(session_id, booking_id, extra_id))
 
 
-@api_view(['POST'])
-def payment_info(request):
-    body = json.loads(request.body)
-    session_id = body['session_id']
-    return Response(get_data.get_payment(session_id))
-
 
 @api_view(['GET'])
 def crosssale(request):
     return Response(get_data.get_crosssale_products())
 
+
+@api_view(['POST'])
+def add_cross_sale_to_cart(request):
+    body = json.loads(request.body)
+    session_id = body['session_id']
+    activity_id = body['activity_id']
+    date = body['date']
+    start_time_id = body['start_time_id']
+    adult_count = body['adult_count']
+    teenager_count = body['teenager_count']
+    child_count = body['child_count']
+    earphone_count = body['earphone_count']
+    jacket_count_xsmall = body['jacket_count_xsmall']
+    jacket_count_small = body['jacket_count_small']
+    jacket_count_medium = body['jacket_count_medium']
+    jacket_count_large = body['jacket_count_large']
+    jacket_count_xlarge = body['jacket_count_xlarge']
+    shoe_count_37 = body['shoe_count_37']
+    shoe_count_38 = body['shoe_count_38']
+    shoe_count_39 = body['shoe_count_39']
+    shoe_count_40 = body['shoe_count_40']
+    shoe_count_41 = body['shoe_count_41']
+    shoe_count_42 = body['shoe_count_42']
+    shoe_count_43 = body['shoe_count_43']
+    shoe_count_44 = body['shoe_count_44']
+
+
+
+def get_pricing_category_bookings_cross_sale(product, traveler_count_adults,
+                                  traveler_count_children,
+                                  flight_delay_guarantee, flight_number,
+                                  extra_baggage_count, odd_size_baggage_count,
+                                  child_seat_child_count, child_seat_infant_count):
+    category_id = product.default_price_category_id
+    pricing_category_bookings = []
+    for x in range(traveler_count_adults):
+        pricing_category_bookings.append({
+            'pricing_category_id': category_id,
+            'extras': []
+        })
+    if product.child_price_category_id:
+        category_id = product.child_price_category_id
+    for x in range(traveler_count_children):
+        pricing_category_bookings.append({
+            'pricing_category_id': category_id,
+            'extras': []
+        })
+    for pricing_category_booking in pricing_category_bookings:
+        if flight_delay_guarantee:
+            pricing_category_booking['extras'].append({
+                'extra_id': product.flight_delay_id,
+                'unit_count': 1,
+                'answers': [{
+                    'answers': [{
+                        'answer': flight_number,
+                        'questionId': product.flight_delay_question_id
+                    }]
+                }]
+            })
+        if extra_baggage_count > 0:
+            pricing_category_booking['extras'].append({
+                'extra_id': product.extra_baggage_id,
+                'unit_count': extra_baggage_count
+            })
+            extra_baggage_count = 0
+        if odd_size_baggage_count > 0:
+            pricing_category_booking['extras'].append({
+                'extra_id': product.odd_size_id,
+                'unit_count': odd_size_baggage_count
+            })
+            odd_size_baggage_count = 0
+        if child_seat_child_count > 0:
+            pricing_category_booking['extras'].append({
+                'extra_id': product.child_seat_child_id,
+                'unit_count': child_seat_child_count
+            })
+            child_seat_child_count = 0
+        if child_seat_infant_count > 0:
+            pricing_category_booking['extras'].append({
+                'extra_id': product.child_seat_infant_id,
+                'unit_count': child_seat_child_count
+            })
+            child_seat_infant_count = 0
+    return pricing_category_bookings
