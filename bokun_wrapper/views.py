@@ -10,14 +10,14 @@ import json
 def get_private_price(count):
     if count < 5:
         return 19990
-    elif count < 15:
+    elif count <= 15:
         return 34990
 
 
 def get_luxury_price(count):
     if count < 4:
         return 27990
-    elif count < 8:
+    elif count <= 8:
         return 34990
 
 
