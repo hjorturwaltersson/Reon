@@ -38,4 +38,4 @@ class FrontPageProductSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = FrontPageProduct
-        exclude = ['return_product', 'bluelagoon_product']
+        fields = '__all__'
