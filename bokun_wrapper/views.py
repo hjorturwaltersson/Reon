@@ -391,3 +391,9 @@ def payment_info(request):
     body = json.loads(request.body)
     session_id = body['session_id']
     return Response(get_data.get_payment(session_id))
+
+
+@api_view(['GET'])
+def crosssale(request):
+    return Response(get_data.get_crosssale_products())
+

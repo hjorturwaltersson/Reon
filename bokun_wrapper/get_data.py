@@ -211,6 +211,16 @@ def remove_extra_from_cart(session_id, booking_id, extra_id):
     return reply.json()
 
 
+def get_crosssale_products():
+    path1 = '/product-list.json/1340'
+    path2 = '/product-list.json/1354'
+
+    reply1 = make_get_request(path1)
+    reply2 = make_get_request(path2)
+
+    return [reply1.json(), reply2.json()]
+
+
 def add_or_update_extra(session_id, booking_id, extra_id, unit_count):
     path = '/shopping-cart.json/session/{}/add-or-update-extra/ACTIVITY_BOOKING/{}'.format(session_id, booking_id)
     body = {

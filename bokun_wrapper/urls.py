@@ -19,7 +19,7 @@ from django.urls import path, include
 from rest_framework import routers
 from .views import ProductViewSet, PlaceViewSet, VendorViewSet
 from .views import get_availability, get_frontpage_products, get_cart, get_single_frontpage_product
-from .views import add_to_cart, add_extra_to_cart, pay, remove_extra_from_cart, payment_info
+from .views import add_to_cart, add_extra_to_cart, pay, remove_extra_from_cart, crosssale
 
 router = routers.DefaultRouter()
 router.register(r'products', ProductViewSet)
@@ -37,8 +37,9 @@ urlpatterns = [
     url(r'get_frontpage_products', get_frontpage_products),
     url(r'add_to_cart', add_to_cart),
     url(r'add_extra_to_cart', add_extra_to_cart),
-    url(r'pay', payment_info),
-    url(r'remove_extra_from_cart', remove_extra_from_cart)
+    url(r'pay', pay),
+    url(r'remove_extra_from_cart', remove_extra_from_cart),
+    url(r'crosssale', crosssale)
 ]
 
 urlpatterns += router.urls
