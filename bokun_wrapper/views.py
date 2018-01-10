@@ -250,11 +250,11 @@ def get_product_price(product, traveler_count_adults, traveler_count_children, r
         price = traveler_count_adults * product.adult_price_round_trip + traveler_count_children * product.child_price_round_trip
     total_traveler_count = traveler_count_adults + traveler_count_children
     if product.private:
-        price = get_private_price(total_traveler_count)
+        price = product.adult_price
         if round_trip:
             price = price * 2
     elif product.luxury:
-        price = get_luxury_price(total_traveler_count)
+        price = product.adult_price
         if round_trip:
             price = price * 2
     return price
@@ -457,7 +457,7 @@ def add_cross_sale_to_cart(request):
         'activityId': activity_id,
         'date': date,
         'pickup': pickup,
-        # 'pickupPlaceId': pickup_location_id,
+        'pickupPlaceId': pickup_location_id,
         'startTimeId': start_time_id
     }
     pricing_category_bookings = []
