@@ -7,24 +7,6 @@ from .serializers import ProductSerializer, VendorSerializer, PlaceSerializer, F
 import json
 
 
-def get_private_price(count):
-    if count < 5:
-        return 19990
-    elif count < 9:
-        return 24990
-    else:
-        return 34990
-
-
-def get_luxury_price(count):
-    if count < 4:
-        return 27990
-    elif count < 8:
-        return 34990
-    else:
-        return 43990
-
-
 def get_extra(extra_id, qid=None, answer=None):
     answers = []
     if qid:
@@ -157,28 +139,14 @@ def add_to_cart(request):
 
     traveler_count_adults = int(traveler_count_adults)
     traveler_count_children = int(traveler_count_children)
-    total_traveler_count = traveler_count_children + traveler_count_adults
     extra_baggage_count = int(extra_baggage_count)
     odd_size_baggage_count = int(odd_size_baggage_count)
     child_seat_child_count = int(child_seat_child_count)
     child_seat_infant_count = int(child_seat_infant_count)
     product = FrontPageProduct.objects.get(id=product_type_id)
-    if product.luxury:
-        if total_traveler_count < 4:
-            main_product = Product.objects.get(bokun_id=13282)
-        else:
-            main_product = Product.objects.get(bokun_id=13289)
-        return_product = main_product
-        traveler_count_children = 0
-        traveler_count_adults = 1
-    elif product.private:
-        if total_traveler_count < 5:
-            main_product = Product.objects.get(bokun_id=11008)
-        elif total_traveler_count < 9:
-            main_product = Product.objects.get(bokun_id=11610)
-        else:
-            main_product = Product.objects.get(bokun_id=11611)
-        return_product = main_product
+    if product.luxury or product.private:
+        main_product = product.bokun_product
+        return_product = product.bokun_product
         traveler_count_children = 0
         traveler_count_adults = 1
     elif round_trip and product.discount_product:
@@ -248,12 +216,7 @@ def get_product_price(product, traveler_count_adults, traveler_count_children, r
     price = traveler_count_adults * product.adult_price + traveler_count_children * product.child_price
     if round_trip:
         price = traveler_count_adults * product.adult_price_round_trip + traveler_count_children * product.child_price_round_trip
-    total_traveler_count = traveler_count_adults + traveler_count_children
-    if product.private:
-        price = product.adult_price
-        if round_trip:
-            price = price * 2
-    elif product.luxury:
+    if product.private or product.luxury:
         price = product.adult_price
         if round_trip:
             price = price * 2
