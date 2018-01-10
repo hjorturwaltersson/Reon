@@ -167,7 +167,8 @@ def get_cart(session_id=None):
 
 
 def add_to_cart(activity_id, start_time_id, date, pricing_category_bookings,
-                session_id=None, dropoff_place_id=None, pickup_place_id=None):
+                session_id=None, dropoff_place_id=None, pickup_place_id=None,
+                pickup=False):
     if not session_id:
         session_id = get_cart()['sessionId']
     path = '/shopping-cart.json/session/{}/activity'.format(session_id)
@@ -175,7 +176,7 @@ def add_to_cart(activity_id, start_time_id, date, pricing_category_bookings,
         'activityId': activity_id,
         'startTimeId': start_time_id,
         'date': date,
-        'pickup': False
+        'pickup': pickup
     }
     pricing_category_bookings_list = []
     for pricing_category_booking in pricing_category_bookings:
@@ -271,3 +272,44 @@ def reserve_pay_confirm(session_id, address_city, address_country, address_line_
     reply = make_post_request(path, body)
     return reply.json()
 
+
+def sync_cross_sale_products():
+    cross_sale_lists = get_crosssale_products()
+    cross_sale_model = apps.get_model('bokun_wrapper', 'CrossSaleItem')
+    for cross_sale_list in cross_sale_lists:
+        for item in cross_sale_list['items']:
+            activity = item['activity']
+            bokun_id = activity['id']
+            try:
+                product = cross_sale_model.objects.get(bokun_id=bokun_id)
+                print("Found existing product: {}".format(bokun_id))
+            except cross_sale_model.DoesNotExist as e:
+                print("Creating new product: {}".format(bokun_id))
+                product = cross_sale_model(bokun_id=bokun_id)
+            product.json = activity
+            pricing_categories = activity['pricingCategories']
+            for category in pricing_categories:
+                if category['ticketCategory'] == 'ADULT':
+                    product.adult_category_id = category['id']
+                if category['ticketCategory'] == 'TEENAGER':
+                    product.teenager_category_id = category['id']
+                if category['ticketCategory'] == 'CHILD':
+                    product.child_category_id = category['id']
+                if category['ticketCategory'] == 'OTHER':
+                    product.child_category_id = category['id']
+            extras = activity['bookableExtras']
+            for extra in extras:
+                if "Earphones" in extra['title']:
+                    product.earphone_id = extra['id']
+                if "jacket" in extra['title']:
+                    product.jacket_id = extra['id']
+                    product.jacket_question_id = extra['questions'][0]['id']
+                if "boots" in extra['title']:
+                    product.boots_id = extra['id']
+                    product.boots_question_id = extra['questions'][0]['id']
+                if "Extra cost" in extra['title']:
+                    product.extra_person_id = extra['id']
+                if "Lunch" in extra['title']:
+                    product.lunch_id = extra['id']
+                    product.lunch_question_id = extra['questions'][0]['id']
+            product.save()

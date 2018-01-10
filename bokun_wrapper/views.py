@@ -2,7 +2,7 @@ from bokun_wrapper import get_data
 from rest_framework import viewsets
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from .models import Vendor, Place, Product, FrontPageProduct
+from .models import Vendor, Place, Product, FrontPageProduct, CrossSaleItem
 from .serializers import ProductSerializer, VendorSerializer, PlaceSerializer, FrontPageProductSerializer
 import json
 
@@ -23,6 +23,24 @@ def get_luxury_price(count):
         return 34990
     else:
         return 43990
+
+
+def get_extra(extra_id, qid=None, answer=None):
+    answers = []
+    if qid:
+        answers = [{
+            'answers': [{
+                'answer': answer,
+                'questionId': qid
+            }]
+        }]
+
+    dic = {
+        'extraId': extra_id,
+        'unitCount': 1,
+        'answers': answers
+    }
+    return dic
 
 
 class ProductViewSet(viewsets.ReadOnlyModelViewSet):
@@ -394,90 +412,154 @@ def remove_extra_from_cart(request):
 
 
 @api_view(['GET'])
-def crosssale(request):
+def get_cross_sale(request):
     return Response(get_data.get_crosssale_products())
 
 
 @api_view(['POST'])
 def add_cross_sale_to_cart(request):
     body = json.loads(request.body)
-    session_id = body['session_id']
-    activity_id = body['activity_id']
-    date = body['date']
-    start_time_id = body['start_time_id']
-    adult_count = body['adult_count']
-    teenager_count = body['teenager_count']
-    child_count = body['child_count']
-    earphone_count = body['earphone_count']
-    jacket_count_xsmall = body['jacket_count_xsmall']
-    jacket_count_small = body['jacket_count_small']
-    jacket_count_medium = body['jacket_count_medium']
-    jacket_count_large = body['jacket_count_large']
-    jacket_count_xlarge = body['jacket_count_xlarge']
-    shoe_count_37 = body['shoe_count_37']
-    shoe_count_38 = body['shoe_count_38']
-    shoe_count_39 = body['shoe_count_39']
-    shoe_count_40 = body['shoe_count_40']
-    shoe_count_41 = body['shoe_count_41']
-    shoe_count_42 = body['shoe_count_42']
-    shoe_count_43 = body['shoe_count_43']
-    shoe_count_44 = body['shoe_count_44']
+    session_id = body.get('session_id', None)
+    activity_id = body.get('activity_id', 0)
+    date = body.get('date', '')
+    start_time_id = body.get('start_time_id', 0)
+    adult_count = body.get('adult_count', 0)
+    teenager_count = body.get('teenager_count', 0)
+    child_count = body.get('child_count', 0)
+    earphone_count = body.get('earphone_count', 0)
+    jacket_count_xsmall = body.get('jacket_count_xsmall', 0)
+    jacket_count_small = body.get('jacket_count_small', 0)
+    jacket_count_medium = body.get('jacket_count_medium', 0)
+    jacket_count_large = body.get('jacket_count_large', 0)
+    jacket_count_xlarge = body.get('jacket_count_xlarge', 0)
+    shoe_count_37 = body.get('shoe_count_37', 0)
+    shoe_count_38 = body.get('shoe_count_38', 0)
+    shoe_count_39 = body.get('shoe_count_39', 0)
+    shoe_count_40 = body.get('shoe_count_40', 0)
+    shoe_count_41 = body.get('shoe_count_41', 0)
+    shoe_count_42 = body.get('shoe_count_42', 0)
+    shoe_count_43 = body.get('shoe_count_43', 0)
+    shoe_count_44 = body.get('shoe_count_44', 0)
+    lunch_count_regular = body.get('lunch_count_regular', 0)
+    lunch_count_vegan = body.get('lunch_count_vegan', 0)
+    lunch_count_vegetarian = body.get('lunch_count_vegetarian', 0)
+    extra_person_count = body.get('extra_person_count', 0)
+    pickup_location_id = body.get('pickup_location_id', 0)
+    pickup = True
+    if pickup_location_id == 0:
+        pickup = False
+    total_jackets = jacket_count_xsmall + jacket_count_small + jacket_count_medium + jacket_count_large + jacket_count_xlarge
+    total_shoes = shoe_count_37 + shoe_count_38 + shoe_count_39 + shoe_count_40 + shoe_count_41 + shoe_count_42 + shoe_count_43 + shoe_count_44
+    total_lunches = lunch_count_regular + lunch_count_vegan + lunch_count_vegetarian
+    cross_sale_item = CrossSaleItem.objects.get(bokun_id=activity_id)
 
-
-
-def get_pricing_category_bookings_cross_sale(product, traveler_count_adults,
-                                  traveler_count_children,
-                                  flight_delay_guarantee, flight_number,
-                                  extra_baggage_count, odd_size_baggage_count,
-                                  child_seat_child_count, child_seat_infant_count):
-    category_id = product.default_price_category_id
+    body = {
+        'activityId': activity_id,
+        'date': date,
+        'pickup': pickup,
+        # 'pickupPlaceId': pickup_location_id,
+        'startTimeId': start_time_id
+    }
     pricing_category_bookings = []
-    for x in range(traveler_count_adults):
+    for x in range(adult_count):
         pricing_category_bookings.append({
-            'pricing_category_id': category_id,
+            'pricingCategoryId': cross_sale_item.adult_category_id,
             'extras': []
         })
-    if product.child_price_category_id:
-        category_id = product.child_price_category_id
-    for x in range(traveler_count_children):
+    for x in range(teenager_count):
         pricing_category_bookings.append({
-            'pricing_category_id': category_id,
+            'pricingCategoryId': cross_sale_item.teenager_category_id,
             'extras': []
         })
-    for pricing_category_booking in pricing_category_bookings:
-        if flight_delay_guarantee:
-            pricing_category_booking['extras'].append({
-                'extra_id': product.flight_delay_id,
-                'unit_count': 1,
-                'answers': [{
-                    'answers': [{
-                        'answer': flight_number,
-                        'questionId': product.flight_delay_question_id
-                    }]
-                }]
-            })
-        if extra_baggage_count > 0:
-            pricing_category_booking['extras'].append({
-                'extra_id': product.extra_baggage_id,
-                'unit_count': extra_baggage_count
-            })
-            extra_baggage_count = 0
-        if odd_size_baggage_count > 0:
-            pricing_category_booking['extras'].append({
-                'extra_id': product.odd_size_id,
-                'unit_count': odd_size_baggage_count
-            })
-            odd_size_baggage_count = 0
-        if child_seat_child_count > 0:
-            pricing_category_booking['extras'].append({
-                'extra_id': product.child_seat_child_id,
-                'unit_count': child_seat_child_count
-            })
-            child_seat_child_count = 0
-        if child_seat_infant_count > 0:
-            pricing_category_booking['extras'].append({
-                'extra_id': product.child_seat_infant_id,
-                'unit_count': child_seat_child_count
-            })
-            child_seat_infant_count = 0
-    return pricing_category_bookings
+    for x in range(child_count):
+        pricing_category_bookings.append({
+            'pricingCategoryId': cross_sale_item.child_category_id,
+            'extras': []
+        })
+
+    # Add earphones
+    for x in range(earphone_count):
+        pricing_category_bookings[x]['extras'].append(get_extra(cross_sale_item.earphone_id))
+    # Add extra people
+    for x in range(extra_person_count):
+        pricing_category_bookings[x]['extras'].append(get_extra(cross_sale_item.extra_person_id))
+
+    # Add jackets
+    for x in range(total_jackets):
+        for y in range(jacket_count_xsmall):
+            pricing_category_bookings[x]['extras'].append(
+                get_extra(cross_sale_item.jacket_id, cross_sale_item.jacket_question_id, "X-Small")
+            )
+        for y in range(jacket_count_small):
+            pricing_category_bookings[x]['extras'].append(
+                get_extra(cross_sale_item.jacket_id, cross_sale_item.jacket_question_id, "Small")
+            )
+        for y in range(jacket_count_medium):
+            pricing_category_bookings[x]['extras'].append(
+                get_extra(cross_sale_item.jacket_id, cross_sale_item.jacket_question_id, "Medium")
+            )
+        for y in range(jacket_count_large):
+            pricing_category_bookings[x]['extras'].append(
+                get_extra(cross_sale_item.jacket_id, cross_sale_item.jacket_question_id, "Large")
+            )
+        for y in range(jacket_count_xlarge):
+            pricing_category_bookings[x]['extras'].append(
+                get_extra(cross_sale_item.jacket_id, cross_sale_item.jacket_question_id, "X-Large")
+            )
+
+    # Add shoes
+    for x in range(total_shoes):
+        for y in range(shoe_count_37):
+            pricing_category_bookings[x]['extras'].append(
+                get_extra(cross_sale_item.boots_id, cross_sale_item.boots_question_id, "EU 37")
+            )
+        for y in range(shoe_count_38):
+            pricing_category_bookings[x]['extras'].append(
+                get_extra(cross_sale_item.boots_id, cross_sale_item.boots_question_id, "EU 38")
+            )
+        for y in range(shoe_count_39):
+            pricing_category_bookings[x]['extras'].append(
+                get_extra(cross_sale_item.boots_id, cross_sale_item.boots_question_id, "EU 39")
+            )
+        for y in range(shoe_count_40):
+            pricing_category_bookings[x]['extras'].append(
+                get_extra(cross_sale_item.boots_id, cross_sale_item.boots_question_id, "EU 40")
+            )
+        for y in range(shoe_count_41):
+            pricing_category_bookings[x]['extras'].append(
+                get_extra(cross_sale_item.boots_id, cross_sale_item.boots_question_id, "EU 41")
+            )
+        for y in range(shoe_count_42):
+            pricing_category_bookings[x]['extras'].append(
+                get_extra(cross_sale_item.boots_id, cross_sale_item.boots_question_id, "EU 42")
+            )
+        for y in range(shoe_count_43):
+            pricing_category_bookings[x]['extras'].append(
+                get_extra(cross_sale_item.boots_id, cross_sale_item.boots_question_id, "EU 43")
+            )
+        for y in range(shoe_count_44):
+            pricing_category_bookings[x]['extras'].append(
+                get_extra(cross_sale_item.boots_id, cross_sale_item.boots_question_id, "EU 44")
+            )
+
+        # Add lunches
+    for x in range(total_lunches):
+        for y in range(lunch_count_regular):
+            pricing_category_bookings[x]['extras'].append(
+                get_extra(cross_sale_item.lunch_id, cross_sale_item.lunch_question_id, "Regular")
+            )
+        for y in range(lunch_count_vegetarian):
+            pricing_category_bookings[x]['extras'].append(
+                get_extra(cross_sale_item.lunch_id, cross_sale_item.lunch_question_id, "Vegetarian")
+            )
+        for y in range(lunch_count_vegan):
+            pricing_category_bookings[x]['extras'].append(
+                get_extra(cross_sale_item.lunch_id, cross_sale_item.lunch_question_id, "Vegan")
+            )
+
+    body['pricingCategoryBookings'] = pricing_category_bookings
+
+    path = '/shopping-cart.json/session/{}/activity'.format(session_id)
+
+    reply = get_data.make_post_request(path, body)
+    return Response(reply.json())

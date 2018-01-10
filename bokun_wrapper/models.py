@@ -84,3 +84,21 @@ class FrontPageProduct(models.Model):
 
     class Meta:
         ordering = ['ordering', 'title']
+
+
+class CrossSaleItem(models.Model):
+    bokun_id = models.CharField(unique=True, max_length=1000, primary_key=True)
+    json = JSONField(null=True, blank=True)
+
+    adult_category_id = models.IntegerField(default=0)
+    teenager_category_id = models.IntegerField(default=0)
+    child_category_id = models.IntegerField(default=0)
+
+    earphone_id = models.IntegerField(default=0)
+    jacket_id = models.IntegerField(default=0)
+    jacket_question_id = models.IntegerField(default=0)
+    boots_id = models.IntegerField(default=0)
+    boots_question_id = models.IntegerField(default=0)
+    lunch_id = models.IntegerField(default=0)
+    lunch_question_id = models.IntegerField(default=0)
+    extra_person_id = models.IntegerField(default=0)
