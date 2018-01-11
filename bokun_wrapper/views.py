@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from .models import Vendor, Place, Product, FrontPageProduct, CrossSaleItem
 from .serializers import ProductSerializer, VendorSerializer, PlaceSerializer, FrontPageProductSerializer
 import json
-
+import datetime
 
 def get_extra(extra_id, qid=None, answer=None):
     answers = []
@@ -270,6 +270,13 @@ def get_frontpage_products(request):
     for product in products:
         single_product_dict = FrontPageProductSerializer(product).data
         price = get_product_price(product, traveler_count_adults, traveler_count_children, round_trip)
+        if product.id == 13 or product.id == 14 and datetime.datetime.strptime(date_from, '%Y-%M-%d') < datetime.datetime.strptime('2018-01-11', '%Y-%M-%d'):
+            if round_trip and datetime.datetime.strptime(date_to, '%Y-%M-%d') < datetime.datetime.strptime('2018-01-11', '%Y-%M-%d'):
+                price = 2 * (traveler_count_adults * 2990 + traveler_count_children * 1495)
+            elif round_trip:
+                price = (5490+2990) * traveler_count_adults + (2745+1495) * traveler_count_children
+            else:
+                price = 2990 * traveler_count_adults + 1495 * traveler_count_children
         single_product_dict['total_price'] = price
         if round_trip and product.discount_product:
             main_product = product.discount_product
