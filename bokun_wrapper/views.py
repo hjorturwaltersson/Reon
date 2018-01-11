@@ -245,7 +245,9 @@ def get_frontpage_products(request):
     if location_to:
         queryset = queryset.filter(dropoff_places=location_to) | queryset.filter(dropoff_places=None)
 
-    products = FrontPageProduct.objects.filter(bokun_product__in=queryset)
+    private_products = FrontPageProduct.objects.filter(private=True) | FrontPageProduct.objects.filter(luxury=True)
+    applicable_private_products = private_products.filter(min_people__lte=total_traveler_count, max_people__gte=total_traveler_count)
+    products = FrontPageProduct.objects.filter(bokun_product__in=queryset) | applicable_private_products
     # unavailable = Product.objects.all().exclude(bokun_id__in=queryset)
     # unavailable_products = FrontPageProduct.objects.filter(bokun_product__in=unavailable)
     reply = []

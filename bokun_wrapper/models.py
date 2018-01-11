@@ -75,6 +75,8 @@ class FrontPageProduct(models.Model):
     photo_path = models.CharField(max_length=200, default="")
     title = models.CharField(max_length=200, default="")
     ordering = models.IntegerField(default=0)
+    min_people = models.IntegerField(default=0)
+    max_people = models.IntegerField(default=0)
 
     def __str__(self):
         if self.bokun_product:

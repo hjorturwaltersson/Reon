@@ -49,7 +49,8 @@ def get_vendor_product_ids(vendor_id):
     reply = make_post_request('/activity.json/search', {"vendorId": vendor_id})
     items_dict = reply.json()['items']
     ids = [p['id'] for p in items_dict]
-    ids = ['22257', '22442', '22246', '22443', '9882', '22141', '22112', '9883', '9217', '22318', '9652', '22319', '22290', '22287', '11008', '11610', '11611', '17989', '22936', '22937', '22942']
+    ids = ['22257', '22442', '22246', '22443', '9882', '22141', '22112', '9883', '9217', '22318', '9652', '22319',
+           '22290', '22287', '11008', '11610', '11611', '17989', '22936', '22937', '22942']
     return ids
 
 
@@ -90,7 +91,8 @@ def update_vendor_products(vendor_id):
         if len(pricing_categories) > 1:
             product.child_price_category_id = pricing_categories[1]['id']
         for bookable_extra in item_dict['bookableExtras']:
-            if bookable_extra['externalId'] == 'flightdelayguarantee':
+            if bookable_extra['externalId'] == 'flightdelayguarantee' or bookable_extra[
+                 'externalId'] == 'DelayGuarantee':
                 product.flight_delay_id = bookable_extra['id']
                 product.flight_delay_question_id = bookable_extra['questions'][0]['id']
             if bookable_extra['externalId'] == 'ChildSeat14-36kg':
@@ -136,15 +138,22 @@ def get_places(product_id):
     dropoff_places = reply.json()['dropoffPlaces']
     pickup_places = reply.json()['pickupPlaces']
 
-    create_or_update_place(dropoff_places)
-    create_or_update_place(pickup_places)
+    def filter_function(x):
+        return 'keflavík' in x['flags'] or 'economy' in x['flags']
+
+    filtered_dropoff_places = filter(filter_function, dropoff_places)
+    filtered_pickup_places = filter(filter_function, pickup_places)
+
+    create_or_update_place(filtered_dropoff_places)
+    create_or_update_place(filtered_pickup_places)
 
     product.dropoff_places.set([p['id'] for p in dropoff_places], clear=True)
     product.pickup_places.set([p['id'] for p in pickup_places], clear=True)
 
 
 def get_availability(product_id, date):
-    reply = make_get_request('/activity.json/{}/availabilities?start={}&end={}&includeSoldOut=true'.format(product_id, date, date))
+    reply = make_get_request(
+        '/activity.json/{}/availabilities?start={}&end={}&includeSoldOut=true'.format(product_id, date, date))
     returnlist = [{
         'extra_prices': a['extraPrices'],
         'prices_by_category': a['pricesByCategory'],
