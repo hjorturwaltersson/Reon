@@ -394,6 +394,13 @@ def remove_extra_from_cart(request):
     return Response(get_data.remove_extra_from_cart(session_id, booking_id, extra_id))
 
 
+@api_view(['POST'])
+def remove_activity_from_cart(request):
+    body = json.loads(request.body)
+    session_id = body['session_id']
+    booking_id = body['booking_id']
+    return Response(get_data.remove_activity_from_cart(session_id, booking_id))
+
 
 @api_view(['GET'])
 def get_cross_sale(request):
