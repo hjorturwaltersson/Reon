@@ -1,0 +1,1271 @@
+{
+  "charge": {
+    "creationDate": "2018-01-11 18:45:32",
+    "amount": 150,
+    "currency": "ISK",
+    "card": {
+      "cardNumber": "9999 **** **** 9999",
+      "expMonth": "11",
+      "expYear": "14",
+      "cvc": "123",
+      "name": "asd",
+      "addressLine1": "asd",
+      "addressLine2": "asd",
+      "addressCity": "asd",
+      "addressPostCode": "200",
+      "addressCountry": "asd"
+    }
+  },
+  "booking": {
+    "creationDate": 1515696331000,
+    "bookingId": 17683,
+    "language": "en",
+    "confirmationCode": "DOG-17683",
+    "status": "CONFIRMED",
+    "currency": "ISK",
+    "totalPrice": 150,
+    "totalPaid": 150,
+    "totalDue": 0,
+    "totalPriceConverted": 150,
+    "customer": {
+      "contactDetailsHidden": false,
+      "contactDetailsHiddenUntil": null,
+      "id": 88514,
+      "created": null,
+      "uuid": "064b21f1-cbc2-4b1b-8e08-f2f39d9f93c2",
+      "email": "hakon@reon.is",
+      "title": null,
+      "firstName": "firstname",
+      "lastName": "lastname",
+      "language": "en",
+      "nationality": null,
+      "sex": null,
+      "dateOfBirth": null,
+      "phoneNumber": null,
+      "phoneNumberCountryCode": null,
+      "address": null,
+      "postCode": null,
+      "state": null,
+      "place": null,
+      "country": null,
+      "organization": null,
+      "passportId": null,
+      "passportExpDay": null,
+      "passportExpMonth": null,
+      "passportExpYear": null,
+      "credentials": null
+    },
+    "invoice": {
+      "id": 29852,
+      "issueDate": 1515696331000,
+      "currency": "ISK",
+      "includedAppliedTaxes": [],
+      "excludedAppliedTaxes": [],
+      "issuer": {
+        "id": 22,
+        "title": "Activity Adventures",
+        "externalId": "",
+        "flags": []
+      },
+      "issuerCompany": {
+        "registrationNumber": "444444-4444"
+      },
+      "recipient": {
+        "contactDetailsHidden": false,
+        "contactDetailsHiddenUntil": null,
+        "id": 88514,
+        "created": null,
+        "uuid": "064b21f1-cbc2-4b1b-8e08-f2f39d9f93c2",
+        "email": "hakon@reon.is",
+        "title": null,
+        "firstName": "firstname",
+        "lastName": "lastname",
+        "language": "en",
+        "nationality": null,
+        "sex": null,
+        "dateOfBirth": null,
+        "phoneNumber": null,
+        "phoneNumberCountryCode": null,
+        "address": null,
+        "postCode": null,
+        "state": null,
+        "place": null,
+        "country": null,
+        "organization": null,
+        "passportId": null,
+        "passportExpDay": null,
+        "passportExpMonth": null,
+        "passportExpYear": null,
+        "credentials": null
+      },
+      "customLineItems": [],
+      "productInvoices": [
+        {
+          "id": 33002,
+          "currency": "ISK",
+          "includedAppliedTaxes": [],
+          "excludedAppliedTaxes": [],
+          "productBookingId": 39198,
+          "title": "3 Day Self Drive | 4x4 Winter Package | Destination Ice Cave (Default rate) - Sun 14.Jan 2018 @ 06:00",
+          "product": {
+            "id": 185,
+            "title": "3 Day Self Drive | 4x4 Winter Package | Destination Ice Cave",
+            "externalId": "",
+            "flags": []
+          },
+          "productCategory": "ACTIVITIES",
+          "productConfirmationCode": "DOG-T39198",
+          "dates": "Sun 14.Jan 2018 @ 06:00",
+          "customLineItems": [],
+          "lineItems": [
+            {
+              "id": 79931,
+              "title": "Participant",
+              "currency": "ISK",
+              "unitPriceDate": 1515696298000,
+              "quantity": 1,
+              "unitPrice": 50,
+              "calculatedDiscount": 0,
+              "customDiscount": 0,
+              "calculatedDiscountAmount": 0,
+              "taxAmount": 0,
+              "taxesAsMoney": [],
+              "itemBookingId": "185_20",
+              "costItemId": 5968,
+              "costItemTitle": "Participant",
+              "costGroupTitle": "3 Day Self Drive | 4x4 Winter Package | Destination Ice Cave",
+              "supportsDiscount": true,
+              "total": 50,
+              "totalDue": 50,
+              "totalAsText": "ISK 50",
+              "totalDiscountedAsText": "ISK 50",
+              "totalDueAsMoney": {
+                "amount": 50,
+                "currency": "ISK"
+              },
+              "totalDueAsText": "ISK 50",
+              "totalDiscountedAsMoney": {
+                "amount": 50,
+                "currency": "ISK"
+              },
+              "totalAsMoney": {
+                "amount": 50,
+                "currency": "ISK"
+              },
+              "taxAsMoney": {
+                "amount": 0,
+                "currency": "ISK"
+              },
+              "discount": 0,
+              "taxAsText": "ISK 0",
+              "totalDiscounted": 50,
+              "discountedUnitPrice": 50,
+              "discountedUnitPriceAsText": "ISK 50",
+              "unitPriceAsMoney": {
+                "amount": 50,
+                "currency": "ISK"
+              },
+              "unitPriceAsText": "ISK 50",
+              "discountAmountAsMoney": {
+                "amount": 0,
+                "currency": "ISK"
+              },
+              "discountAmountAsText": "ISK 0",
+              "calculatedDiscountAmountAsMoney": {
+                "amount": 0,
+                "currency": "ISK"
+              },
+              "discountedUnitPriceAsMoney": {
+                "amount": 50,
+                "currency": "ISK"
+              }
+            },
+            {
+              "id": 79932,
+              "title": "Participant : Shoe size",
+              "currency": "ISK",
+              "unitPriceDate": 1515696299000,
+              "quantity": 1,
+              "unitPrice": 100,
+              "calculatedDiscount": 0,
+              "customDiscount": 0,
+              "calculatedDiscountAmount": 0,
+              "taxAmount": 0,
+              "taxesAsMoney": [],
+              "itemBookingId": "185_15360",
+              "costItemId": 8925,
+              "costItemTitle": "Shoe size : Participant",
+              "costGroupTitle": "3 Day Self Drive | 4x4 Winter Package | Destination Ice Cave",
+              "supportsDiscount": true,
+              "total": 100,
+              "totalDue": 100,
+              "totalAsText": "ISK 100",
+              "totalDiscountedAsText": "ISK 100",
+              "totalDueAsMoney": {
+                "amount": 100,
+                "currency": "ISK"
+              },
+              "totalDueAsText": "ISK 100",
+              "totalDiscountedAsMoney": {
+                "amount": 100,
+                "currency": "ISK"
+              },
+              "totalAsMoney": {
+                "amount": 100,
+                "currency": "ISK"
+              },
+              "taxAsMoney": {
+                "amount": 0,
+                "currency": "ISK"
+              },
+              "discount": 0,
+              "taxAsText": "ISK 0",
+              "totalDiscounted": 100,
+              "discountedUnitPrice": 100,
+              "discountedUnitPriceAsText": "ISK 100",
+              "unitPriceAsMoney": {
+                "amount": 100,
+                "currency": "ISK"
+              },
+              "unitPriceAsText": "ISK 100",
+              "discountAmountAsMoney": {
+                "amount": 0,
+                "currency": "ISK"
+              },
+              "discountAmountAsText": "ISK 0",
+              "calculatedDiscountAmountAsMoney": {
+                "amount": 0,
+                "currency": "ISK"
+              },
+              "discountedUnitPriceAsMoney": {
+                "amount": 100,
+                "currency": "ISK"
+              }
+            }
+          ],
+          "free": false,
+          "totalAsText": "ISK 150",
+          "totalDiscountedAsText": "ISK 150",
+          "totalDueAsMoney": {
+            "amount": 150,
+            "currency": "ISK"
+          },
+          "totalDueAsText": "ISK 150",
+          "excludedTaxes": false,
+          "totalExcludedTaxAsMoney": {
+            "amount": 0,
+            "currency": "ISK"
+          },
+          "totalExcludedTaxAsText": "ISK 0",
+          "includedTaxes": false,
+          "totalIncludedTaxAsMoney": {
+            "amount": 0,
+            "currency": "ISK"
+          },
+          "totalIncludedTaxAsText": "ISK 0",
+          "totalTaxAsMoney": {
+            "amount": 0,
+            "currency": "ISK"
+          },
+          "totalTaxAsText": "ISK 0",
+          "totalDiscountedAsMoney": {
+            "amount": 150,
+            "currency": "ISK"
+          },
+          "totalDiscountAsMoney": {
+            "amount": 0,
+            "currency": "ISK"
+          },
+          "totalAsMoney": {
+            "amount": 150,
+            "currency": "ISK"
+          }
+        }
+      ],
+      "payments": [],
+      "issuerName": "Activity Adventures",
+      "invoiceNumber": "C-29852",
+      "recipientName": "firstname lastname",
+      "lodgingTaxes": [],
+      "free": false,
+      "totalAsText": "ISK 150",
+      "totalDiscountedAsText": "ISK 150",
+      "totalDueAsMoney": {
+        "amount": 150,
+        "currency": "ISK"
+      },
+      "totalDueAsText": "ISK 150",
+      "excludedTaxes": false,
+      "totalExcludedTaxAsMoney": {
+        "amount": 0,
+        "currency": "ISK"
+      },
+      "totalExcludedTaxAsText": "ISK 0",
+      "includedTaxes": false,
+      "totalIncludedTaxAsMoney": {
+        "amount": 0,
+        "currency": "ISK"
+      },
+      "totalIncludedTaxAsText": "ISK 0",
+      "totalTaxAsMoney": {
+        "amount": 0,
+        "currency": "ISK"
+      },
+      "totalTaxAsText": "ISK 0",
+      "totalDiscountedAsMoney": {
+        "amount": 150,
+        "currency": "ISK"
+      },
+      "totalDiscountAsMoney": {
+        "amount": 0,
+        "currency": "ISK"
+      },
+      "totalAsMoney": {
+        "amount": 150,
+        "currency": "ISK"
+      }
+    },
+    "customerPayments": [
+      {
+        "id": 5896,
+        "amount": 150,
+        "currency": "ISK",
+        "comment": "Payment for booking #17683, performed by Activity Adventures: Api Key Activity",
+        "transactionDate": 1515696332000,
+        "authorizationCode": "845343",
+        "activeCustomerInvoiceId": 29852,
+        "paymentType": "WEB_PAYMENT",
+        "cardNumber": "999999******9999",
+        "paymentId": 1770,
+        "paymentContractId": 417,
+        "paymentReferenceId": "2b9a7aac-eff3-4783-aecb-a728a49c3020",
+        "paymentProviderType": "VALITOR_SERVER_TO_SERVER_TEST",
+        "isRefundable": true,
+        "totalRefundedAmount": 0,
+        "refundable": true,
+        "amountAsMoney": {
+          "amount": 150,
+          "currency": "ISK"
+        },
+        "amountAsText": "ISK 150",
+        "refundedAmountAsText": "ISK 0",
+        "remainingRefundableAmount": 150
+      }
+    ],
+    "paymentType": "PAID_IN_FULL",
+    "seller": {
+      "id": 22,
+      "title": "Activity Adventures",
+      "currencyCode": "CAD",
+      "phoneNumber": "",
+      "emailAddress": "shelly@bokun.is",
+      "website": "",
+      "logoStyle": "",
+      "invoiceIdNumber": "444444-4444",
+      "logo": {
+        "id": 87,
+        "originalUrl": "https://bokundemo.s3.amazonaws.com/photo87original",
+        "description": null,
+        "alternateText": null,
+        "flags": [],
+        "derived": [
+          {
+            "name": "large",
+            "url": "https://bokundemo.imgix.net/photo87original?w=660&h=660",
+            "cleanUrl": "//bokundemo.imgix.net/photo87original?w=660&h=660"
+          },
+          {
+            "name": "preview",
+            "url": "https://bokundemo.imgix.net/photo87original?w=300&h=300",
+            "cleanUrl": "//bokundemo.imgix.net/photo87original?w=300&h=300"
+          },
+          {
+            "name": "thumbnail",
+            "url": "https://bokundemo.imgix.net/photo87original?w=80&h=80&fit=crop",
+            "cleanUrl": "//bokundemo.imgix.net/photo87original?w=80&h=80&fit=crop"
+          }
+        ],
+        "fileName": "/photo87original"
+      },
+      "showInvoiceIdOnTicket": true,
+      "showAgentDetailsOnTicket": false,
+      "showPaymentsOnInvoice": false
+    },
+    "bookingChannel": {
+      "id": 67,
+      "uuid": "05b34431-6a9d-4af8-b998-49259bc46666",
+      "title": "Activityadventures.is",
+      "backend": false,
+      "overrideVoucherHeader": false,
+      "voucherName": "",
+      "voucherPhoneNumber": "",
+      "voucherEmailAddress": "",
+      "voucherLogoStyle": "",
+      "voucherWebsite": "",
+      "flags": []
+    },
+    "accommodationBookings": [],
+    "carRentalBookings": [],
+    "activityBookings": [
+      {
+        "bookingId": 39198,
+        "parentBookingId": 17683,
+        "confirmationCode": "DOG-17683",
+        "productConfirmationCode": "DOG-T39198",
+        "hasTicket": false,
+        "boxBooking": false,
+        "startDateTime": 1515909600000,
+        "status": "CONFIRMED",
+        "includedOnCustomerInvoice": false,
+        "title": "3 Day Self Drive | 4x4 Winter Package | Destination Ice Cave",
+        "totalPrice": 150,
+        "priceWithDiscount": 150,
+        "discountPercentage": 0,
+        "discountAmount": 0,
+        "productCategory": "ACTIVITIES",
+        "paidType": "NOT_PAID",
+        "product": {
+          "id": 185,
+          "title": "3 Day Self Drive | 4x4 Winter Package | Destination Ice Cave",
+          "flags": [],
+          "vendor": {
+            "id": 22,
+            "title": "Activity Adventures",
+            "currencyCode": "CAD",
+            "showInvoiceIdOnTicket": false,
+            "showAgentDetailsOnTicket": false,
+            "showPaymentsOnInvoice": false
+          },
+          "externalId": "",
+          "productCategory": "ACTIVITIES",
+          "cancellationPolicy": {
+            "id": 24,
+            "title": "Default",
+            "penaltyRules": [
+              {
+                "id": 19,
+                "cutoffHours": 0,
+                "charge": 0,
+                "chargeType": "percentage"
+              }
+            ],
+            "tax": null
+          }
+        },
+        "productId": 185,
+        "linksToExternalProducts": [],
+        "answers": [],
+        "invoice": {
+          "id": 33002,
+          "currency": "ISK",
+          "includedAppliedTaxes": [],
+          "excludedAppliedTaxes": [],
+          "productBookingId": 39198,
+          "title": "3 Day Self Drive | 4x4 Winter Package | Destination Ice Cave (Default rate) - Sun 14.Jan 2018 @ 06:00",
+          "product": {
+            "id": 185,
+            "title": "3 Day Self Drive | 4x4 Winter Package | Destination Ice Cave",
+            "externalId": "",
+            "flags": []
+          },
+          "productCategory": "ACTIVITIES",
+          "productConfirmationCode": "DOG-T39198",
+          "dates": "Sun 14.Jan 2018 @ 06:00",
+          "customLineItems": [],
+          "lineItems": [
+            {
+              "id": 79931,
+              "title": "Participant",
+              "currency": "ISK",
+              "unitPriceDate": 1515696298000,
+              "quantity": 1,
+              "unitPrice": 50,
+              "calculatedDiscount": 0,
+              "customDiscount": 0,
+              "calculatedDiscountAmount": 0,
+              "taxAmount": 0,
+              "taxesAsMoney": [],
+              "itemBookingId": "185_20",
+              "costItemId": 5968,
+              "costItemTitle": "Participant",
+              "costGroupTitle": "3 Day Self Drive | 4x4 Winter Package | Destination Ice Cave",
+              "supportsDiscount": true,
+              "total": 50,
+              "totalDue": 50,
+              "totalAsText": "ISK 50",
+              "totalDiscountedAsText": "ISK 50",
+              "totalDueAsMoney": {
+                "amount": 50,
+                "currency": "ISK"
+              },
+              "totalDueAsText": "ISK 50",
+              "totalDiscountedAsMoney": {
+                "amount": 50,
+                "currency": "ISK"
+              },
+              "totalAsMoney": {
+                "amount": 50,
+                "currency": "ISK"
+              },
+              "taxAsMoney": {
+                "amount": 0,
+                "currency": "ISK"
+              },
+              "discount": 0,
+              "taxAsText": "ISK 0",
+              "totalDiscounted": 50,
+              "discountedUnitPrice": 50,
+              "discountedUnitPriceAsText": "ISK 50",
+              "unitPriceAsMoney": {
+                "amount": 50,
+                "currency": "ISK"
+              },
+              "unitPriceAsText": "ISK 50",
+              "discountAmountAsMoney": {
+                "amount": 0,
+                "currency": "ISK"
+              },
+              "discountAmountAsText": "ISK 0",
+              "calculatedDiscountAmountAsMoney": {
+                "amount": 0,
+                "currency": "ISK"
+              },
+              "discountedUnitPriceAsMoney": {
+                "amount": 50,
+                "currency": "ISK"
+              }
+            },
+            {
+              "id": 79932,
+              "title": "Participant : Shoe size",
+              "currency": "ISK",
+              "unitPriceDate": 1515696299000,
+              "quantity": 1,
+              "unitPrice": 100,
+              "calculatedDiscount": 0,
+              "customDiscount": 0,
+              "calculatedDiscountAmount": 0,
+              "taxAmount": 0,
+              "taxesAsMoney": [],
+              "itemBookingId": "185_15360",
+              "costItemId": 8925,
+              "costItemTitle": "Shoe size : Participant",
+              "costGroupTitle": "3 Day Self Drive | 4x4 Winter Package | Destination Ice Cave",
+              "supportsDiscount": true,
+              "total": 100,
+              "totalDue": 100,
+              "totalAsText": "ISK 100",
+              "totalDiscountedAsText": "ISK 100",
+              "totalDueAsMoney": {
+                "amount": 100,
+                "currency": "ISK"
+              },
+              "totalDueAsText": "ISK 100",
+              "totalDiscountedAsMoney": {
+                "amount": 100,
+                "currency": "ISK"
+              },
+              "totalAsMoney": {
+                "amount": 100,
+                "currency": "ISK"
+              },
+              "taxAsMoney": {
+                "amount": 0,
+                "currency": "ISK"
+              },
+              "discount": 0,
+              "taxAsText": "ISK 0",
+              "totalDiscounted": 100,
+              "discountedUnitPrice": 100,
+              "discountedUnitPriceAsText": "ISK 100",
+              "unitPriceAsMoney": {
+                "amount": 100,
+                "currency": "ISK"
+              },
+              "unitPriceAsText": "ISK 100",
+              "discountAmountAsMoney": {
+                "amount": 0,
+                "currency": "ISK"
+              },
+              "discountAmountAsText": "ISK 0",
+              "calculatedDiscountAmountAsMoney": {
+                "amount": 0,
+                "currency": "ISK"
+              },
+              "discountedUnitPriceAsMoney": {
+                "amount": 100,
+                "currency": "ISK"
+              }
+            }
+          ],
+          "free": false,
+          "totalAsText": "ISK 150",
+          "totalDiscountedAsText": "ISK 150",
+          "totalDueAsMoney": {
+            "amount": 150,
+            "currency": "ISK"
+          },
+          "totalDueAsText": "ISK 150",
+          "excludedTaxes": false,
+          "totalExcludedTaxAsMoney": {
+            "amount": 0,
+            "currency": "ISK"
+          },
+          "totalExcludedTaxAsText": "ISK 0",
+          "includedTaxes": false,
+          "totalIncludedTaxAsMoney": {
+            "amount": 0,
+            "currency": "ISK"
+          },
+          "totalIncludedTaxAsText": "ISK 0",
+          "totalTaxAsMoney": {
+            "amount": 0,
+            "currency": "ISK"
+          },
+          "totalTaxAsText": "ISK 0",
+          "totalDiscountedAsMoney": {
+            "amount": 150,
+            "currency": "ISK"
+          },
+          "totalDiscountAsMoney": {
+            "amount": 0,
+            "currency": "ISK"
+          },
+          "totalAsMoney": {
+            "amount": 150,
+            "currency": "ISK"
+          }
+        },
+        "notes": [],
+        "supplierContractFlags": [],
+        "sellerContractFlags": [],
+        "cancellationPolicy": {
+          "id": 24,
+          "title": "Default",
+          "penaltyRules": [
+            {
+              "id": 19,
+              "cutoffHours": 0,
+              "charge": 0,
+              "chargeType": "percentage"
+            }
+          ],
+          "tax": null
+        },
+        "bookingRoles": [
+          "NONE",
+          "SELLER",
+          "SUPPLIER"
+        ],
+        "date": 1515888000000,
+        "startTime": "06:00",
+        "startTimeId": 409,
+        "rateId": 99,
+        "rateTitle": "Default rate",
+        "activity": {
+          "id": 185,
+          "externalId": "",
+          "productGroupId": null,
+          "productCategory": "ACTIVITIES",
+          "box": false,
+          "inventoryLocal": false,
+          "lastPublished": "Mon Jan 08 21:07:06 UTC 2018",
+          "title": "3 Day Self Drive | 4x4 Winter Package | Destination Ice Cave",
+          "description": "Would you like to meet the guide on location for the ice cave in Vatnajökull National Park, instead of going on a bus tour? Then this self drive tour is for you. The ride to the cave will be by super jeep.<br>But first you need to drive all along the South Coast. You can enjoy the splendid waterfalls and black-sand beach at your own pace on the way to Jökulsárlón Glacier Lagoon and Diamond Beach.You meet up with the glacier guide for the ice caving on your second day. The ice here is 1,000 years old. This frozen realm is hypnotically beautiful, a totally surreal location.In the night you can go hunting for the northern lights. The area of the National Park is optimal due to its isolation, and you should be able to see the auroras, provided that the skies are rather clear of clouds and that there's activity, of course.On your third day you can explore the glacier lagoon Jökulsárlón before heading back to Reykjavík. Many consider this location to be the most beautiful place in Iceland, so give yourself enough time to enjoy the serene beauty of the lagoon.This best value tour takes you to the most incredible attractions in Iceland. Reserve it now as there is very limited availability left!",
+          "excerpt": "Would you like to meet the guide on location for the ice cave in Vatnajökull National Park, instead of going on a bus tour? Then this self drive tour is for you. The ride to the cave will be by super...",
+          "cancellationPolicy": null,
+          "requiredCustomerFields": [],
+          "keywords": [],
+          "flags": [],
+          "slug": null,
+          "baseLanguage": "en",
+          "languages": [
+            "en"
+          ],
+          "paymentCurrencies": [
+            "CAD"
+          ],
+          "customFields": [],
+          "tagGroups": [],
+          "categories": [],
+          "keyPhoto": {
+            "id": 900,
+            "originalUrl": "https://bokundemo.s3.amazonaws.com/e1e6a0f2-970b-4176-afa5-dd660516dea2.jpg",
+            "description": "3 Day Self Drive",
+            "alternateText": "3 Day Self Drive",
+            "flags": [],
+            "derived": [
+              {
+                "name": "large",
+                "url": "https://bokundemo.imgix.net/e1e6a0f2-970b-4176-afa5-dd660516dea2.jpg?w=660&h=660",
+                "cleanUrl": "https://bokundemo.imgix.net/e1e6a0f2-970b-4176-afa5-dd660516dea2.jpg?w=660&h=660"
+              },
+              {
+                "name": "preview",
+                "url": "https://bokundemo.imgix.net/e1e6a0f2-970b-4176-afa5-dd660516dea2.jpg?w=300&h=300",
+                "cleanUrl": "https://bokundemo.imgix.net/e1e6a0f2-970b-4176-afa5-dd660516dea2.jpg?w=300&h=300"
+              },
+              {
+                "name": "thumbnail",
+                "url": "https://bokundemo.imgix.net/e1e6a0f2-970b-4176-afa5-dd660516dea2.jpg?w=80&h=80&fit=crop",
+                "cleanUrl": "https://bokundemo.imgix.net/e1e6a0f2-970b-4176-afa5-dd660516dea2.jpg?w=80&h=80&fit=crop"
+              }
+            ],
+            "fileName": "/e1e6a0f2-970b-4176-afa5-dd660516dea2.jpg"
+          },
+          "photos": [
+            {
+              "id": 900,
+              "originalUrl": "https://bokundemo.s3.amazonaws.com/e1e6a0f2-970b-4176-afa5-dd660516dea2.jpg",
+              "description": "3 Day Self Drive",
+              "alternateText": "3 Day Self Drive",
+              "flags": [],
+              "derived": [
+                {
+                  "name": "large",
+                  "url": "https://bokundemo.imgix.net/e1e6a0f2-970b-4176-afa5-dd660516dea2.jpg?w=660&h=660",
+                  "cleanUrl": "https://bokundemo.imgix.net/e1e6a0f2-970b-4176-afa5-dd660516dea2.jpg?w=660&h=660"
+                },
+                {
+                  "name": "preview",
+                  "url": "https://bokundemo.imgix.net/e1e6a0f2-970b-4176-afa5-dd660516dea2.jpg?w=300&h=300",
+                  "cleanUrl": "https://bokundemo.imgix.net/e1e6a0f2-970b-4176-afa5-dd660516dea2.jpg?w=300&h=300"
+                },
+                {
+                  "name": "thumbnail",
+                  "url": "https://bokundemo.imgix.net/e1e6a0f2-970b-4176-afa5-dd660516dea2.jpg?w=80&h=80&fit=crop",
+                  "cleanUrl": "https://bokundemo.imgix.net/e1e6a0f2-970b-4176-afa5-dd660516dea2.jpg?w=80&h=80&fit=crop"
+                }
+              ],
+              "fileName": "/e1e6a0f2-970b-4176-afa5-dd660516dea2.jpg"
+            }
+          ],
+          "videos": [],
+          "vendor": {
+            "id": 22,
+            "title": "Activity Adventures",
+            "currencyCode": "CAD",
+            "showInvoiceIdOnTicket": false,
+            "showAgentDetailsOnTicket": false,
+            "showPaymentsOnInvoice": false
+          },
+          "boxedVendor": null,
+          "storedExternally": false,
+          "pluginId": null,
+          "activityType": "MULTI_DAY_TOUR",
+          "bookingType": "DATE_AND_TIME",
+          "scheduleType": "FIXED",
+          "capacityType": "LIMITED",
+          "passExpiryType": "RELATIVE_DATE",
+          "meetingType": "MEET_ON_LOCATION",
+          "passCapacity": 0,
+          "passesAvailable": 0,
+          "dressCode": false,
+          "passportRequired": false,
+          "supportedAccessibilityTypes": [],
+          "startPoints": [],
+          "included": "Accommodation for 2 nights in country hotels<br><div>Breakfast<br></div><div>4x4 Toyota Rav4 or similar for 3 days<br></div><div>SCDW insurance<br></div>",
+          "requirements": "Warm winter clothes<br><div>Hiking shoes<br></div>",
+          "attention": "Lunch and dinner can be purchased in a number of places. Accommodation is close by the glacier lagoon Jökulsárlón. Prices are per person in double rooms. Please add extra supplement if an odd number is chosen. Reserve early as there is very limited availability. It can happen that the ice cave tour is cancelled due to drastic weather and/or safety reasons. Then we will find other activities when possible, and refund the price difference.<br>",
+          "locationCode": null,
+          "bookingCutoffMinutes": 0,
+          "bookingCutoffHours": 0,
+          "bookingCutoffDays": 0,
+          "bookingCutoffWeeks": 0,
+          "requestDeadlineMinutes": 0,
+          "requestDeadlineHours": 0,
+          "requestDeadlineDays": 2,
+          "requestDeadlineWeeks": 0,
+          "boxedActivityId": null,
+          "comboActivity": false,
+          "dayBasedAvailability": false,
+          "selectFromDayOptions": false,
+          "dayOptions": [],
+          "activityCategories": [],
+          "activityAttributes": [],
+          "guidanceTypes": [],
+          "defaultRateId": 99,
+          "rates": [
+            {
+              "id": 99,
+              "title": "Default rate",
+              "description": null,
+              "index": 0,
+              "rateCode": null,
+              "pricedPerPerson": true,
+              "minPerBooking": 1,
+              "maxPerBooking": null,
+              "cancellationPolicy": {
+                "id": 24,
+                "created": [
+                  2018,
+                  1,
+                  11,
+                  18,
+                  45,
+                  34,
+                  851000000
+                ],
+                "title": "Default",
+                "tax": null,
+                "penaltyRules": [
+                  {
+                    "id": 19,
+                    "created": [
+                      2018,
+                      1,
+                      11,
+                      18,
+                      45,
+                      34,
+                      851000000
+                    ],
+                    "cutoffHours": 0,
+                    "percentage": 0
+                  }
+                ]
+              },
+              "fixedPassExpiryDate": null,
+              "passValidForDays": null,
+              "pickupSelectionType": "UNAVAILABLE",
+              "pickupPricingType": "INCLUDED_IN_PRICE",
+              "pickupPricedPerPerson": false,
+              "dropoffSelectionType": "UNAVAILABLE",
+              "dropoffPricingType": "INCLUDED_IN_PRICE",
+              "dropoffPricedPerPerson": false,
+              "extraConfigs": [
+                {
+                  "id": 112,
+                  "created": [
+                    2018,
+                    1,
+                    11,
+                    18,
+                    45,
+                    34,
+                    851000000
+                  ],
+                  "activityExtraId": 113,
+                  "selectionType": "PRESELECTED",
+                  "pricingType": "PRICED_SEPARATELY",
+                  "pricedPerPerson": true
+                }
+              ],
+              "startTimeIds": [],
+              "pricingCategoryIds": []
+            }
+          ],
+          "durationType": "DAYS",
+          "duration": 3,
+          "durationMinutes": 0,
+          "durationHours": 0,
+          "durationDays": 3,
+          "durationWeeks": 0,
+          "durationText": "3 days",
+          "minAge": 0,
+          "nextDefaultPrice": null,
+          "nextDefaultPriceMoney": null,
+          "pickupService": false,
+          "pickupAllotment": false,
+          "useComponentPickupAllotments": false,
+          "pickupFlags": [],
+          "customPickupAllowed": false,
+          "pickupMinutesBefore": null,
+          "noPickupMsg": "",
+          "showGlobalPickupMsg": false,
+          "showNoPickupMsg": false,
+          "dropoffService": false,
+          "dropoffFlags": [],
+          "customDropoffAllowed": false,
+          "difficultyLevel": "VERY_EASY",
+          "pricingCategories": [
+            {
+              "id": 20,
+              "title": "Participant",
+              "ticketCategory": "OTHER",
+              "occupancy": 1,
+              "ageQualified": true,
+              "minAge": 18,
+              "maxAge": 100,
+              "dependent": false,
+              "masterCategoryId": 102,
+              "maxPerMaster": 0,
+              "sumDependentCategories": false,
+              "maxDependentSum": 0,
+              "internalUseOnly": false,
+              "flags": [],
+              "defaultCategory": true,
+              "fullTitle": "Participant (18 - 100)"
+            }
+          ],
+          "agendaItems": [
+            {
+              "id": 205,
+              "index": 0,
+              "title": "paradise",
+              "excerpt": "paradise",
+              "body": "<p>paradise<br></p>",
+              "day": 4,
+              "flags": [],
+              "place": {
+                "id": 68,
+                "title": "new york",
+                "location": {
+                  "address": "",
+                  "city": "akureyri",
+                  "countryCode": "IS",
+                  "postCode": "28987",
+                  "latitude": 65.9464720232489,
+                  "longitude": -18.67675806249997,
+                  "zoomLevel": 6,
+                  "wholeAddress": "28987 akureyri"
+                }
+              },
+              "keyPhoto": null,
+              "photos": []
+            }
+          ],
+          "startTimes": [
+            {
+              "id": 409,
+              "hour": 6,
+              "minute": 0,
+              "overrideTimeWhenPickup": false,
+              "pickupHour": 0,
+              "pickupMinute": 0,
+              "durationType": "D",
+              "duration": 3,
+              "durationMinutes": 0,
+              "durationHours": 0,
+              "durationDays": 3,
+              "durationWeeks": 0,
+              "flags": []
+            }
+          ],
+          "bookableExtras": [
+            {
+              "id": 113,
+              "externalId": "",
+              "title": "Shoe size",
+              "information": "99",
+              "included": true,
+              "free": false,
+              "pricingType": "PER_PERSON",
+              "pricingTypeLabel": "per person",
+              "increasesCapacity": false,
+              "maxPerBooking": 0,
+              "limitByPax": true,
+              "flags": [],
+              "questions": [
+                {
+                  "id": 200,
+                  "active": true,
+                  "label": "Name:",
+                  "type": "TYPE_ANSWER",
+                  "options": "35\r\n36\r\n37\r\n38\r\n39\r\n40\r\n41",
+                  "answerRequired": true,
+                  "flags": []
+                },
+                {
+                  "id": 201,
+                  "active": true,
+                  "label": "Size: ",
+                  "type": "TYPE_ANSWER",
+                  "options": "",
+                  "answerRequired": true,
+                  "flags": []
+                }
+              ]
+            }
+          ],
+          "route": null,
+          "hasOpeningHours": false,
+          "defaultOpeningHours": null,
+          "seasonalOpeningHours": [],
+          "requestDeadline": 172800000,
+          "actualId": 185,
+          "bookingCutoff": 0,
+          "actualVendor": {
+            "id": 22,
+            "title": "Activity Adventures",
+            "currencyCode": "CAD",
+            "showInvoiceIdOnTicket": false,
+            "showAgentDetailsOnTicket": false,
+            "showPaymentsOnInvoice": false
+          }
+        },
+        "flexible": false,
+        "customized": false,
+        "pricingCategoryBookings": [
+          {
+            "id": 83231,
+            "pricingCategoryId": 20,
+            "leadPassenger": false,
+            "age": 0,
+            "bookedTitle": "Participant",
+            "quantity": 1,
+            "extras": [
+              {
+                "bookingId": 15360,
+                "title": "Shoe size",
+                "extra": {
+                  "id": 113,
+                  "externalId": "",
+                  "title": "Shoe size",
+                  "information": "99",
+                  "included": true,
+                  "free": false,
+                  "pricingType": "PER_PERSON",
+                  "pricingTypeLabel": "per person",
+                  "increasesCapacity": false,
+                  "maxPerBooking": 0,
+                  "limitByPax": true,
+                  "flags": [],
+                  "questions": [
+                    {
+                      "id": 200,
+                      "active": true,
+                      "label": "Name:",
+                      "type": "TYPE_ANSWER",
+                      "options": "35\r\n36\r\n37\r\n38\r\n39\r\n40\r\n41",
+                      "answerRequired": true,
+                      "flags": []
+                    },
+                    {
+                      "id": 201,
+                      "active": true,
+                      "label": "Size: ",
+                      "type": "TYPE_ANSWER",
+                      "options": "",
+                      "answerRequired": true,
+                      "flags": []
+                    },
+                    {
+                      "id": 200,
+                      "active": true,
+                      "label": "Name:",
+                      "type": "TYPE_ANSWER",
+                      "options": "35\r\n36\r\n37\r\n38\r\n39\r\n40\r\n41",
+                      "answerRequired": true,
+                      "flags": []
+                    },
+                    {
+                      "id": 201,
+                      "active": true,
+                      "label": "Size: ",
+                      "type": "TYPE_ANSWER",
+                      "options": "",
+                      "answerRequired": true,
+                      "flags": []
+                    }
+                  ]
+                },
+                "unitCount": 1,
+                "answers": [],
+                "bookableExtra": {
+                  "id": 113,
+                  "externalId": "",
+                  "title": "Shoe size",
+                  "information": "99",
+                  "included": true,
+                  "free": false,
+                  "pricingType": "PER_PERSON",
+                  "pricingTypeLabel": "per person",
+                  "increasesCapacity": false,
+                  "maxPerBooking": 0,
+                  "limitByPax": true,
+                  "flags": [],
+                  "questions": [
+                    {
+                      "id": 200,
+                      "active": true,
+                      "label": "Name:",
+                      "type": "TYPE_ANSWER",
+                      "options": "35\r\n36\r\n37\r\n38\r\n39\r\n40\r\n41",
+                      "answerRequired": true,
+                      "flags": []
+                    },
+                    {
+                      "id": 201,
+                      "active": true,
+                      "label": "Size: ",
+                      "type": "TYPE_ANSWER",
+                      "options": "",
+                      "answerRequired": true,
+                      "flags": []
+                    },
+                    {
+                      "id": 200,
+                      "active": true,
+                      "label": "Name:",
+                      "type": "TYPE_ANSWER",
+                      "options": "35\r\n36\r\n37\r\n38\r\n39\r\n40\r\n41",
+                      "answerRequired": true,
+                      "flags": []
+                    },
+                    {
+                      "id": 201,
+                      "active": true,
+                      "label": "Size: ",
+                      "type": "TYPE_ANSWER",
+                      "options": "",
+                      "answerRequired": true,
+                      "flags": []
+                    }
+                  ]
+                },
+                "groupedAnswers": []
+              }
+            ],
+            "answers": [],
+            "flags": []
+          }
+        ],
+        "extras": [
+          {
+            "bookingId": 15360,
+            "title": "Shoe size",
+            "extra": {
+              "id": 113,
+              "externalId": "",
+              "title": "Shoe size",
+              "information": "99",
+              "included": true,
+              "free": false,
+              "pricingType": "PER_PERSON",
+              "pricingTypeLabel": "per person",
+              "increasesCapacity": false,
+              "maxPerBooking": 0,
+              "limitByPax": true,
+              "flags": [],
+              "questions": [
+                {
+                  "id": 200,
+                  "active": true,
+                  "label": "Name:",
+                  "type": "TYPE_ANSWER",
+                  "options": "35\r\n36\r\n37\r\n38\r\n39\r\n40\r\n41",
+                  "answerRequired": true,
+                  "flags": []
+                },
+                {
+                  "id": 201,
+                  "active": true,
+                  "label": "Size: ",
+                  "type": "TYPE_ANSWER",
+                  "options": "",
+                  "answerRequired": true,
+                  "flags": []
+                },
+                {
+                  "id": 200,
+                  "active": true,
+                  "label": "Name:",
+                  "type": "TYPE_ANSWER",
+                  "options": "35\r\n36\r\n37\r\n38\r\n39\r\n40\r\n41",
+                  "answerRequired": true,
+                  "flags": []
+                },
+                {
+                  "id": 201,
+                  "active": true,
+                  "label": "Size: ",
+                  "type": "TYPE_ANSWER",
+                  "options": "",
+                  "answerRequired": true,
+                  "flags": []
+                }
+              ]
+            },
+            "unitCount": 1,
+            "answers": [],
+            "bookableExtra": {
+              "id": 113,
+              "externalId": "",
+              "title": "Shoe size",
+              "information": "99",
+              "included": true,
+              "free": false,
+              "pricingType": "PER_PERSON",
+              "pricingTypeLabel": "per person",
+              "increasesCapacity": false,
+              "maxPerBooking": 0,
+              "limitByPax": true,
+              "flags": [],
+              "questions": [
+                {
+                  "id": 200,
+                  "active": true,
+                  "label": "Name:",
+                  "type": "TYPE_ANSWER",
+                  "options": "35\r\n36\r\n37\r\n38\r\n39\r\n40\r\n41",
+                  "answerRequired": true,
+                  "flags": []
+                },
+                {
+                  "id": 201,
+                  "active": true,
+                  "label": "Size: ",
+                  "type": "TYPE_ANSWER",
+                  "options": "",
+                  "answerRequired": true,
+                  "flags": []
+                },
+                {
+                  "id": 200,
+                  "active": true,
+                  "label": "Name:",
+                  "type": "TYPE_ANSWER",
+                  "options": "35\r\n36\r\n37\r\n38\r\n39\r\n40\r\n41",
+                  "answerRequired": true,
+                  "flags": []
+                },
+                {
+                  "id": 201,
+                  "active": true,
+                  "label": "Size: ",
+                  "type": "TYPE_ANSWER",
+                  "options": "",
+                  "answerRequired": true,
+                  "flags": []
+                }
+              ]
+            },
+            "groupedAnswers": []
+          }
+        ],
+        "bookingFields": [],
+        "pickup": false,
+        "dropoff": false,
+        "requestDeadline": 1515869098000,
+        "totalParticipants": 1,
+        "bookedPricingCategories": [
+          {
+            "id": 20,
+            "title": "Participant",
+            "ticketCategory": null,
+            "occupancy": 1,
+            "ageQualified": false,
+            "minAge": null,
+            "maxAge": null,
+            "dependent": false,
+            "masterCategoryId": null,
+            "maxPerMaster": 0,
+            "sumDependentCategories": false,
+            "maxDependentSum": 0,
+            "internalUseOnly": false,
+            "flags": [],
+            "defaultCategory": false,
+            "fullTitle": "Participant"
+          }
+        ],
+        "quantityByPricingCategory": {
+          "20": 1
+        },
+        "savedAmount": 0
+      }
+    ],
+    "routeBookings": [],
+    "bookingFields": []
+  }
+}
