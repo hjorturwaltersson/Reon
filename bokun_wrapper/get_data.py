@@ -147,8 +147,8 @@ def get_places(product_id):
     create_or_update_place(filtered_dropoff_places)
     create_or_update_place(filtered_pickup_places)
 
-    product.dropoff_places.set([p['id'] for p in dropoff_places], clear=True)
-    product.pickup_places.set([p['id'] for p in pickup_places], clear=True)
+    product.dropoff_places.set([p['id'] for p in filtered_dropoff_places], clear=True)
+    product.pickup_places.set([p['id'] for p in filtered_pickup_places], clear=True)
 
 
 def get_availability(product_id, date):
