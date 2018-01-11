@@ -270,8 +270,8 @@ def get_frontpage_products(request):
     for product in products:
         single_product_dict = FrontPageProductSerializer(product).data
         price = get_product_price(product, traveler_count_adults, traveler_count_children, round_trip)
-        if product.id == 13 or product.id == 14 and datetime.datetime.strptime(date_from, '%Y-%M-%d') < datetime.datetime.strptime('2018-01-11', '%Y-%M-%d'):
-            if round_trip and datetime.datetime.strptime(date_to, '%Y-%M-%d') < datetime.datetime.strptime('2018-01-11', '%Y-%M-%d'):
+        if product.id == 13 or product.id == 14 and date_from < '2018-01-11':
+            if round_trip and date_to < '2018-01-11':
                 price = 2 * (traveler_count_adults * 2990 + traveler_count_children * 1495)
             elif round_trip:
                 price = (5490+2990) * traveler_count_adults + (2745+1495) * traveler_count_children
@@ -544,4 +544,7 @@ def add_cross_sale_to_cart(request):
     path = '/shopping-cart.json/session/{}/activity'.format(session_id)
 
     reply = get_data.make_post_request(path, body)
-    return Response(reply.json())
+    try:
+        return Response(reply.json())
+    except ValueError as e:
+        return Response(reply.text)
