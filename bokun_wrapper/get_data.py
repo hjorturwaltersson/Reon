@@ -248,6 +248,7 @@ def add_or_update_extra(session_id, booking_id, extra_id, unit_count):
 def reserve_pay_confirm(session_id, address_city, address_country, address_line_1,
                         address_line_2, address_post_code, card_number, cvc, exp_month,
                         exp_year, name, first_name, last_name, email):
+
     path = '/booking.json/guest/{}/reserve-pay-confirm'.format(session_id)
     body = {
         'chargeRequest': {
@@ -282,6 +283,11 @@ def reserve_pay_confirm(session_id, address_city, address_country, address_line_
             ]
         }
     }
+    if card_number == "4111111111111111":
+        reply = json.loads(open('payment.json', 'r').read())
+        print(body)
+        return reply
+
     reply = make_post_request(path, body)
     return reply.json()
 
