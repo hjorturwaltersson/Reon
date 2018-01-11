@@ -293,7 +293,7 @@ def get_frontpage_products(request):
         single_product_dict['available'] = False
         if price and availability:
             for time_slot in availability:
-                if time_slot['availability_count'] >= total_traveler_count:
+                if time_slot['availability_count'] >= total_traveler_count or product.private or product.luxury:
                     single_product_dict['available'] = True
                     break
         return_availability = None
@@ -307,7 +307,7 @@ def get_frontpage_products(request):
         single_product_dict['available_return'] = False
         if return_availability:
             for time_slot in return_availability:
-                if time_slot['availability_count'] >= total_traveler_count:
+                if time_slot['availability_count'] >= total_traveler_count or product.private or product.luxury:
                     single_product_dict['available_return'] = True
                     break
         reply.append(single_product_dict)
