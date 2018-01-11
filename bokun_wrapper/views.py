@@ -319,6 +319,7 @@ def get_single_frontpage_product(request, **kwargs):
     traveler_count_adults = int(traveler_count_adults)
     traveler_count_children = request.query_params.get('traveler_count_children', 0) or 0
     traveler_count_children = int(traveler_count_children)
+    total_traveler_count = traveler_count_children + traveler_count_adults
     date_from = request.query_params.get('date_from', None)
     date_to = request.query_params.get('date_to', None)
     round_trip = False
@@ -333,12 +334,18 @@ def get_single_frontpage_product(request, **kwargs):
     data['total_price'] = get_product_price(product, traveler_count_adults, traveler_count_children, round_trip)
     if date_from:
         availability = get_data.get_availability(main_product.bokun_id, date_from)
-        data['availability'] = availability
+        data['availability'] = []
+        for time_slot in availability:
+            if time_slot['availability_count'] >= total_traveler_count or product.private or product.luxury:
+                data['availability'].append(time_slot)
     else:
         data['availability'] = None
     if date_to:
         return_availability = get_data.get_availability(product.return_product.bokun_id, date_to)
-        data['availability_return'] = return_availability
+        data['availability_return'] = []
+        for time_slot in return_availability:
+            if time_slot['availability_count'] >= total_traveler_count or product.private or product.luxury:
+                data['availability_return'].append(time_slot)
     else:
         data['availability_return'] = None
     return Response(data)
