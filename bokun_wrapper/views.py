@@ -145,16 +145,13 @@ def add_to_cart(request):
     child_seat_infant_count = int(child_seat_infant_count)
     product = FrontPageProduct.objects.get(id=product_type_id)
     custom_locations = False
-    try:
-        Place.objects.get(bokun_id=pickup_place_id)
-        Place.objects.get(bokun_id=dropoff_place_id)
-    except Place.DoesNotExist as e:
-        custom_locations = True
+
     if product.luxury or product.private:
         main_product = product.bokun_product
         return_product = product.bokun_product
         traveler_count_children = 0
         traveler_count_adults = 1
+        custom_locations = True
     elif round_trip and product.discount_product:
         main_product = product.discount_product
         return_product = product.return_product
@@ -265,6 +262,7 @@ def get_frontpage_products(request):
     private_products = FrontPageProduct.objects.filter(private=True) | FrontPageProduct.objects.filter(luxury=True)
     applicable_private_products = private_products.filter(min_people__lte=total_traveler_count, max_people__gte=total_traveler_count)
     products = FrontPageProduct.objects.filter(bokun_product__in=queryset, private=False, luxury=False) | applicable_private_products
+
     reply = []
 
     for product in products:
