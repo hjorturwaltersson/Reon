@@ -141,8 +141,8 @@ def get_places(product_id):
     def filter_function(x):
         return 'keflavík' in x['flags'] or 'economy' in x['flags']
 
-    filtered_dropoff_places = filter(filter_function, dropoff_places)
-    filtered_pickup_places = filter(filter_function, pickup_places)
+    filtered_dropoff_places = list(filter(filter_function, dropoff_places))
+    filtered_pickup_places = list(filter(filter_function, pickup_places))
 
     create_or_update_place(filtered_dropoff_places)
     create_or_update_place(filtered_pickup_places)
