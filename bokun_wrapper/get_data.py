@@ -177,7 +177,7 @@ def get_cart(session_id=None):
 
 def add_to_cart(activity_id, start_time_id, date, pricing_category_bookings,
                 session_id=None, dropoff_place_id=None, pickup_place_id=None,
-                pickup=False):
+                pickup=False, custom_locations=False):
     if not session_id:
         session_id = get_cart()['sessionId']
     path = '/shopping-cart.json/session/{}/activity'.format(session_id)
@@ -201,10 +201,14 @@ def add_to_cart(activity_id, start_time_id, date, pricing_category_bookings,
             "pricingCategoryId": pricing_category_booking['pricing_category_id']
         })
     body['pricingCategoryBookings'] = pricing_category_bookings_list
-    if dropoff_place_id:
+    if not custom_locations:
         body['dropoffPlaceId'] = dropoff_place_id
-    if pickup_place_id:
+    else:
+        body['dropoffPlaceDescription'] = dropoff_place_id
+    if not custom_locations:
         body['pickupPlaceId'] = pickup_place_id
+    else:
+        body['pickupPlaceDescription'] = dropoff_place_id
     reply = make_post_request(path, body)
     return reply.json()
 

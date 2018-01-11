@@ -39,7 +39,7 @@ class Product(models.Model):
     excerpt = models.CharField(max_length=1000, null=True)
     bookable_extras = JSONField(null=True)
     price = models.CharField(max_length=1000, null=True)
-    photos = JSONField(null=True)
+    photos = JSONField(null=True, blank=True)
     vendor = models.ForeignKey(Vendor, null=True, on_delete=models.SET_NULL)
     external_id = models.CharField(max_length=1000)
     json = JSONField(null=True)

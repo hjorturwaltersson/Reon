@@ -144,6 +144,12 @@ def add_to_cart(request):
     child_seat_child_count = int(child_seat_child_count)
     child_seat_infant_count = int(child_seat_infant_count)
     product = FrontPageProduct.objects.get(id=product_type_id)
+    custom_locations = False
+    try:
+        Place.objects.get(bokun_id=pickup_place_id)
+        Place.objects.get(bokun_id=dropoff_place_id)
+    except Place.DoesNotExist as e:
+        custom_locations = True
     if product.luxury or product.private:
         main_product = product.bokun_product
         return_product = product.bokun_product
@@ -173,6 +179,7 @@ def add_to_cart(request):
                                   session_id=session_id,
                                   dropoff_place_id=dropoff_place_id,
                                   pickup_place_id=pickup_place_id,
+                                  custom_locations=custom_locations,
                                   )
     try:
         session_id = reply1['sessionId']
@@ -196,6 +203,7 @@ def add_to_cart(request):
                                       session_id=session_id,
                                       dropoff_place_id=pickup_place_id,
                                       pickup_place_id=dropoff_place_id,
+                                      custom_locations=custom_locations,
                                       )
         return Response(reply2)
 
@@ -234,22 +242,29 @@ def get_frontpage_products(request):
     date_from = request.query_params.get('date_from', None)
     date_to = request.query_params.get('date_to', None)
     round_trip = False
+    custom_locations = False
     if date_to:
         round_trip = True
 
     total_traveler_count = traveler_count_adults + traveler_count_children
 
-    queryset = Product.objects.all()
-    if location_from:
-        queryset = queryset.filter(pickup_places=location_from) | queryset.filter(pickup_places=None)
-    if location_to:
-        queryset = queryset.filter(dropoff_places=location_to) | queryset.filter(dropoff_places=None)
+    try:
+        Place.objects.get(bokun_id=location_from)
+        Place.objects.get(bokun_id=location_to)
+    except Place.DoesNotExist as e:
+        custom_locations = True
 
+    queryset = Product.objects.all()
+    if not custom_locations:
+        if location_from:
+            queryset = queryset.filter(pickup_places=location_from) | queryset.filter(pickup_places=None)
+        if location_to:
+            queryset = queryset.filter(dropoff_places=location_to) | queryset.filter(dropoff_places=None)
+    else:
+        queryset = Product.objects.none()
     private_products = FrontPageProduct.objects.filter(private=True) | FrontPageProduct.objects.filter(luxury=True)
     applicable_private_products = private_products.filter(min_people__lte=total_traveler_count, max_people__gte=total_traveler_count)
     products = FrontPageProduct.objects.filter(bokun_product__in=queryset, private=False, luxury=False) | applicable_private_products
-    # unavailable = Product.objects.all().exclude(bokun_id__in=queryset)
-    # unavailable_products = FrontPageProduct.objects.filter(bokun_product__in=unavailable)
     reply = []
 
     for product in products:
@@ -287,11 +302,6 @@ def get_frontpage_products(request):
                     single_product_dict['available_return'] = True
                     break
         reply.append(single_product_dict)
-
-    # for product in unavailable_products:
-    #     single_product_dict = FrontPageProductSerializer(product).data
-    #     single_product_dict['available'] = False
-    #     reply.append(single_product_dict)
 
     return Response(reply)
 
