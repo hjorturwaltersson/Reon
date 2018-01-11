@@ -270,8 +270,10 @@ def get_frontpage_products(request):
     for product in products:
         single_product_dict = FrontPageProductSerializer(product).data
         price = get_product_price(product, traveler_count_adults, traveler_count_children, round_trip)
-        if product.id == 13 or product.id == 14 and date_from < '2018-01-11':
-            if round_trip and date_to < '2018-01-11':
+        proper_product = product.id == 13 or product.id == 14
+        proper_date = date_from < '2018-03-01'
+        if proper_product and proper_date:
+            if round_trip and date_to < '2018-03-01':
                 price = 2 * (traveler_count_adults * 2990 + traveler_count_children * 1495)
             elif round_trip:
                 price = (5490+2990) * traveler_count_adults + (2745+1495) * traveler_count_children
