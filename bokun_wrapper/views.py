@@ -136,6 +136,8 @@ def add_to_cart(request):
     odd_size_baggage_count = body.get('odd_size_baggage_count', 0)
     child_seat_child_count = body.get('child_seat_child_count', 0)
     child_seat_infant_count = body.get('child_seat_infant_count', 0)
+    return_pickup_place_id = body.get('return_pickup_place_id', dropoff_place_id)
+    return_dropoff_place_id = body.get('return_dropoff_place_id', pickup_place_id)
 
     traveler_count_adults = int(traveler_count_adults)
     traveler_count_children = int(traveler_count_children)
@@ -198,8 +200,8 @@ def add_to_cart(request):
                                       date=return_date,
                                       pricing_category_bookings=pricing_category_bookings,
                                       session_id=session_id,
-                                      dropoff_place_id=pickup_place_id,
-                                      pickup_place_id=dropoff_place_id,
+                                      dropoff_place_id=return_dropoff_place_id,
+                                      pickup_place_id=return_pickup_place_id,
                                       custom_locations=custom_locations,
                                       )
         return Response(reply2)

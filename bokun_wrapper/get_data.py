@@ -204,11 +204,21 @@ def add_to_cart(activity_id, start_time_id, date, pricing_category_bookings,
     if not custom_locations:
         body['dropoffPlaceId'] = dropoff_place_id
     else:
+        try:
+            place_model = apps.get_model('bokun_wrapper', 'Place')
+            dropoff_place_id = place_model.objects.get(bokun_id=dropoff_place_id).title
+        except Exception as e:
+            pass
         body['dropoffPlaceDescription'] = dropoff_place_id
     if not custom_locations:
         body['pickupPlaceId'] = pickup_place_id
     else:
-        body['pickupPlaceDescription'] = dropoff_place_id
+        try:
+            place_model = apps.get_model('bokun_wrapper', 'Place')
+            pickup_place_id = place_model.objects.get(bokun_id=pickup_place_id).title
+        except Exception as e:
+            pass
+        body['pickupPlaceDescription'] = pickup_place_id
     reply = make_post_request(path, body)
     return reply.json()
 
