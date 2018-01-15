@@ -577,7 +577,7 @@ def add_cross_sale_to_cart(request):
         url=request.get_full_path(),
         incoming_body=body,
         outgoing_body=bokun_body,
-        bokun_response=reply
+        bokun_response=reply.json()
     )
 
     try:
