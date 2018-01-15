@@ -106,7 +106,7 @@ class CrossSaleItem(models.Model):
     extra_person_id = models.IntegerField(default=0)
 
 
-class Request(models.Model):
+class RequestLog(models.Model):
     url = models.URLField(null=True, blank=True)
     incoming_body = JSONField(null=True, blank=True)
     outgoing_body = JSONField(null=True, blank=True)

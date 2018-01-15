@@ -2,7 +2,7 @@ from bokun_wrapper import get_data
 from rest_framework import viewsets
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from .models import Vendor, Place, Product, FrontPageProduct, CrossSaleItem, Request
+from .models import Vendor, Place, Product, FrontPageProduct, CrossSaleItem, RequestLog
 from .serializers import ProductSerializer, VendorSerializer, PlaceSerializer, FrontPageProductSerializer
 import json
 import datetime
@@ -180,8 +180,8 @@ def add_to_cart(request):
                                   pickup_place_id=pickup_place_id,
                                   custom_locations=custom_locations,
                                   )
-    Request.objects.create(
-        url=request.url,
+    RequestLog.objects.create(
+        url=request.get_full_path(),
         incoming_body=body,
         bokun_response=reply1.text
     )
@@ -209,8 +209,8 @@ def add_to_cart(request):
                                       pickup_place_id=return_pickup_place_id,
                                       custom_locations=custom_locations,
                                       )
-        Request.objects.create(
-            url=request.url,
+        RequestLog.objects.create(
+            url=request.get_full_path(),
             incoming_body=body,
             bokun_response=reply2.text
         )
@@ -571,8 +571,8 @@ def add_cross_sale_to_cart(request):
 
     reply = get_data.make_post_request(path, bokun_body)
 
-    Request.objects.create(
-        url=request.url,
+    RequestLog.objects.create(
+        url=request.get_full_path(),
         incoming_body=body,
         outgoing_body=bokun_body,
         bokun_response=reply.text
