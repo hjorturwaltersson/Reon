@@ -104,3 +104,11 @@ class CrossSaleItem(models.Model):
     lunch_id = models.IntegerField(default=0)
     lunch_question_id = models.IntegerField(default=0)
     extra_person_id = models.IntegerField(default=0)
+
+
+class Request(models.Model):
+    url = models.URLField(null=True, blank=True)
+    incoming_body = JSONField(null=True, blank=True)
+    outgoing_body = JSONField(null=True, blank=True)
+    bokun_response = models.CharField(max_length=2000, null=True, blank=True)
+    timestamp = models.DateTimeField(auto_now_add=True)

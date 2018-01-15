@@ -2,7 +2,7 @@ from bokun_wrapper import get_data
 from rest_framework import viewsets
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from .models import Vendor, Place, Product, FrontPageProduct, CrossSaleItem
+from .models import Vendor, Place, Product, FrontPageProduct, CrossSaleItem, Request
 from .serializers import ProductSerializer, VendorSerializer, PlaceSerializer, FrontPageProductSerializer
 import json
 import datetime
@@ -180,6 +180,11 @@ def add_to_cart(request):
                                   pickup_place_id=pickup_place_id,
                                   custom_locations=custom_locations,
                                   )
+    Request.objects.create(
+        url=request.url,
+        incoming_body=body,
+        bokun_response=reply1.text
+    )
     try:
         session_id = reply1['sessionId']
     except KeyError as e:
@@ -204,6 +209,11 @@ def add_to_cart(request):
                                       pickup_place_id=return_pickup_place_id,
                                       custom_locations=custom_locations,
                                       )
+        Request.objects.create(
+            url=request.url,
+            incoming_body=body,
+            bokun_response=reply2.text
+        )
         return Response(reply2)
 
     return Response(reply1)
@@ -451,7 +461,7 @@ def add_cross_sale_to_cart(request):
     total_lunches = lunch_count_regular + lunch_count_vegan + lunch_count_vegetarian
     cross_sale_item = CrossSaleItem.objects.get(bokun_id=activity_id)
 
-    body = {
+    bokun_body = {
         'activityId': activity_id,
         'date': date,
         'pickup': pickup,
@@ -555,11 +565,19 @@ def add_cross_sale_to_cart(request):
                 get_extra(cross_sale_item.lunch_id, cross_sale_item.lunch_question_id, "Vegan")
             )
 
-    body['pricingCategoryBookings'] = pricing_category_bookings
+    bokun_body['pricingCategoryBookings'] = pricing_category_bookings
 
     path = '/shopping-cart.json/session/{}/activity'.format(session_id)
 
-    reply = get_data.make_post_request(path, body)
+    reply = get_data.make_post_request(path, bokun_body)
+
+    Request.objects.create(
+        url=request.url,
+        incoming_body=body,
+        outgoing_body=bokun_body,
+        bokun_response=reply.text
+    )
+
     try:
         return Response(reply.json())
     except ValueError as e:

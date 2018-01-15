@@ -299,6 +299,11 @@ def reserve_pay_confirm(session_id, address_city, address_country, address_line_
         return reply
 
     reply = make_post_request(path, body)
+    request_model = apps.get_model('bokun_wrapper', 'Request')
+    request_model.objects.create(
+        bokun_response=reply.text
+    )
+
     return reply.json()
 
 
