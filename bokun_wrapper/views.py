@@ -183,7 +183,7 @@ def add_to_cart(request):
     RequestLog.objects.create(
         url=request.get_full_path(),
         incoming_body=body,
-        bokun_response=reply1.text
+        bokun_response=reply1
     )
     try:
         session_id = reply1['sessionId']
@@ -212,7 +212,7 @@ def add_to_cart(request):
         RequestLog.objects.create(
             url=request.get_full_path(),
             incoming_body=body,
-            bokun_response=reply2.text
+            bokun_response=reply2
         )
         return Response(reply2)
 
@@ -575,7 +575,7 @@ def add_cross_sale_to_cart(request):
         url=request.get_full_path(),
         incoming_body=body,
         outgoing_body=bokun_body,
-        bokun_response=reply.text
+        bokun_response=reply
     )
 
     try:
