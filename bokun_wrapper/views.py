@@ -289,11 +289,12 @@ def get_frontpage_products(request):
                 price = (5490+2990) * traveler_count_adults + (2745+1495) * traveler_count_children
             else:
                 price = 2990 * traveler_count_adults + 1495 * traveler_count_children
-        single_product_dict['total_price'] = price
         if round_trip and product.discount_product:
             main_product = product.discount_product
+            single_product_dict['bokun_product'] = ProductSerializer(product.discount_product).data
         else:
             main_product = product.bokun_product
+        single_product_dict['total_price'] = price
         availability = None
         if date_from:
             availability = get_data.get_availability(main_product.bokun_id, date_from)
@@ -338,11 +339,12 @@ def get_single_frontpage_product(request, **kwargs):
     if date_to:
         round_trip = True
     product = FrontPageProduct.objects.get(id=kwargs['id'])
+    data = FrontPageProductSerializer(product).data
     if round_trip and product.discount_product:
         main_product = product.discount_product
+        data['bokun_product'] = ProductSerializer(product.discount_product).data
     else:
         main_product = product.bokun_product
-    data = FrontPageProductSerializer(product).data
     data['total_price'] = get_product_price(product, traveler_count_adults, traveler_count_children, round_trip)
     if date_from:
         availability = get_data.get_availability(main_product.bokun_id, date_from)
