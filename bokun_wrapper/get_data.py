@@ -257,7 +257,7 @@ def add_or_update_extra(session_id, booking_id, extra_id, unit_count):
 
 def reserve_pay_confirm(session_id, address_city, address_country, address_line_1,
                         address_line_2, address_post_code, card_number, cvc, exp_month,
-                        exp_year, name, first_name, last_name, email):
+                        exp_year, name, first_name, last_name, email, phone_number):
 
     path = '/booking.json/guest/{}/reserve-pay-confirm'.format(session_id)
     body = {
@@ -289,6 +289,10 @@ def reserve_pay_confirm(session_id, address_city, address_country, address_line_
                 {
                     'type': 'email',
                     'answer': email
+                },
+                {
+                    'type': 'phone-number',
+                    'answer': phone_number
                 }
             ]
         }

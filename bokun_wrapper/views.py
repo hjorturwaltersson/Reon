@@ -388,6 +388,7 @@ def pay(request):
     first_name = body.get('first_name')
     last_name = body.get('last_name')
     email = body.get('email')
+    phone_number = body.get('phone_number', '')
     return Response(get_data.reserve_pay_confirm(session_id=session_id,
                                                  address_city=address_city,
                                                  address_country=address_country,
@@ -401,7 +402,8 @@ def pay(request):
                                                  name=name,
                                                  first_name=first_name,
                                                  last_name=last_name,
-                                                 email=email))
+                                                 email=email,
+                                                 phone_number=phone_number))
 
 
 @api_view(['POST'])
