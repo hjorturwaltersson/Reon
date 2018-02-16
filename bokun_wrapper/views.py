@@ -57,6 +57,31 @@ def get_availability(request):
     return Response(get_data.get_availability(product_id, date))
 
 
+@api_view(['GET'])
+def blue_lagoon_places(request):
+    kef_places = Place.objects.filter(type='airport')
+    rey_places = Place.objects.filter(type='hotel')
+    kef_dicts = [{
+        "PickupLocation": p.title,
+        "PickupRouteID": 1,
+        "PickupLocationID": p.bokun_id,
+        "RouteIDPrice": "3000"
+    } for p in kef_places]
+    rey_dicts = [{
+        "PickupLocation": p.title,
+        "PickupRouteID": 2,
+        "PickupLocationID": p.bokun_id,
+        "RouteIDPrice": "3000"
+    } for p in rey_places]
+
+    reply = {
+        "KefPlaces": kef_dicts,
+        "ReyPlaces": rey_dicts
+    }
+
+    return Response(reply)
+
+
 def get_pricing_category_bookings(product, traveler_count_adults,
                                   traveler_count_children,
                                   flight_delay_guarantee, flight_number,
