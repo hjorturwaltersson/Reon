@@ -92,7 +92,7 @@ def blue_lagoon_order(request):
     PickupQuantityAdult = body['PickupQuantityAdult']
     PickupQuantityChildren = body['PickupQuantityChildren']
     Name = body['Name']
-    Email = body['DropOffLocationID']
+    Email = body['Email']
     PhoneNumber = body['PhoneNumber']
     return Response({"success": True})
 
