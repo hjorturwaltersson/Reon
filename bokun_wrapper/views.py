@@ -82,6 +82,21 @@ def blue_lagoon_places(request):
     return Response(reply)
 
 
+@api_view(['POST'])
+def blue_lagoon_order(request):
+    body = json.loads(request.body)
+    BookingID = body['BookingID']
+    PickupLocationID = body['PickupLocationID']
+    PickupTime = body['PickupTime']
+    DropOffLocationID = body['DropOffLocationID']
+    PickupQuantityAdult = body['PickupQuantityAdult']
+    PickupQuantityChildren = body['PickupQuantityChildren']
+    Name = body['Name']
+    Email = body['DropOffLocationID']
+    PhoneNumber = body['PhoneNumber']
+    return Response({"success": True})
+
+
 def get_pricing_category_bookings(product, traveler_count_adults,
                                   traveler_count_children,
                                   flight_delay_guarantee, flight_number,
