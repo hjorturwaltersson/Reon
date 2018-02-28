@@ -192,16 +192,16 @@ def add_to_cart(request):
 
     hotel_connection = body.get('hotel_connection', False)
     if hotel_connection and product_type_id == 11:
-        start_time = get_start_time(start_time_id, 11, date)
-        start_time_id = get_start_time_id(start_time, 19, date)
-        return_start_time = get_start_time(return_start_time_id, 11, return_date)
-        return_start_time_id = get_start_time_id(return_start_time, 19, return_date)
+        start_time = get_start_time(start_time_id, 22112, date)
+        start_time_id = get_start_time_id(start_time, 22246, date)
+        return_start_time = get_start_time(return_start_time_id, 9882, return_date)
+        return_start_time_id = get_start_time_id(return_start_time, 22442, return_date)
         product_type_id = 19
     if hotel_connection and product_type_id == 12:
-        start_time = get_start_time(start_time_id, 12, date)
-        start_time_id = get_start_time_id(start_time, 18, date)
-        return_start_time = get_start_time(return_start_time_id, 12, return_date)
-        return_start_time_id = get_start_time_id(return_start_time, 18, return_date)
+        start_time = get_start_time(start_time_id, 22141, date)
+        start_time_id = get_start_time_id(start_time, 22257, date)
+        return_start_time = get_start_time(return_start_time_id, 9883, return_date)
+        return_start_time_id = get_start_time_id(return_start_time, 22443, return_date)
         product_type_id = 18
 
     traveler_count_adults = int(traveler_count_adults)
