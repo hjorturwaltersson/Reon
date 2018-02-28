@@ -190,6 +190,12 @@ def add_to_cart(request):
     return_pickup_place_id = body.get('return_pickup_place_id', dropoff_place_id)
     return_dropoff_place_id = body.get('return_dropoff_place_id', pickup_place_id)
 
+    hotel_connection = body.get('hotel_connection', False)
+    if hotel_connection and product_type_id == 11:
+        product_type_id = 19
+    if hotel_connection and product_type_id == 12:
+        product_type_id = 18
+
     traveler_count_adults = int(traveler_count_adults)
     traveler_count_children = int(traveler_count_children)
     extra_baggage_count = int(extra_baggage_count)
@@ -324,8 +330,8 @@ def get_frontpage_products(request):
         queryset = Product.objects.none()
     private_products = FrontPageProduct.objects.filter(private=True) | FrontPageProduct.objects.filter(luxury=True)
     applicable_private_products = private_products.filter(min_people__lte=total_traveler_count, max_people__gte=total_traveler_count)
-    products = FrontPageProduct.objects.filter(bokun_product__in=queryset, private=False, luxury=False) | applicable_private_products
-
+    # products = FrontPageProduct.objects.filter(bokun_product__in=queryset, private=False, luxury=False) | applicable_private_products
+    products = FrontPageProduct.objects.filter(private=False, luxury=False) | applicable_private_products
     reply = []
 
     for product in products:
