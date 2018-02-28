@@ -192,8 +192,16 @@ def add_to_cart(request):
 
     hotel_connection = body.get('hotel_connection', False)
     if hotel_connection and product_type_id == 11:
+        start_time = get_start_time(start_time_id, 11, date)
+        start_time_id = get_start_time_id(start_time, 19, date)
+        return_start_time = get_start_time(return_start_time_id, 11, return_date)
+        return_start_time_id = get_start_time_id(return_start_time, 19, return_date)
         product_type_id = 19
     if hotel_connection and product_type_id == 12:
+        start_time = get_start_time(start_time_id, 12, date)
+        start_time_id = get_start_time_id(start_time, 18, date)
+        return_start_time = get_start_time(return_start_time_id, 12, return_date)
+        return_start_time_id = get_start_time_id(return_start_time, 18, return_date)
         product_type_id = 18
 
     traveler_count_adults = int(traveler_count_adults)
@@ -330,8 +338,8 @@ def get_frontpage_products(request):
         queryset = Product.objects.none()
     private_products = FrontPageProduct.objects.filter(private=True) | FrontPageProduct.objects.filter(luxury=True)
     applicable_private_products = private_products.filter(min_people__lte=total_traveler_count, max_people__gte=total_traveler_count)
-    # products = FrontPageProduct.objects.filter(bokun_product__in=queryset, private=False, luxury=False) | applicable_private_products
-    products = FrontPageProduct.objects.filter(private=False, luxury=False) | applicable_private_products
+    products = FrontPageProduct.objects.filter(bokun_product__in=queryset, private=False, luxury=False) | applicable_private_products
+    # products = FrontPageProduct.objects.filter(private=False, luxury=False) | applicable_private_products
     reply = []
 
     for product in products:
@@ -643,3 +651,19 @@ def add_cross_sale_to_cart(request):
         return Response(reply.json())
     except ValueError as e:
         return Response(reply.text)
+
+
+def get_start_time_id(start_time, activity_id, date):
+    data = get_data.get_availability(activity_id, date)
+    for start_time_slot in data:
+        if start_time_slot['start_time'] == start_time:
+            return start_time_slot['start_time_ida']
+    return None
+
+
+def get_start_time(start_time_id, activity_id, date):
+    data = get_data.get_availability(activity_id, date)
+    for start_time_slot in data:
+        if start_time_slot['start_time_id'] == start_time_id:
+            return start_time_slot['start_time']
+    return ""
