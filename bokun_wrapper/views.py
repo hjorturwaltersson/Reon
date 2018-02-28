@@ -103,7 +103,7 @@ def blue_lagoon_order(request):
         Name = body['Name']
         Email = body['Email']
         PhoneNumber = body['PhoneNumber']
-        return Response({"success": True, "error": None})
+        return Response({"success": True, "error": None}, status=201)
     except Exception as e:
         return Response({"success": False, "error": "request_incomplete"}, status=400)
 
