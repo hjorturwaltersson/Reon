@@ -63,12 +63,14 @@ def blue_lagoon_places(request):
     rey_places = Place.objects.filter(type='hotel')
     kef_dicts = [{
         "PickupLocation": p.title,
+        "PickupLocationAddress": "Laugarvegur 104",
         "PickupRouteID": 1,
         "PickupLocationID": p.bokun_id,
         "RouteIDPrice": "3000"
     } for p in kef_places]
     rey_dicts = [{
         "PickupLocation": p.title,
+        "PickupLocationAddress": "Laugarvegur 104",
         "PickupRouteID": 2,
         "PickupLocationID": p.bokun_id,
         "RouteIDPrice": "3000"
@@ -84,17 +86,26 @@ def blue_lagoon_places(request):
 
 @api_view(['POST'])
 def blue_lagoon_order(request):
-    body = json.loads(request.body)
-    BookingID = body['BookingID']
-    PickupLocationID = body['PickupLocationID']
-    PickupTime = body['PickupTime']
-    DropOffLocationID = body['DropOffLocationID']
-    PickupQuantityAdult = body['PickupQuantityAdult']
-    PickupQuantityChildren = body['PickupQuantityChildren']
-    Name = body['Name']
-    Email = body['Email']
-    PhoneNumber = body['PhoneNumber']
-    return Response({"success": True})
+    try:
+        secret = request.META['HTTP_SECRET']
+        if secret != 'WKSqWWTjmD6p2yX7Am4y8m2N':
+            return Response({"success": False, "error": "authorization_failed"}, status=401)
+    except Exception as e:
+        return Response({"success": False, "error": "authorization_failed"}, status=401)
+    try:
+        body = json.loads(request.body)
+        BookingID = body['BookingID']
+        PickupLocationID = body['PickupLocationID']
+        PickupTime = body['PickupTime']
+        DropOffLocationID = body['DropOffLocationID']
+        PickupQuantityAdult = body['PickupQuantityAdult']
+        PickupQuantityChildren = body['PickupQuantityChildren']
+        Name = body['Name']
+        Email = body['Email']
+        PhoneNumber = body['PhoneNumber']
+        return Response({"success": True, "error": None})
+    except Exception as e:
+        return Response({"success": False, "error": "request_incomplete"}, status=400)
 
 
 def get_pricing_category_bookings(product, traveler_count_adults,
