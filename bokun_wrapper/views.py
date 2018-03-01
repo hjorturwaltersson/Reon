@@ -192,17 +192,26 @@ def add_to_cart(request):
 
     hotel_connection = body.get('hotel_connection', False)
     if hotel_connection and product_type_id == 11:
-        start_time = get_start_time(start_time_id, 22112, date)
-        start_time_id = get_start_time_id(start_time, 22246, date)
-        return_start_time = get_start_time(return_start_time_id, 9882, return_date)
-        return_start_time_id = get_start_time_id(return_start_time, 22442, return_date)
         product_type_id = 19
+        if round_trip:
+            start_time = get_start_time(start_time_id, 9883, date)
+            start_time_id = get_start_time_id(start_time, 22443, date)
+            return_start_time = get_start_time(return_start_time_id, 9882, return_date)
+            return_start_time_id = get_start_time_id(return_start_time, 22442, return_date)
+
+        else:
+            start_time = get_start_time(start_time_id, 22112, date)
+            start_time_id = get_start_time_id(start_time, 22246, date)
     if hotel_connection and product_type_id == 12:
-        start_time = get_start_time(start_time_id, 22141, date)
-        start_time_id = get_start_time_id(start_time, 22257, date)
-        return_start_time = get_start_time(return_start_time_id, 9883, return_date)
-        return_start_time_id = get_start_time_id(return_start_time, 22443, return_date)
         product_type_id = 18
+        if round_trip:
+            start_time = get_start_time(start_time_id, 9882, date)
+            start_time_id = get_start_time_id(start_time, 22442, date)
+            return_start_time = get_start_time(return_start_time_id, 9883, return_date)
+            return_start_time_id = get_start_time_id(return_start_time, 22443, return_date)
+        else:
+            start_time = get_start_time(start_time_id, 22141, date)
+            start_time_id = get_start_time_id(start_time, 22257, date)
 
     traveler_count_adults = int(traveler_count_adults)
     traveler_count_children = int(traveler_count_children)
@@ -657,7 +666,7 @@ def get_start_time_id(start_time, activity_id, date):
     data = get_data.get_availability(activity_id, date)
     for start_time_slot in data:
         if start_time_slot['start_time'] == start_time:
-            return start_time_slot['start_time_ida']
+            return start_time_slot['start_time_id']
     return None
 
 
