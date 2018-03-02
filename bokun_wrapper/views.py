@@ -103,11 +103,8 @@ def blue_lagoon_order(request):
         Name = body['Name']
         Email = body['Email']
         PhoneNumber = body['PhoneNumber']
-        try:
-            Date = body['Date']
-        except Exception as e:
-            Date = body['PickupDate']
-        Date = datetime.datetime.strptime(Date, "%Y-%m-%d")
+        PickupDate = body['PickupDate']
+        PickupDate = datetime.datetime.strptime(PickupDate, "%Y-%m-%d")
         return Response({"success": True, "error": None}, status=201)
     except Exception as e:
         return Response({"success": False, "error": "request_incomplete"}, status=400)
