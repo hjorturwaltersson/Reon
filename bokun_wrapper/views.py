@@ -305,10 +305,15 @@ def add_extra_to_cart(request):
     return Response(get_data.add_or_update_extra(session_id, booking_id, extra_id, unit_count))
 
 
-def get_product_price(product, traveler_count_adults, traveler_count_children, round_trip):
-    price = traveler_count_adults * product.adult_price + traveler_count_children * product.child_price
-    if round_trip:
-        price = traveler_count_adults * product.adult_price_round_trip + traveler_count_children * product.child_price_round_trip
+def get_product_price(availability, product, traveler_count_adults, traveler_count_children, round_trip):
+    try:
+        prices_by_category = availability[0]['prices_by_category']
+        s = list(prices_by_category.values())
+        adult_price = s[s.index(max(s))]
+        child_price = s[s.index(min(s))]
+    except Exception as e:
+        return 0
+    price = traveler_count_adults * adult_price + traveler_count_children * child_price
     if product.private or product.luxury:
         price = product.adult_price
         if round_trip:
@@ -355,22 +360,13 @@ def get_frontpage_products(request):
 
     for product in products:
         single_product_dict = FrontPageProductSerializer(product).data
-        price = get_product_price(product, traveler_count_adults, traveler_count_children, round_trip)
-        proper_product = product.id == 13 or product.id == 14
-        proper_date = date_from < '2018-03-01'
-        if proper_product and proper_date:
-            if round_trip and date_to < '2018-03-01':
-                price = 2 * (traveler_count_adults * 2990 + traveler_count_children * 1495)
-            elif round_trip:
-                price = (5490+2990) * traveler_count_adults + (2745+1495) * traveler_count_children
-            else:
-                price = 2990 * traveler_count_adults + 1495 * traveler_count_children
+
         if round_trip and product.discount_product:
             main_product = product.discount_product
             single_product_dict['bokun_product'] = ProductSerializer(product.discount_product).data
         else:
             main_product = product.bokun_product
-        single_product_dict['total_price'] = price
+
         availability = None
         if date_from:
             availability = get_data.get_availability(main_product.bokun_id, date_from)
@@ -378,7 +374,10 @@ def get_frontpage_products(request):
         else:
             single_product_dict['availability'] = None
         single_product_dict['available'] = False
-        if price and availability:
+        if availability:
+            price = get_product_price(availability, product, traveler_count_adults, traveler_count_children, round_trip)
+            single_product_dict['total_price'] = price
+
             for time_slot in availability:
                 if time_slot['availability_count'] >= total_traveler_count or product.private or product.luxury:
                     single_product_dict['available'] = True
