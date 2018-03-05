@@ -305,7 +305,7 @@ def add_extra_to_cart(request):
     return Response(get_data.add_or_update_extra(session_id, booking_id, extra_id, unit_count))
 
 
-def get_product_price(availability, product, traveler_count_adults, traveler_count_children, round_trip):
+def get_product_price(availability, product, traveler_count_adults, traveler_count_children):
     try:
         prices_by_category = availability[0]['prices_by_category']
         s = list(prices_by_category.values())
@@ -316,8 +316,6 @@ def get_product_price(availability, product, traveler_count_adults, traveler_cou
     price = traveler_count_adults * adult_price + traveler_count_children * child_price
     if product.private or product.luxury:
         price = product.adult_price
-        if round_trip:
-            price = price * 2
     return price
 
 
@@ -376,7 +374,7 @@ def get_frontpage_products(request):
             single_product_dict['availability'] = None
         single_product_dict['available'] = False
         if availability:
-            price = get_product_price(availability, product, traveler_count_adults, traveler_count_children, round_trip)
+            price = get_product_price(availability, product, traveler_count_adults, traveler_count_children)
             single_product_dict['total_price'] = price
 
             for time_slot in availability:
@@ -393,7 +391,7 @@ def get_frontpage_products(request):
             single_product_dict['availability_return'] = None
         single_product_dict['available_return'] = False
         if return_availability:
-            return_price = get_product_price(availability, product, traveler_count_adults, traveler_count_children, round_trip)
+            return_price = get_product_price(availability, product, traveler_count_adults, traveler_count_children)
             single_product_dict['return_price'] = return_price
             single_product_dict['total_price'] = price + return_price
             for time_slot in return_availability:
@@ -426,7 +424,7 @@ def get_single_frontpage_product(request, **kwargs):
         main_product = product.bokun_product
     if date_from:
         availability = get_data.get_availability(main_product.bokun_id, date_from)
-        data['total_price'] = get_product_price(availability, product, traveler_count_adults, traveler_count_children, round_trip)
+        data['total_price'] = get_product_price(availability, product, traveler_count_adults, traveler_count_children)
 
         data['availability'] = []
         for time_slot in availability:
@@ -436,7 +434,7 @@ def get_single_frontpage_product(request, **kwargs):
         data['availability'] = None
     if date_to:
         return_availability = get_data.get_availability(product.return_product.bokun_id, date_to)
-        data['return_price'] = get_product_price(return_availability, product.return_product, traveler_count_adults, traveler_count_children, round_trip)
+        data['return_price'] = get_product_price(return_availability, product.return_product, traveler_count_adults, traveler_count_children)
 
         data['availability_return'] = []
         for time_slot in return_availability:
