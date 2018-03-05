@@ -333,6 +333,7 @@ def get_frontpage_products(request):
     date_to = request.query_params.get('date_to', None)
     round_trip = False
     custom_locations = False
+    price = 0
     if date_to:
         round_trip = True
 
@@ -392,6 +393,9 @@ def get_frontpage_products(request):
             single_product_dict['availability_return'] = None
         single_product_dict['available_return'] = False
         if return_availability:
+            return_price = get_product_price(availability, product, traveler_count_adults, traveler_count_children, round_trip)
+            single_product_dict['return_price'] = return_price
+            single_product_dict['total_price'] = price + return_price
             for time_slot in return_availability:
                 if time_slot['availability_count'] >= total_traveler_count or product.private or product.luxury:
                     single_product_dict['available_return'] = True
@@ -420,9 +424,10 @@ def get_single_frontpage_product(request, **kwargs):
         data['bokun_product'] = ProductSerializer(product.discount_product).data
     else:
         main_product = product.bokun_product
-    data['total_price'] = get_product_price(product, traveler_count_adults, traveler_count_children, round_trip)
     if date_from:
         availability = get_data.get_availability(main_product.bokun_id, date_from)
+        data['total_price'] = get_product_price(availability, product, traveler_count_adults, traveler_count_children, round_trip)
+
         data['availability'] = []
         for time_slot in availability:
             if time_slot['availability_count'] >= total_traveler_count or product.private or product.luxury:
@@ -431,12 +436,15 @@ def get_single_frontpage_product(request, **kwargs):
         data['availability'] = None
     if date_to:
         return_availability = get_data.get_availability(product.return_product.bokun_id, date_to)
+        data['return_price'] = get_product_price(return_availability, product.return_product, traveler_count_adults, traveler_count_children, round_trip)
+
         data['availability_return'] = []
         for time_slot in return_availability:
             if time_slot['availability_count'] >= total_traveler_count or product.private or product.luxury:
                 data['availability_return'].append(time_slot)
     else:
         data['availability_return'] = None
+    data['total_price'] = data.get('total_price', 0) + data.get('return_price', 0)
     return Response(data)
 
 
