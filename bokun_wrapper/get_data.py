@@ -220,6 +220,12 @@ def add_to_cart(activity_id, start_time_id, date, pricing_category_bookings,
             pass
         body['pickupPlaceDescription'] = pickup_place_id
     reply = make_post_request(path, body)
+    request_model = apps.get_model('bokun_wrapper', 'RequestLog')
+    request_model.objects.create(
+        outgoing_body=body,
+        bokun_response=reply.json()
+    )
+
     return reply.json()
 
 
