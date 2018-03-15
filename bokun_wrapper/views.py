@@ -314,8 +314,11 @@ def get_product_price(availability, product, traveler_count_adults, traveler_cou
     except Exception as e:
         return 0
     price = traveler_count_adults * adult_price + traveler_count_children * child_price
-    if product.private or product.luxury:
-        price = product.adult_price
+    try:
+        if product.private or product.luxury:
+            price = product.adult_price
+    except Exception as e:
+        pass
     return price
 
 
@@ -356,6 +359,7 @@ def get_frontpage_products(request):
     products = FrontPageProduct.objects.filter(bokun_product__in=queryset, private=False, luxury=False) | applicable_private_products
     # products = FrontPageProduct.objects.filter(private=False, luxury=False) | applicable_private_products
     reply = []
+    print(products)
 
     for product in products:
         single_product_dict = FrontPageProductSerializer(product).data

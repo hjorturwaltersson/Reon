@@ -25,7 +25,7 @@ SECRET_KEY = 'a49r2nt69&))y6gxe%^+%r$k(=lyv=+l7daxu_qs*45-57th=0'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['138.68.141.57', 'localhost']
+ALLOWED_HOSTS = ['138.68.141.57', 'localhost', 'kerfi.airportdirect.is']
 
 
 # Application definition
