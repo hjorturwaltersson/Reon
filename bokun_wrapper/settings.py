@@ -27,6 +27,20 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['138.68.141.57', 'localhost', 'kerfi.airportdirect.is']
 
+BOKUN_API_URL = 'https://api.bokun.is'
+
+BOKUN_ACCESS_KEY = "7450b62343c64e12ac97f4504eb4386f"
+BOKUN_SECRET_KEY = "b958b750cd51462580c2a1c0ac7110c6"
+
+BOKUN_ACCESS_KEY_BL = 'd35d449d187642138aad0dd37f056516'
+BOKUN_SECRET_KEY_BL = '306d6e1d940e4e69a4089e8d296820a0'
+
+REST_FRAMEWORK = {
+    'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer',
+    )
+}
 
 # Application definition
 

@@ -1,7 +1,7 @@
 from django.db import models
 from jsonfield import JSONField
 from .api_sync_model_py import ApiSyncModel
-from .get_data import get_availability as api_availability
+
 
 TYPE_CHOICES = (
     ("hotel", "Hotel"),
@@ -55,6 +55,7 @@ class Product(models.Model):
     child_seat_child_id = models.IntegerField(null=True)
 
     def get_availability(self, date):
+        from .get_data import get_availability as api_availability
         return api_availability(self.bokun_id, date)
 
     def __str__(self):

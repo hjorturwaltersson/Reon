@@ -17,6 +17,7 @@ from django.conf.urls import url
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework import routers
+
 from .views import ProductViewSet, PlaceViewSet, VendorViewSet
 from .views import get_availability, get_frontpage_products, get_cart, get_single_frontpage_product
 from .views import add_to_cart, add_extra_to_cart, pay, remove_extra_from_cart, get_cross_sale, add_cross_sale_to_cart, remove_activity_from_cart

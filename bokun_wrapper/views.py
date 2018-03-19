@@ -1,11 +1,32 @@
-from bokun_wrapper import get_data
-from rest_framework import viewsets
+import json
+from datetime import datetime
+
+import arrow
+from django.views.decorators.csrf import csrf_exempt
+from rest_framework import viewsets, views, serializers
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from .models import Vendor, Place, Product, FrontPageProduct, CrossSaleItem, RequestLog
-from .serializers import ProductSerializer, VendorSerializer, PlaceSerializer, FrontPageProductSerializer
-import json
-import datetime
+
+from bokun import Cart
+from bokun_wrapper import get_data
+from .get_data import bokun_api, bokun_api_bl
+
+from .models import (
+    Vendor,
+    Place,
+    Product,
+    FrontPageProduct,
+    CrossSaleItem,
+    RequestLog,
+)
+
+from .serializers import (
+    ProductSerializer,
+    VendorSerializer,
+    PlaceSerializer,
+    FrontPageProductSerializer,
+)
+
 
 def get_extra(extra_id, qid=None, answer=None):
     answers = []
@@ -60,7 +81,9 @@ def get_availability(request):
 @api_view(['GET'])
 def blue_lagoon_places(request):
     kef_places = Place.objects.filter(type='airport')
+
     rey_places = Place.objects.filter(type='hotel')
+
     kef_dicts = [{
         "PickupLocation": p.title,
         "PickupLocationAddress": "Laugarvegur 104",
@@ -68,6 +91,7 @@ def blue_lagoon_places(request):
         "PickupLocationID": p.bokun_id,
         "RouteIDPrice": "3000"
     } for p in kef_places]
+
     rey_dicts = [{
         "PickupLocation": p.title,
         "PickupLocationAddress": "Laugarvegur 104",
@@ -84,37 +108,148 @@ def blue_lagoon_places(request):
     return Response(reply)
 
 
+class BlueLagoonOrderSerializer(serializers.Serializer):
+    ROUTE_CHOICES = (
+        ('KEF-BLD-KEF', 'KEF-BLD-KEF'),
+        ('KEF-BLD-RVK', 'KEF-BLD-RVK'),
+        ('RVK-BLD-RVK', 'RVK-BLD-RVK'),
+        ('RVK-BLD-KEF', 'RVK-BLD-KEF'),
+    )
+
+    Route = serializers.ChoiceField(choices=ROUTE_CHOICES)
+
+    BookingID = serializers.CharField(required=False)
+    PaymentID = serializers.CharField(required=False)
+
+    PickupLocationID = serializers.PrimaryKeyRelatedField(
+        queryset=Place.objects.filter(type__in=['airport', 'hotel']))
+    DropOffLocationID = serializers.PrimaryKeyRelatedField(
+        queryset=Place.objects.filter(type__in=['airport', 'hotel']))
+
+    PickupDate = serializers.DateField()
+    PickupTime = serializers.TimeField()
+
+    PickupQuantityAdult = serializers.IntegerField(min_value=0)
+    PickupQuantityChildren = serializers.IntegerField(min_value=0, default=0)
+
+    Name = serializers.CharField()
+    Email = serializers.CharField()
+    PhoneNumber = serializers.CharField(required=False)
+
+    SendConfirmationEmail = serializers.BooleanField(default=False)
+    MarkPaid = serializers.BooleanField(default=True)
+
+
+
+@csrf_exempt
 @api_view(['POST'])
 def blue_lagoon_order(request):
-    try:
-        secret = request.META['HTTP_SECRET']
-        if secret != 'WKSqWWTjmD6p2yX7Am4y8m2N':
-            return Response({"success": False, "error": "authorization_failed"}, status=401)
-    except Exception as e:
-        return Response({"success": False, "error": "authorization_failed"}, status=401)
-    try:
-        body = json.loads(request.body)
-        BookingID = body['BookingID']
-        PickupLocationID = body['PickupLocationID']
-        PickupTime = body['PickupTime']
-        DropOffLocationID = body['DropOffLocationID']
-        PickupQuantityAdult = body['PickupQuantityAdult']
-        PickupQuantityChildren = body['PickupQuantityChildren']
-        Name = body['Name']
-        Email = body['Email']
-        PhoneNumber = body['PhoneNumber']
-        PickupDate = body['PickupDate']
-        PickupDate = datetime.datetime.strptime(PickupDate, "%Y-%m-%d")
-        return Response({"success": True, "error": None}, status=201)
-    except Exception as e:
-        return Response({"success": False, "error": "request_incomplete"}, status=400)
+    secret = request.META.get('HTTP_SECRET')
+
+    if secret != 'WKSqWWTjmD6p2yX7Am4y8m2N':
+        return Response({
+            'success': False,
+            'error': 'authorization_failed'
+        }, status=401)
+
+    serializer = BlueLagoonOrderSerializer(data=request.data)
+
+    if not serializer.is_valid():
+        return Response({
+            'success': False,
+            'error': 'request_incomplete',
+            'fields': serializer.errors,
+        }, status=400)
+
+    data = serializer.validated_data
+
+    pickup_dt = arrow.get(datetime.combine(data['PickupDate'], data['PickupTime']))
+    next_pickup_dt = pickup_dt.shift(hours=1)
+
+    pickup_place = data['PickupLocationID']
+    dropoff_place = data['DropOffLocationID']
+
+    if pickup_place.type == 'airport':
+        pickup_activity_id = 22287  # AD: Keflavík Airport to Blue Lagoon
+    elif pickup_place.type == 'hotel':
+        pickup_activity_id = 22277  # BLD: Transfer Reykjavík - Blue Lagoon
+
+    if dropoff_place.type == 'airport':
+        dropoff_activity_id = 22290  # AD: Blue Lagoon to Keflavík Airport
+    elif dropoff_place.type == 'hotel':
+        dropoff_activity_id = 22284  # BLD: Transfer Blue Lagoon - Reykjavík
+
+    # Create new carts and get the session id:
+    cart = Cart(api=bokun_api_bl)
+
+    common_booking_data = {
+        'adults': data['PickupQuantityAdult'],
+        'children': data['PickupQuantityChildren'],
+    }
+
+    cart.add_activity(
+        activity_id=pickup_activity_id,
+        start_date=pickup_dt.format('YYYY-MM-DD'),
+        start_time=pickup_dt.format('HH:mm'),
+        strict_time=True,
+        pickup_place_id=pickup_place.pk,
+        dropoff_place_id=None,  # We know that this is the Blue Lagoon
+        **common_booking_data
+    )
+
+    cart.add_activity(
+        activity_id=dropoff_activity_id,
+        start_date=next_pickup_dt.format('YYYY-MM-DD'),
+        start_time=next_pickup_dt.format('HH:mm'),
+        strict_time=False,
+        pickup_place_id=None,  # We know that this is the Blue Lagoon
+        dropoff_place_id=dropoff_place.pk,
+        **common_booking_data
+    )
+
+    name_parts = data.get('Name', '').strip().split()
+
+    external_booking_id = data.get('BookingID')
+    external_payment_id = data.get('PaymentID')
+
+    cart.reserve(
+        fields={
+            'external_booking_id': external_booking_id,
+            'external_payment_id': external_payment_id,
+        },
+        answers={
+            'first-name': ''.join(name_parts[:1]),
+            'last-name': ''.join(name_parts[1:]),
+            'email': data.get('Email', '').strip(),
+            'phone-number': data.get('PhoneNumber', '').strip(),
+        }
+    )
+
+    cart.confirm(
+        mark_paid=True,
+        send_customer_notification=data['SendConfirmationEmail'],
+        reference_id=external_booking_id,
+        payment_reference_id=external_payment_id,
+    )
+
+    return Response({
+        'success': True,
+        'error': None,
+        'bokun_reservation_data': cart._reservation_state,
+    }, status=201)
 
 
-def get_pricing_category_bookings(product, traveler_count_adults,
-                                  traveler_count_children,
-                                  flight_delay_guarantee, flight_number,
-                                  extra_baggage_count, odd_size_baggage_count,
-                                  child_seat_child_count, child_seat_infant_count):
+def get_pricing_category_bookings(
+    product,
+    traveler_count_adults=0,
+    traveler_count_children=0,
+    flight_delay_guarantee=False,
+    flight_number=None,
+    extra_baggage_count=0,
+    odd_size_baggage_count=0,
+    child_seat_child_count=0,
+    child_seat_infant_count=0
+):
     category_id = product.default_price_category_id
     pricing_category_bookings = []
     for x in range(traveler_count_adults):
@@ -197,23 +332,23 @@ def add_to_cart(request):
         product_type_id = 19
         if round_trip:
             start_time = get_start_time(start_time_id, 9883, date)
-            start_time_id = get_start_time_id(start_time, 22443, date)
+            start_time_id = get_start_time_id(22443, date, start_time)
             return_start_time = get_start_time(return_start_time_id, 9882, return_date)
-            return_start_time_id = get_start_time_id(return_start_time, 22442, return_date)
-
+            return_start_time_id = get_start_time_id(22442, return_date, return_start_time)
         else:
             start_time = get_start_time(start_time_id, 22112, date)
-            start_time_id = get_start_time_id(start_time, 22246, date)
+            start_time_id = get_start_time_id(22246, date, start_time)
+
     if hotel_connection and product_type_id == 12:
         product_type_id = 18
         if round_trip:
             start_time = get_start_time(start_time_id, 9882, date)
-            start_time_id = get_start_time_id(start_time, 22442, date)
+            start_time_id = get_start_time_id(22442, date, start_time)
             return_start_time = get_start_time(return_start_time_id, 9883, return_date)
-            return_start_time_id = get_start_time_id(return_start_time, 22443, return_date)
+            return_start_time_id = get_start_time_id(22443, return_date, return_start_time)
         else:
             start_time = get_start_time(start_time_id, 22141, date)
-            start_time_id = get_start_time_id(start_time, 22257, date)
+            start_time_id = get_start_time_id(22257, date, start_time)
 
     traveler_count_adults = int(traveler_count_adults)
     traveler_count_children = int(traveler_count_children)
@@ -658,7 +793,7 @@ def add_cross_sale_to_cart(request):
 
     path = '/shopping-cart.json/session/{}/activity'.format(session_id)
 
-    reply = get_data.make_post_request(path, bokun_body)
+    reply = get_data.bokun_api.post(path, bokun_body)
 
     RequestLog.objects.create(
         url=request.get_full_path(),
@@ -673,8 +808,8 @@ def add_cross_sale_to_cart(request):
         return Response(reply.text)
 
 
-def get_start_time_id(start_time, activity_id, date):
-    data = get_data.get_availability(activity_id, date)
+def get_start_time_id(activity_id, date, start_time, api=bokun_api):
+    data = get_data.get_availability(activity_id, date, api=api)
     for start_time_slot in data:
         if start_time_slot['start_time'] == start_time:
             return start_time_slot['start_time_id']

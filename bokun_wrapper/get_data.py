@@ -4,78 +4,56 @@ import hmac
 import base64
 import requests
 import json
-from django.apps import apps
 import uuid
 
-baseurl = "https://api.bokun.is"
-access_key = "7450b62343c64e12ac97f4504eb4386f"
-secret_key = "b958b750cd51462580c2a1c0ac7110c6"
+from django.conf import settings
 
+from bokun import BokunApi
 
-def make_get_request(path):
-    url = baseurl + path
-    now_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    method = "GET"
-    token = "{}{}{}{}".format(now_date, access_key, method, path)
-    digester = hmac.new(bytes(secret_key, "ascii"), bytes(token, "ascii"), hashlib.sha1)
-    signature = base64.standard_b64encode(digester.digest())
-    headers = {
-        "X-Bokun-Date": now_date,
-        "X-Bokun-AccessKey": access_key,
-        "X-Bokun-Signature": signature.decode("ascii")
-    }
-    reply = requests.get(url, headers=headers)
-    return reply
+from bokun_wrapper.models import (
+    Vendor,
+    Place,
+    Product,
+    FrontPageProduct,
+    CrossSaleItem,
+    RequestLog,
+)
 
-
-def make_post_request(path, body):
-    url = baseurl + path
-    now_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    method = "POST"
-    token = "{}{}{}{}".format(now_date, access_key, method, path)
-    digester = hmac.new(bytes(secret_key, "ascii"), bytes(token, "ascii"), hashlib.sha1)
-    signature = base64.standard_b64encode(digester.digest())
-    headers = {
-        "X-Bokun-Date": now_date,
-        "X-Bokun-AccessKey": access_key,
-        "X-Bokun-Signature": signature.decode("ascii"),
-        "Content-Type": "application/json"
-    }
-    reply = requests.post(url, headers=headers, data=json.dumps(body))
-    return reply
+bokun_api = BokunApi()
+bokun_api_bl = BokunApi(
+    access_key=settings.BOKUN_ACCESS_KEY_BL,
+    secret_key=settings.BOKUN_SECRET_KEY_BL,
+)
 
 
 def get_vendor_product_ids(vendor_id):
-    reply = make_post_request('/activity.json/search', {"vendorId": vendor_id})
-    items_dict = reply.json()['items']
-    ids = [p['id'] for p in items_dict]
-    ids = ['22257', '22442', '22246', '22443', '9882', '22141', '22112', '9883', '9217', '22318', '9652', '22319',
-           '22290', '22287', '11008', '11610', '11611', '17989', '22936', '22937', '22942']
-    return ids
+    # reply = bokun_api.post('/activity.json/search', {"vendorId": vendor_id})
+    # items_dict = reply.json()['items']
+    # return [p['id'] for p in items_dict]
+    return ['22257', '22442', '22246', '22443', '9882', '22141', '22112', '9883',
+            '9217', '22318', '9652', '22319', '22290', '22287', '11008', '11610',
+            '11611', '17989', '22936', '22937', '22942']
 
 
 def get_product(product_id):
-    reply = make_get_request('/activity.json/{}'.format(product_id))
-    return reply.json()
+    return bokun_api.get('/activity.json/%s' % product_id).json()
 
 
 def update_vendor_products(vendor_id):
     product_ids = get_vendor_product_ids(vendor_id)
     print(product_ids)
-    vendor_model = apps.get_model('bokun_wrapper', 'Vendor')
-    product_model = apps.get_model('bokun_wrapper', 'Product')
-    vendor = vendor_model.objects.get(bokun_id=vendor_id)
-    for product in product_model.objects.all():
+    vendor = Vendor.objects.get(bokun_id=vendor_id)
+    for product in Product.objects.all():
         if product.bokun_id not in product_ids:
             print("Deleting product: {}".format(product.bokun_id))
             product.delete()
     for product_id in product_ids:
         try:
-            product = product_model.objects.get(bokun_id=product_id)
+            product = Product.objects.get(bokun_id=product_id)
             print("Found existing product: {}".format(product_id))
-        except product_model.DoesNotExist as e:
+        except Product.DoesNotExist as e:
             print("Creating new product: {}".format(product_id))
-            product = product_model(bokun_id=product_id)
+            product = Product(bokun_id=product_id)
         item_dict = get_product(product_id)
         product.title = item_dict['title']
         product.excerpt = item_dict['excerpt']
@@ -108,9 +86,8 @@ def update_vendor_products(vendor_id):
 
 
 def create_or_update_place(places):
-    place_model = apps.get_model('bokun_wrapper', 'Place')
     indexed_places = {str(p['id']): p for p in places}
-    existing_places = list(place_model.objects.filter(bokun_id__in=[p["id"] for p in places]))
+    existing_places = list(Place.objects.filter(bokun_id__in=[p["id"] for p in places]))
 
     for place in existing_places:
         bokun_data = indexed_places[place.bokun_id]
@@ -123,18 +100,17 @@ def create_or_update_place(places):
     for place in places:
         if str(place['id']) in existing_places_ids:
             continue
-        missing_places.append(place_model(bokun_id=place['id'],
+        missing_places.append(Place(bokun_id=place['id'],
                                           title=place['title'],
                                           location=place['location'],
                                           json=place))
     print("Creating {} new places".format(len(missing_places)))
-    place_model.objects.bulk_create(missing_places)
+    Place.objects.bulk_create(missing_places)
 
 
 def get_places(product_id):
-    product_model = apps.get_model('bokun_wrapper', 'Product')
-    product = product_model.objects.get(bokun_id=product_id)
-    reply = make_get_request('/activity.json/{}/pickup-places'.format(product_id))
+    product = Product.objects.get(bokun_id=product_id)
+    reply = bokun_api.get('/activity.json/{}/pickup-places'.format(product_id))
     dropoff_places = reply.json()['dropoffPlaces']
     pickup_places = reply.json()['pickupPlaces']
 
@@ -151,9 +127,13 @@ def get_places(product_id):
     product.pickup_places.set([p['id'] for p in filtered_pickup_places], clear=True)
 
 
-def get_availability(product_id, date):
-    reply = make_get_request(
-        '/activity.json/{}/availabilities?start={}&end={}&includeSoldOut=true'.format(product_id, date, date))
+def get_availability(product_id, date, api=bokun_api):
+    reply = api.get('/activity.json/%s/availabilities' % product_id, {
+        'start': date,
+        'end': date,
+        'includeSoldOut': True,
+    })
+
     returnlist = [{
         'extra_prices': a['extraPrices'],
         'prices_by_category': a['pricesByCategory'],
@@ -165,63 +145,60 @@ def get_availability(product_id, date):
         'unavailable': a['unavailable'],
         'availability_count': a['availabilityCount']
     } for a in reply.json()]
+
     return returnlist
 
 
-def get_cart(session_id=None):
+def get_cart(session_id=None, api=bokun_api):
     if not session_id:
         session_id = str(uuid.uuid4())
-    reply = make_get_request('/shopping-cart.json/session/{}'.format(session_id))
+
+    reply = api.get('/shopping-cart.json/session/{}'.format(session_id))
+
     return reply.json()
 
 
 def add_to_cart(activity_id, start_time_id, date, pricing_category_bookings,
                 session_id=None, dropoff_place_id=None, pickup_place_id=None,
-                pickup=False, custom_locations=False):
+                pickup=False, custom_locations=False, api=bokun_api):
+
     if not session_id:
         session_id = get_cart()['sessionId']
+
     path = '/shopping-cart.json/session/{}/activity'.format(session_id)
+
     body = {
         'activityId': activity_id,
         'startTimeId': start_time_id,
         'date': date,
-        'pickup': pickup
+        'pickup': pickup,
+        'pricingCategoryBookings': [{
+            'pricingCategoryId': pricing_category_booking['pricing_category_id'],
+            'extras': [{
+                'answers': [],
+                'extraId': extra['extra_id'],
+                'unitCount': extra['unit_count'],
+            } for extra in pricing_category_booking['extras']],
+        } for pricing_category_booking in pricing_category_bookings]
     }
-    pricing_category_bookings_list = []
-    for pricing_category_booking in pricing_category_bookings:
-        extra_list = []
-        for extra in pricing_category_booking['extras']:
-            extra_list.append({
-                "answers": [],
-                "extraId": extra['extra_id'],
-                "unitCount": extra['unit_count']
-            })
-        pricing_category_bookings_list.append({
-            "extras": extra_list,
-            "pricingCategoryId": pricing_category_booking['pricing_category_id']
-        })
-    body['pricingCategoryBookings'] = pricing_category_bookings_list
-    if not custom_locations:
-        body['dropoffPlaceId'] = dropoff_place_id
-    else:
-        try:
-            place_model = apps.get_model('bokun_wrapper', 'Place')
-            dropoff_place_id = place_model.objects.get(bokun_id=dropoff_place_id).title
-        except Exception as e:
-            pass
-        body['dropoffPlaceDescription'] = dropoff_place_id
+
     if not custom_locations:
         body['pickupPlaceId'] = pickup_place_id
+        body['dropoffPlaceId'] = dropoff_place_id
     else:
-        try:
-            place_model = apps.get_model('bokun_wrapper', 'Place')
-            pickup_place_id = place_model.objects.get(bokun_id=pickup_place_id).title
-        except Exception as e:
-            pass
+        with ignored(Place.DoesNotExist):
+            pickup_place_id = Place.objects.get(pk=pickup_place_id).title
+
         body['pickupPlaceDescription'] = pickup_place_id
-    reply = make_post_request(path, body)
-    request_model = apps.get_model('bokun_wrapper', 'RequestLog')
-    request_model.objects.create(
+
+        with ignored(Place.DoesNotExist):
+            dropoff_place_id = Place.objects.get(pk=dropoff_place_id).title or None
+
+        body['dropoffPlaceDescription'] = dropoff_place_id
+
+    reply = api.post(path, body)
+
+    RequestLog.objects.create(
         outgoing_body=body,
         bokun_response=reply.json()
     )
@@ -231,13 +208,13 @@ def add_to_cart(activity_id, start_time_id, date, pricing_category_bookings,
 
 def remove_activity_from_cart(session_id, booking_id):
     path = '/shopping-cart.json/session/{}/remove-activity/{}'.format(session_id, booking_id)
-    reply = make_get_request(path)
+    reply = bokun_api.get(path)
     return reply.json()
 
 
 def remove_extra_from_cart(session_id, booking_id, extra_id):
     path = '/shopping-cart.json/session/{}/remove-extra/ACTIVITY_BOOKING/{}/{}'.format(session_id, booking_id, extra_id)
-    reply = make_get_request(path)
+    reply = bokun_api.get(path)
     return reply.json()
 
 
@@ -245,8 +222,8 @@ def get_crosssale_products():
     path1 = '/product-list.json/1340'
     path2 = '/product-list.json/1354'
 
-    reply1 = make_get_request(path1)
-    reply2 = make_get_request(path2)
+    reply1 = bokun_api.get(path1)
+    reply2 = bokun_api.get(path2)
 
     return [reply1.json(), reply2.json()]
 
@@ -257,14 +234,13 @@ def add_or_update_extra(session_id, booking_id, extra_id, unit_count):
         'extraId': extra_id,
         'unitCount': unit_count
     }
-    reply = make_post_request(path, body)
+    reply = bokun_api.post(path, body)
     return reply.json()
 
 
 def reserve_pay_confirm(session_id, address_city, address_country, address_line_1,
                         address_line_2, address_post_code, card_number, cvc, exp_month,
                         exp_year, name, first_name, last_name, email, phone_number):
-
     path = '/booking.json/guest/{}/reserve-pay-confirm'.format(session_id)
     body = {
         'chargeRequest': {
@@ -303,14 +279,15 @@ def reserve_pay_confirm(session_id, address_city, address_country, address_line_
             ]
         }
     }
+
     if card_number == "4111111111111111":
         reply = json.loads(open('payment.json', 'r').read())
         print(body)
         return reply
 
-    reply = make_post_request(path, body)
-    request_model = apps.get_model('bokun_wrapper', 'RequestLog')
-    request_model.objects.create(
+    reply = bokun_api.post(path, body)
+
+    RequestLog.objects.create(
         bokun_response=reply.json()
     )
 
@@ -319,17 +296,16 @@ def reserve_pay_confirm(session_id, address_city, address_country, address_line_
 
 def sync_cross_sale_products():
     cross_sale_lists = get_crosssale_products()
-    cross_sale_model = apps.get_model('bokun_wrapper', 'CrossSaleItem')
     for cross_sale_list in cross_sale_lists:
         for item in cross_sale_list['items']:
             activity = item['activity']
             bokun_id = activity['id']
             try:
-                product = cross_sale_model.objects.get(bokun_id=bokun_id)
+                product = CrossSaleItem.objects.get(bokun_id=bokun_id)
                 print("Found existing product: {}".format(bokun_id))
-            except cross_sale_model.DoesNotExist as e:
+            except CrossSaleItem.DoesNotExist as e:
                 print("Creating new product: {}".format(bokun_id))
-                product = cross_sale_model(bokun_id=bokun_id)
+                product = CrossSaleItem(bokun_id=bokun_id)
             product.json = activity
             pricing_categories = activity['pricingCategories']
             for category in pricing_categories:
