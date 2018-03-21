@@ -19,6 +19,7 @@ class Vendor(models.Model):
 
 class Place(models.Model):
     bokun_id = models.CharField(unique=True, max_length=1000, primary_key=True)
+    vendor_id = models.IntegerField()
     title = models.CharField(max_length=1000)
     location = JSONField()
     json = JSONField()

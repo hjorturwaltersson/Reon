@@ -62,7 +62,7 @@ class ProductViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class PlaceViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Place.objects.all().order_by('ordering', 'title')
+    queryset = Place.objects.filter(vendor_id=942).order_by('ordering', 'title')
     serializer_class = PlaceSerializer
 
 
@@ -82,11 +82,12 @@ def get_availability(request):
 def blue_lagoon_places(request):
     kef_places = Place.objects.filter(type='airport')
 
-    rey_places = Place.objects.filter(type='hotel')
+    rey_places = Place.objects.filter(vendor_id=2927)
 
     kef_dicts = [{
         "PickupLocation": p.title,
-        "PickupLocationAddress": "Laugarvegur 104",
+        "PickupLocationAddress": p.location['address'],
+        "PickupBusStop": p.location['address'],
         "PickupRouteID": 1,
         "PickupLocationID": p.bokun_id,
         "RouteIDPrice": "3000"
@@ -94,7 +95,8 @@ def blue_lagoon_places(request):
 
     rey_dicts = [{
         "PickupLocation": p.title,
-        "PickupLocationAddress": "Laugarvegur 104",
+        "PickupLocationAddress": p.location['address'],
+        "PickupBusStop": p.location['address'],
         "PickupRouteID": 2,
         "PickupLocationID": p.bokun_id,
         "RouteIDPrice": "3000"
@@ -116,7 +118,7 @@ class BlueLagoonOrderSerializer(serializers.Serializer):
         ('RVK-BLD-KEF', 'RVK-BLD-KEF'),
     )
 
-    Route = serializers.ChoiceField(choices=ROUTE_CHOICES)
+    Route = serializers.ChoiceField(choices=ROUTE_CHOICES, required=False)
 
     BookingID = serializers.CharField(required=False)
     PaymentID = serializers.CharField(required=False)

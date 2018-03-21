@@ -27,12 +27,9 @@ bokun_api_bl = BokunApi(
 
 
 def get_vendor_product_ids(vendor_id):
-    # reply = bokun_api.post('/activity.json/search', {"vendorId": vendor_id})
-    # items_dict = reply.json()['items']
-    # return [p['id'] for p in items_dict]
-    return ['22257', '22442', '22246', '22443', '9882', '22141', '22112', '9883',
-            '9217', '22318', '9652', '22319', '22290', '22287', '11008', '11610',
-            '11611', '17989', '22936', '22937', '22942']
+    reply = bokun_api.post('/activity.json/search', {"vendorId": vendor_id})
+    items_dict = reply.json()['items']
+    return [p['id'] for p in items_dict]
 
 
 def get_product(product_id):
@@ -43,10 +40,10 @@ def update_vendor_products(vendor_id):
     product_ids = get_vendor_product_ids(vendor_id)
     print(product_ids)
     vendor = Vendor.objects.get(bokun_id=vendor_id)
-    for product in Product.objects.all():
-        if product.bokun_id not in product_ids:
-            print("Deleting product: {}".format(product.bokun_id))
-            product.delete()
+    # for product in Product.objects.all():
+    #     if product.bokun_id not in product_ids:
+    #         print("Deleting product: {}".format(product.bokun_id))
+    #         product.delete()
     for product_id in product_ids:
         try:
             product = Product.objects.get(bokun_id=product_id)
@@ -69,8 +66,7 @@ def update_vendor_products(vendor_id):
         if len(pricing_categories) > 1:
             product.child_price_category_id = pricing_categories[1]['id']
         for bookable_extra in item_dict['bookableExtras']:
-            if bookable_extra['externalId'] == 'flightdelayguarantee' or bookable_extra[
-                 'externalId'] == 'DelayGuarantee':
+            if bookable_extra['externalId'] == 'flightdelayguarantee' or bookable_extra['externalId'] == 'DelayGuarantee':
                 product.flight_delay_id = bookable_extra['id']
                 product.flight_delay_question_id = bookable_extra['questions'][0]['id']
             if bookable_extra['externalId'] == 'ChildSeat14-36kg':
@@ -82,10 +78,10 @@ def update_vendor_products(vendor_id):
             if bookable_extra['externalId'] == 'OddSizeBaggage':
                 product.odd_size_id = bookable_extra['id']
         product.save()
-        get_places(product_id)
+        get_places(product_id, vendor_id)
 
 
-def create_or_update_place(places):
+def create_or_update_place(places, vendor_id):
     indexed_places = {str(p['id']): p for p in places}
     existing_places = list(Place.objects.filter(bokun_id__in=[p["id"] for p in places]))
 
@@ -94,6 +90,7 @@ def create_or_update_place(places):
         place.title = bokun_data['title']
         place.location = bokun_data['location']
         place.json = bokun_data
+        place.vendor_id = vendor_id
         place.save()
     existing_places_ids = [p.bokun_id for p in existing_places]
     missing_places = []
@@ -101,27 +98,28 @@ def create_or_update_place(places):
         if str(place['id']) in existing_places_ids:
             continue
         missing_places.append(Place(bokun_id=place['id'],
-                                          title=place['title'],
-                                          location=place['location'],
-                                          json=place))
+                                    title=place['title'],
+                                    location=place['location'],
+                                    json=place,
+                                    vendor_id=vendor_id))
     print("Creating {} new places".format(len(missing_places)))
     Place.objects.bulk_create(missing_places)
 
 
-def get_places(product_id):
+def get_places(product_id, vendor_id):
     product = Product.objects.get(bokun_id=product_id)
     reply = bokun_api.get('/activity.json/{}/pickup-places'.format(product_id))
     dropoff_places = reply.json()['dropoffPlaces']
     pickup_places = reply.json()['pickupPlaces']
 
     def filter_function(x):
-        return 'keflavík' in x['flags'] or 'economy' in x['flags']
+        return 'keflavík' in x['flags'] or 'economy' in x['flags'] or 'BLD' in x['flags']
 
     filtered_dropoff_places = list(filter(filter_function, dropoff_places))
     filtered_pickup_places = list(filter(filter_function, pickup_places))
 
-    create_or_update_place(filtered_dropoff_places)
-    create_or_update_place(filtered_pickup_places)
+    create_or_update_place(filtered_dropoff_places, vendor_id)
+    create_or_update_place(filtered_pickup_places, vendor_id)
 
     product.dropoff_places.set([p['id'] for p in filtered_dropoff_places], clear=True)
     product.pickup_places.set([p['id'] for p in filtered_pickup_places], clear=True)
@@ -161,7 +159,6 @@ def get_cart(session_id=None, api=bokun_api):
 def add_to_cart(activity_id, start_time_id, date, pricing_category_bookings,
                 session_id=None, dropoff_place_id=None, pickup_place_id=None,
                 pickup=False, custom_locations=False, api=bokun_api):
-
     if not session_id:
         session_id = get_cart()['sessionId']
 
