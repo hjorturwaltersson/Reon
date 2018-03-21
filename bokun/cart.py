@@ -6,6 +6,10 @@ import arrow
 from .bokun_api import BokunApi, BokunApiException
 
 
+def parse_time_str(tstr):
+    return time(*[int(t) for t in tstr.split(':')])
+
+
 class Cart:
     def __init__(self, api=None, session_id=None):
         self.api = BokunApi() if api is None else api
@@ -30,11 +34,16 @@ class Cart:
         pickup_place_description=None,
         dropoff_place_description=None,
     ):
-        activity_data = self.api.get('/activity.json/%s' % activity_id).json()
+        formatted_date = arrow.get(start_date).format('YYYY-MM-DD')
 
-        avail_start_times = {
-            '%02d:%02d' % (t['hour'], t['minute']): t['id'] for t in activity_data['startTimes'] if t['pickupHour'] == t['hour']
-        }
+        activity_data = self.api.get('/activity.json/%s' % activity_id).json()
+        activity_availabilities = self.api.get('/activity.json/%s/availabilities' % activity_id, {
+            'start': formatted_date,
+            'end': formatted_date,
+            'includeSoldOut': True,
+        }).json()
+
+        avail_start_times = {a['startTime']: a['startTimeId'] for a in activity_availabilities}
 
         try:
             start_time_id = avail_start_times[start_time]
@@ -44,15 +53,13 @@ class Cart:
                     'Invalid start_time. Must be one of: %s' % ', '.join(
                         avail_start_times.keys()))
 
-            start_time = time(*[int(t) for t in start_time.split(':')])
-            avail_times = {time(hour=t['hour'], minute=t['minute']): t['id'] for t in activity_data['startTimes']}
+            start_time = parse_time_str(start_time)
+            avail_times = {parse_time_str(tstr): id for tstr, id in avail_start_times.items()}
 
             for t, id in avail_times.items():
                 if start_time >= t:
                     start_time_id = id
                     break
-
-        # TODO: Check availability of start time for date here?
 
         adult_pricing_category_id = None
         child_pricing_category_id = None
@@ -75,7 +82,7 @@ class Cart:
             'pickupPlaceDescription': pickup_place_description,
             'dropoffPlaceId': dropoff_place_id,
             'dropoffPlaceDescription': dropoff_place_description,
-            'date': arrow.get(start_date).format('YYYY-MM-DD'),
+            'date': formatted_date,
             'pricingCategoryBookings': [{
                 'pricingCategoryId': adult_pricing_category_id,
                 'extras': [],

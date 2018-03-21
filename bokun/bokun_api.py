@@ -93,7 +93,13 @@ class BokunApi:
         return self.handle_response('POST', url, query, headers, body, res)
 
     def handle_response(self, method, url, query, headers, body, response):
-        data = response.json()
+        try:
+            data = response.json()
+        except json.JSONDecodeError:
+            data = {
+                'message': response.text,
+                'fields': {},
+            }
 
         if 'message' in data and 'fields' in data:
             raise BokunApiException(
