@@ -111,15 +111,6 @@ def blue_lagoon_places(request):
 
 
 class BlueLagoonOrderSerializer(serializers.Serializer):
-    ROUTE_CHOICES = (
-        ('KEF-BLD-KEF', 'KEF-BLD-KEF'),
-        ('KEF-BLD-RVK', 'KEF-BLD-RVK'),
-        ('RVK-BLD-RVK', 'RVK-BLD-RVK'),
-        ('RVK-BLD-KEF', 'RVK-BLD-KEF'),
-    )
-
-    Route = serializers.ChoiceField(choices=ROUTE_CHOICES, required=False)
-
     BookingID = serializers.CharField(required=False)
     PaymentID = serializers.CharField(required=False)
 
@@ -153,7 +144,10 @@ def blue_lagoon_order(request):
             'success': False,
             'error': 'authorization_failed'
         }, status=401)
-
+    log = RequestLog()
+    log.incoming_body = request.data
+    log.url = 'blo'
+    log.save()
     serializer = BlueLagoonOrderSerializer(data=request.data)
 
     if not serializer.is_valid():
@@ -166,7 +160,7 @@ def blue_lagoon_order(request):
     data = serializer.validated_data
 
     pickup_dt = arrow.get(datetime.combine(data['PickupDate'], data['PickupTime']))
-    next_pickup_dt = pickup_dt.shift(hours=1)
+    next_pickup_dt = pickup_dt.shift(hours=3)
 
     pickup_place = data['PickupLocationID']
     dropoff_place = data['DropOffLocationID']

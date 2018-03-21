@@ -33,7 +33,7 @@ class Cart:
         activity_data = self.api.get('/activity.json/%s' % activity_id).json()
 
         avail_start_times = {
-            '%02d:%02d' % (t['hour'], t['minute']): t['id'] for t in activity_data['startTimes']
+            '%02d:%02d' % (t['hour'], t['minute']): t['id'] for t in activity_data['startTimes'] if t['pickupHour'] == t['hour']
         }
 
         try:

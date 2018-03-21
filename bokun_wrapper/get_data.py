@@ -5,7 +5,7 @@ import base64
 import requests
 import json
 import uuid
-
+from contextlib import suppress
 from django.conf import settings
 
 from bokun import BokunApi
@@ -183,12 +183,12 @@ def add_to_cart(activity_id, start_time_id, date, pricing_category_bookings,
         body['pickupPlaceId'] = pickup_place_id
         body['dropoffPlaceId'] = dropoff_place_id
     else:
-        with ignored(Place.DoesNotExist):
+        with suppress(Place.DoesNotExist):
             pickup_place_id = Place.objects.get(pk=pickup_place_id).title
 
         body['pickupPlaceDescription'] = pickup_place_id
 
-        with ignored(Place.DoesNotExist):
+        with suppress(Place.DoesNotExist):
             dropoff_place_id = Place.objects.get(pk=dropoff_place_id).title or None
 
         body['dropoffPlaceDescription'] = dropoff_place_id

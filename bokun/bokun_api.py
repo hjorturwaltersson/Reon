@@ -3,6 +3,7 @@ import hashlib
 import hmac
 import base64
 import uuid
+import json
 from copy import deepcopy
 from urllib.parse import urljoin, urlencode
 
@@ -28,6 +29,16 @@ class BokunApiException(Exception):
         self.fields = response_data['fields']
 
         super().__init__(self.message)
+
+    def __str__(self):
+        return json.dumps({
+            "url": self.request_url,
+            "query": self.request_query,
+            "headers": self.request_headers,
+            "body": self.request_body,
+            "message": self.message,
+            "fields": self.fields,
+        }, indent=2)
 
 class BokunApi:
     def __init__(self, url=None, access_key=None, secret_key=None):
