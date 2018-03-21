@@ -214,8 +214,8 @@ def blue_lagoon_order(request):
             'external_payment_id': external_payment_id,
         },
         answers={
-            'first-name': ''.join(name_parts[:1]),
-            'last-name': ''.join(name_parts[1:]),
+            'first-name': ' '.join(name_parts[:1]),
+            'last-name': ' '.join(name_parts[1:]),
             'email': data.get('Email', '').strip(),
             'phone-number': data.get('PhoneNumber', '').strip(),
         }

@@ -1,6 +1,7 @@
 import uuid
+from operator import itemgetter
 
-from datetime import time
+from datetime import time, timedelta
 import arrow
 
 from .bokun_api import BokunApi, BokunApiException
@@ -8,6 +9,12 @@ from .bokun_api import BokunApi, BokunApiException
 
 def parse_time_str(tstr):
     return time(*[int(t) for t in tstr.split(':')])
+
+def nearest(items, pivot):
+    return min(items, key=lambda x: abs(x - pivot))
+
+def seconds(tstr):
+    return int(timedelta(*[int(t) for t in tstr.split(':')]).total_seconds())
 
 
 class Cart:
@@ -53,13 +60,11 @@ class Cart:
                     'Invalid start_time. Must be one of: %s' % ', '.join(
                         avail_start_times.keys()))
 
-            start_time = parse_time_str(start_time)
-            avail_times = {parse_time_str(tstr): id for tstr, id in avail_start_times.items()}
+            start_time = seconds(start_time)
 
-            for t, id in avail_times.items():
-                if start_time >= t:
-                    start_time_id = id
-                    break
+            avail_times = {seconds(tstr): id for tstr, id in avail_start_times.items()}
+
+            start_time_id = avail_times[nearest(avail_times.keys(), start_time)]
 
         adult_pricing_category_id = None
         child_pricing_category_id = None
