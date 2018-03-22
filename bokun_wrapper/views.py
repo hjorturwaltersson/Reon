@@ -7,10 +7,9 @@ from rest_framework import viewsets, views, serializers
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
-from bokun import Cart
+from bokun import Cart, BokunApiException
 from bokun_wrapper import get_data
 from .get_data import bokun_api, bokun_api_bl
-
 from .models import (
     Vendor,
     Place,
@@ -127,7 +126,7 @@ class BlueLagoonOrderSerializer(serializers.Serializer):
 
     Name = serializers.CharField()
     Email = serializers.CharField()
-    PhoneNumber = serializers.CharField(required=False)
+    PhoneNumber = serializers.CharField(required=False, allow_null=True)
 
     SendConfirmationEmail = serializers.BooleanField(default=False)
     MarkPaid = serializers.BooleanField(default=True)
@@ -176,57 +175,70 @@ def blue_lagoon_order(request):
         dropoff_activity_id = 22284  # BLD: Transfer Blue Lagoon - Reykjavík
 
     # Create new carts and get the session id:
-    cart = Cart(api=bokun_api_bl)
+    try:
+        cart = Cart(api=bokun_api_bl)
 
-    common_booking_data = {
-        'adults': data['PickupQuantityAdult'],
-        'children': data['PickupQuantityChildren'],
-    }
-
-    cart.add_activity(
-        activity_id=pickup_activity_id,
-        start_date=pickup_dt.format('YYYY-MM-DD'),
-        start_time=pickup_dt.format('HH:mm'),
-        strict_time=True,
-        pickup_place_id=pickup_place.pk,
-        dropoff_place_id=None,  # We know that this is the Blue Lagoon
-        **common_booking_data
-    )
-
-    cart.add_activity(
-        activity_id=dropoff_activity_id,
-        start_date=next_pickup_dt.format('YYYY-MM-DD'),
-        start_time=next_pickup_dt.format('HH:mm'),
-        strict_time=False,
-        pickup_place_id=None,  # We know that this is the Blue Lagoon
-        dropoff_place_id=dropoff_place.pk,
-        **common_booking_data
-    )
-
-    name_parts = data.get('Name', '').strip().split()
-
-    external_booking_id = data.get('BookingID')
-    external_payment_id = data.get('PaymentID')
-
-    cart.reserve(
-        fields={
-            'external_booking_id': external_booking_id,
-            'external_payment_id': external_payment_id,
-        },
-        answers={
-            'first-name': ' '.join(name_parts[:1]),
-            'last-name': ' '.join(name_parts[1:]),
-            'email': data.get('Email', '').strip(),
-            'phone-number': data.get('PhoneNumber', '').strip(),
+        common_booking_data = {
+            'adults': data['PickupQuantityAdult'],
+            'children': data['PickupQuantityChildren'],
         }
-    )
 
-    cart.confirm(
-        mark_paid=True,
-        send_customer_notification=data['SendConfirmationEmail'],
-        reference_id=external_booking_id,
-        payment_reference_id=external_payment_id,
-    )
+        cart.add_activity(
+            activity_id=pickup_activity_id,
+            start_date=pickup_dt.format('YYYY-MM-DD'),
+            start_time=pickup_dt.format('HH:mm'),
+            strict_time=True,
+            pickup_place_id=pickup_place.pk,
+            dropoff_place_id=None,  # We know that this is the Blue Lagoon
+            **common_booking_data
+        )
+
+        cart.add_activity(
+            activity_id=dropoff_activity_id,
+            start_date=next_pickup_dt.format('YYYY-MM-DD'),
+            start_time=next_pickup_dt.format('HH:mm'),
+            strict_time=False,
+            pickup_place_id=None,  # We know that this is the Blue Lagoon
+            dropoff_place_id=dropoff_place.pk,
+            **common_booking_data
+        )
+
+        name_parts = data.get('Name', '').strip().split()
+
+        external_booking_id = data.get('BookingID')
+        external_payment_id = data.get('PaymentID')
+
+        cart.reserve(
+            fields={
+                'external_booking_id': external_booking_id,
+                'external_payment_id': external_payment_id,
+            },
+            answers={
+                'first-name': ' '.join(name_parts[:1]),
+                'last-name': ' '.join(name_parts[1:]),
+                'email': data.get('Email', '').strip(),
+                'phone-number': (data.get('PhoneNumber') or '').strip(),
+            }
+        )
+
+        cart.confirm(
+            mark_paid=True,
+            send_customer_notification=data['SendConfirmationEmail'],
+            reference_id=external_booking_id,
+            payment_reference_id=external_payment_id,
+        )
+    except Cart.CartException as e:
+        return Response({
+            'success': False,
+            'error': 'cart_error',
+            'message': str(e)
+        }, status=400)
+    except BokunApiException as e:
+        return Response({
+            'success': False,
+            'error': 'bokun_api_error',
+            'message': e.message
+        }, status=400)
 
     return Response({
         'success': True,

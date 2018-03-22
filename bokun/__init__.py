@@ -1,2 +1,2 @@
-from .bokun_api import BokunApi
+from .bokun_api import BokunApi, BokunApiException
 from .cart import Cart
