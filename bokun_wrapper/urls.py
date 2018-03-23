@@ -18,15 +18,24 @@ from django.contrib import admin
 from django.urls import path, include
 from rest_framework import routers
 
-from .views import ProductViewSet, PlaceViewSet, VendorViewSet
+from .views import (
+    PlaceViewSet,
+    VendorViewSet,
+)
+from .viewsets import (
+    FrontPageProductViewSet,
+    ProductViewSet,
+)
+
 from .views import get_availability, get_frontpage_products, get_cart, get_single_frontpage_product
 from .views import add_to_cart, add_extra_to_cart, pay, remove_extra_from_cart, get_cross_sale, add_cross_sale_to_cart, remove_activity_from_cart
 from .views import blue_lagoon_places, blue_lagoon_order, blue_lagoon_order_test
 
 router = routers.DefaultRouter()
-router.register(r'products', ProductViewSet)
-router.register(r'places', PlaceViewSet)
-router.register(r'vendors', VendorViewSet)
+router.register('front-page-products', FrontPageProductViewSet)
+router.register('products', ProductViewSet)
+router.register('places', PlaceViewSet)
+router.register('vendors', VendorViewSet)
 
 
 urlpatterns = [

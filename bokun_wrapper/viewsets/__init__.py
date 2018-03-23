@@ -1,0 +1,2 @@
+from .front_page_products import FrontPageProductViewSet
+from .products import ProductViewSet

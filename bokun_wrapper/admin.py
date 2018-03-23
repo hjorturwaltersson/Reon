@@ -12,7 +12,7 @@ class PlaceAdmin(admin.ModelAdmin):
 
 @admin.register(FrontPageProduct)
 class FrontPageAdmin(admin.ModelAdmin):
-    list_display = ('title', 'ordering',)
+    list_display = ('title', 'direction', 'ordering')
     list_editable = ('ordering',)
 
 admin.site.register(Product)
