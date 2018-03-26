@@ -291,13 +291,16 @@ def get_pricing_category_bookings(
             'pricing_category_id': category_id,
             'extras': []
         })
+
     if product.child_price_category_id:
         category_id = product.child_price_category_id
+
     for x in range(traveler_count_children):
         pricing_category_bookings.append({
             'pricing_category_id': category_id,
             'extras': []
         })
+
     for pricing_category_booking in pricing_category_bookings:
         if flight_delay_guarantee:
             pricing_category_booking['extras'].append({
@@ -310,30 +313,35 @@ def get_pricing_category_bookings(
                     }]
                 }]
             })
+
         if extra_baggage_count > 0:
             pricing_category_booking['extras'].append({
                 'extra_id': product.extra_baggage_id,
                 'unit_count': extra_baggage_count
             })
             extra_baggage_count = 0
+
         if odd_size_baggage_count > 0:
             pricing_category_booking['extras'].append({
                 'extra_id': product.odd_size_id,
                 'unit_count': odd_size_baggage_count
             })
             odd_size_baggage_count = 0
+
         if child_seat_child_count > 0:
             pricing_category_booking['extras'].append({
                 'extra_id': product.child_seat_child_id,
                 'unit_count': child_seat_child_count
             })
             child_seat_child_count = 0
+
         if child_seat_infant_count > 0:
             pricing_category_booking['extras'].append({
                 'extra_id': product.child_seat_infant_id,
                 'unit_count': child_seat_child_count
             })
             child_seat_infant_count = 0
+
     return pricing_category_bookings
 
 

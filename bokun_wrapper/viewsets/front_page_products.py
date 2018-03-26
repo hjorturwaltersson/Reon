@@ -15,9 +15,12 @@ class FrontPageProductSerializer(serializers.ModelSerializer):
         request = kwargs['context']['request']
 
         if request.query_params.get('is_round_trip', 'false') != 'false':
-            self.fields['bokun_product'] = ProductSerializer(source='discount_product')
+            self.fields['bokun_product'] = ProductSerializer(source='_discount_product')
         else:
             self.fields['bokun_product'] = ProductSerializer()
+
+
+    bokun_product = ProductSerializer(source='_bokun_product')
 
     return_product = ProductSerializer()
 

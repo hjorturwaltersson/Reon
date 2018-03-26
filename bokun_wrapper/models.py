@@ -34,6 +34,16 @@ class Place(models.Model):
         ordering = ['ordering', 'title']
 
 
+extra_id_map = {
+    'flight_delay_guarantee': ['flightdelayguarantee', 'delayguarantee', 'fld'],
+
+    'child_seat_infant': ['childseat0-13kg', 'childseatinfant'],
+    'child_seat_child': ['childseat14-36kg', 'childseatchild', 'childseat', 'childseatchildren'],
+
+    'extra_baggage': ['extrabaggage'],
+    'odd_size_baggage': ['oddsizebaggage', 'oddsizedbaggage'],
+}
+
 class Product(models.Model):
     bokun_id = models.CharField(unique=True, max_length=1000, primary_key=True)
     external_id = models.CharField(max_length=1000)
@@ -50,6 +60,65 @@ class Product(models.Model):
     dropoff_places = models.ManyToManyField(Place, related_name='+', blank=True)
 
     json = JSONField(null=True)
+
+    @property
+    def price_categories(self):
+        return self.json['pricingCategories']
+
+    @property
+    def default_price_category(self):
+        return next(filter(lambda c: c['defaultCategory'], self.price_categories), None)
+
+    @property
+    def default_price_category_id(self):
+        return self.default_price_category['id']
+
+    @property
+    def child_price_category(self):
+        try:
+            return next(filter(lambda c: 'CHILD' in (c['ticketCategory'] + c['title']).upper(), self.price_categories), None)
+        except IndexError:
+            return self.default_price_category
+
+    @property
+    def child_price_category_id(self):
+        return self.child_price_category['id']
+
+    @property
+    def extras(self):
+        def find_extra(ext_ids):
+            return next(filter(
+                lambda e: e['externalId'].lower() in ext_ids, self.bookable_extras), None)
+
+        return {key: find_extra(ext_ids) for key, ext_ids in extra_id_map.items()}
+
+    @property
+    def flight_delay_id(self):
+        try:
+            return self.extras['flight_delay_guarantee']['id']
+        except:
+            print(self.bokun_id)
+            raise
+
+    @property
+    def flight_delay_question_id(self):
+        return self.extras['flight_delay_guarantee']['questions'][0]['id']
+
+    @property
+    def extra_baggage_id(self):
+        return self.extras['extra_baggage']['id']
+
+    @property
+    def odd_size_id(self):
+        return self.extras['odd_size_baggage']['id']
+
+    @property
+    def child_seat_child_id(self):
+        return self.extras['child_seat_child']['id']
+
+    @property
+    def child_seat_infant_id(self):
+        return self.extras['child_seat_infant']['id']
 
     def __str__(self):
         return self.title
@@ -84,6 +153,10 @@ class FrontPageProduct(models.Model):
 
     min_people = models.IntegerField(default=0)
     max_people = models.IntegerField(default=0)
+
+    @property
+    def _discount_product(self):
+        return self.discount_product or self.bokun_product
 
     def __str__(self):
         if self.bokun_product:
