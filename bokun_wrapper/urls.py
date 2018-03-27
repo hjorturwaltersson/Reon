@@ -47,7 +47,7 @@ urlpatterns = [
     url(r'blp', blue_lagoon_places),
     url(r'blue_lagoon_places', blue_lagoon_places),
     url(r'blue_lagoon_order', blue_lagoon_order),
-    url(r'test_blue_lagoon_order', blue_lagoon_order_test),
+    url(r'test_blo', blue_lagoon_order_test),
 
 ]
 
