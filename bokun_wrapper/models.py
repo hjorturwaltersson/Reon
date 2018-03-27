@@ -1,10 +1,13 @@
 from operator import itemgetter
+from datetime import datetime
 
 import arrow
 
 from django.core.cache import cache
 from django.db import models
 from jsonfield import JSONField
+
+from .utils import nearest
 
 
 TYPE_CHOICES = (
@@ -89,6 +92,11 @@ extra_id_map = {
     'odd_size_baggage': ['oddsizebaggage', 'oddsizedbaggage'],
 }
 
+
+class InvalidStartTime(Exception):
+    pass
+
+
 class Product(ActivityPropertyMixin, models.Model):
     external_id = models.CharField(max_length=255)
 
@@ -146,6 +154,25 @@ class Product(ActivityPropertyMixin, models.Model):
         cache.set(cache_key, data, 60 * 10)  # Cache for 10 minutes
 
         return data
+
+    def get_start_time_ids(self, date):
+        return {arrow.get('%sT%s' % (a['date'], a['time'])).datetime: a['id']
+                for a in self.get_availability(date)}
+
+    def get_start_time_id(self, dt, strict=True):
+        dt = arrow.get(dt).datetime
+
+        st_dict = self.get_start_time_ids(dt)
+        st_keys = st_dict.keys()
+
+        try:
+            return st_dict[dt]
+        except KeyError:
+            if strict:
+                times = [arrow.get(t).format('HH:mm') for t in st_keys]
+                raise InvalidStartTime('Start time be one of: %s' % ', '.join(times))
+
+            return st_dict[nearest([k for k in st_keys if k > dt], dt)]
 
     @property
     def extras(self):

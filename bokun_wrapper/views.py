@@ -348,56 +348,43 @@ def get_pricing_category_bookings(
 @api_view(['POST'])
 def add_to_cart(request):
     body = json.loads(request.body)
+    session_id = body.get('session_id')
+
     product_type_id = body['product_type_id']
-    start_time_id = body['start_time_id']
+
     date = body['date']
-    pickup_place_id = body['pickup_place_id']
-    dropoff_place_id = body['dropoff_place_id']
-    round_trip = body['round_trip']
-    traveler_count_adults = body.get('traveler_count_adults', 0)
-    traveler_count_children = body.get('traveler_count_children', 0)
-    session_id = body.get('session_id', None)
-    return_start_time_id = body.get('return_start_time_id', None)
-    return_date = body.get('return_date', None)
+    return_date = body.get('return_date')
+
+    pickup_place_id = body.get('pickup_place_id')
+    dropoff_place_id = body.get('dropoff_place_id')
+
+    traveler_count_adults = int(body.get('traveler_count_adults', 0))
+    traveler_count_children = int(body.get('traveler_count_children', 0))
+
     flight_delay_guarantee = body.get('flight_delay_guarantee', False)
     flight_number = body.get('flight_number', "")
     flight_number_return = body.get('flight_number_return', '')
-    extra_baggage_count = body.get('extra_baggage_count', 0)
-    odd_size_baggage_count = body.get('odd_size_baggage_count', 0)
-    child_seat_child_count = body.get('child_seat_child_count', 0)
-    child_seat_infant_count = body.get('child_seat_infant_count', 0)
+
+    extra_baggage_count = int(body.get('extra_baggage_count', 0))
+    odd_size_baggage_count = int(body.get('odd_size_baggage_count', 0))
+
+    child_seat_child_count = int(body.get('child_seat_child_count', 0))
+    child_seat_infant_count = int(body.get('child_seat_infant_count', 0))
+
     return_pickup_place_id = body.get('return_pickup_place_id', dropoff_place_id)
     return_dropoff_place_id = body.get('return_dropoff_place_id', pickup_place_id)
 
+    is_round_trip = (return_date is not None)
+
     hotel_connection = body.get('hotel_connection', False)
-    if hotel_connection and product_type_id == 11:
-        product_type_id = 19
-        if round_trip:
-            start_time = get_start_time(start_time_id, 9883, date)
-            start_time_id = get_start_time_id(22443, date, start_time)
-            return_start_time = get_start_time(return_start_time_id, 9882, return_date)
-            return_start_time_id = get_start_time_id(22442, return_date, return_start_time)
-        else:
-            start_time = get_start_time(start_time_id, 22112, date)
-            start_time_id = get_start_time_id(22246, date, start_time)
 
-    if hotel_connection and product_type_id == 12:
-        product_type_id = 18
-        if round_trip:
-            start_time = get_start_time(start_time_id, 9882, date)
-            start_time_id = get_start_time_id(22442, date, start_time)
-            return_start_time = get_start_time(return_start_time_id, 9883, return_date)
-            return_start_time_id = get_start_time_id(22443, return_date, return_start_time)
-        else:
-            start_time = get_start_time(start_time_id, 22141, date)
-            start_time_id = get_start_time_id(22257, date, start_time)
+    if hotel_connection:
+        if product_type_id == 11:
+            product_type_id = 19
 
-    traveler_count_adults = int(traveler_count_adults)
-    traveler_count_children = int(traveler_count_children)
-    extra_baggage_count = int(extra_baggage_count)
-    odd_size_baggage_count = int(odd_size_baggage_count)
-    child_seat_child_count = int(child_seat_child_count)
-    child_seat_infant_count = int(child_seat_infant_count)
+        if product_type_id == 12:
+            product_type_id = 18
+
     product = FrontPageProduct.objects.get(id=product_type_id)
     custom_locations = False
 
@@ -407,7 +394,7 @@ def add_to_cart(request):
         traveler_count_children = 0
         traveler_count_adults = 1
         custom_locations = True
-    elif round_trip and product.discount_product:
+    elif is_round_trip and product.discount_product:
         main_product = product.discount_product
         return_product = product.return_product
     else:
@@ -426,10 +413,12 @@ def add_to_cart(request):
         child_seat_infant_count,
     )
 
+    start_dt = arrow.get(date)
+
     reply1 = get_data.add_to_cart(
         activity_id=main_product.id,
-        start_time_id=start_time_id,
-        date=date,
+        start_time_id=main_product.get_start_time_id(start_dt),
+        date=start_dt.format('YYYY-MM-DD'),
         pricing_category_bookings=pricing_category_bookings,
         session_id=session_id,
         dropoff_place_id=dropoff_place_id,
@@ -448,7 +437,7 @@ def add_to_cart(request):
     except KeyError:
         return Response(reply1)
 
-    if round_trip:
+    if is_round_trip:
         pricing_category_bookings = get_pricing_category_bookings(
             return_product,
             traveler_count_adults,
@@ -461,10 +450,12 @@ def add_to_cart(request):
             child_seat_infant_count,
         )
 
+        return_start_dt = arrow.get(return_date)
+
         reply2 = get_data.add_to_cart(
             activity_id=return_product.id,
-            start_time_id=return_start_time_id,
-            date=return_date,
+            start_time_id=return_product.get_start_time_id(return_start_dt),
+            date=return_start_dt.format('YYYY-MM-DD'),
             pricing_category_bookings=pricing_category_bookings,
             session_id=session_id,
             dropoff_place_id=return_dropoff_place_id,
@@ -611,19 +602,3 @@ def add_cross_sale_to_cart(request):
         return Response(reply.json())
     except ValueError as e:
         return Response(reply.text)
-
-
-def get_start_time_id(activity_id, date, start_time, api=bokun_api):
-    data = get_data.get_availability(activity_id, date, api=api)
-    for start_time_slot in data:
-        if start_time_slot['start_time'] == start_time:
-            return start_time_slot['start_time_id']
-    return None
-
-
-def get_start_time(start_time_id, activity_id, date):
-    data = get_data.get_availability(activity_id, date)
-    for start_time_slot in data:
-        if start_time_slot['start_time_id'] == start_time_id:
-            return start_time_slot['start_time']
-    return ""
