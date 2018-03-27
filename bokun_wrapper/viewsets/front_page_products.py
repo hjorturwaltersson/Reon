@@ -29,6 +29,8 @@ class FrontPageProductSerializer(serializers.ModelSerializer):
         fields = (
             'id',
             'title',
+            'excerpt',
+            'description',
             'tagline',
             'photo_path',
 

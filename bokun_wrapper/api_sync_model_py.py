@@ -14,7 +14,7 @@ class ApiSyncModel(models.Model):
     initial_sync = models.DateTimeField(null=True, editable=False, db_index=True)
     last_sync = models.DateTimeField(null=True, editable=False, db_index=True)
 
-    bokun_id = models.IntegerField(db_index=True)
+    id = models.IntegerField(db_index=True)
 
     @classmethod
     def _sync_get_queryset(cls):
@@ -59,7 +59,7 @@ class ApiSyncModel(models.Model):
         if prefetch_related:
             prefetch_related_objects(obj_list, *prefetch_related)
 
-        synced_data = sorted(obj_list, key=attrgetter('bokun_id'))
+        synced_data = sorted(obj_list, key=attrgetter('id'))
 
         cls.post_sync(
             synced_data=synced_data,
@@ -109,4 +109,4 @@ class ApiSyncModel(models.Model):
 
     class Meta:
         abstract = True
-        ordering = ['bokun_id']
+        ordering = ['id']

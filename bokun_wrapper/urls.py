@@ -22,14 +22,26 @@ from .views import (
     PlaceViewSet,
     VendorViewSet,
 )
+
 from .viewsets import (
     FrontPageProductViewSet,
     ProductViewSet,
 )
 
-from .views import get_availability, get_frontpage_products, get_cart, get_single_frontpage_product
-from .views import add_to_cart, add_extra_to_cart, pay, remove_extra_from_cart, get_cross_sale, add_cross_sale_to_cart, remove_activity_from_cart
-from .views import blue_lagoon_places, blue_lagoon_order, blue_lagoon_order_test
+from .views import (
+    get_availability,
+    get_cart,
+    add_to_cart,
+    add_extra_to_cart,
+    pay,
+    remove_extra_from_cart,
+    get_cross_sale,
+    add_cross_sale_to_cart,
+    remove_activity_from_cart,
+    blue_lagoon_places,
+    blue_lagoon_order,
+)
+
 
 router = routers.DefaultRouter()
 router.register('front-page-products', FrontPageProductViewSet)
@@ -42,10 +54,7 @@ urlpatterns = [
     url(r'', include(router.urls)),
     path('admin/', admin.site.urls),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
-    url(r'get_availability', get_availability),
     url(r'get_cart', get_cart),
-    path(r'get_frontpage_products/<int:id>/', get_single_frontpage_product),
-    url(r'get_frontpage_products', get_frontpage_products),
     url(r'add_to_cart', add_to_cart),
     url(r'add_extra_to_cart', add_extra_to_cart),
     url(r'pay', pay),
