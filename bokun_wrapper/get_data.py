@@ -196,8 +196,9 @@ def add_to_cart(activity_id, start_time_id, date, pricing_category_bookings,
     reply = api.post(path, body)
 
     RequestLog.objects.create(
-        outgoing_body=body,
-        bokun_response=reply.json()
+        outgoing_body=json.dumps(body),
+        bokun_response=reply.json(),
+        url=path
     )
 
     return reply.json()
@@ -285,7 +286,8 @@ def reserve_pay_confirm(session_id, address_city, address_country, address_line_
     reply = bokun_api.post(path, body)
 
     RequestLog.objects.create(
-        bokun_response=reply.json()
+        bokun_response=reply.json(),
+        url=path
     )
 
     return reply.json()

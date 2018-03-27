@@ -126,10 +126,36 @@ class BlueLagoonOrderSerializer(serializers.Serializer):
 
     Name = serializers.CharField()
     Email = serializers.CharField()
-    PhoneNumber = serializers.CharField(required=False, allow_null=True)
+    PhoneNumber = serializers.CharField(required=False, allow_null=True, allow_blank=True)
 
-    SendConfirmationEmail = serializers.BooleanField(default=False)
+    SendConfirmationEmail = serializers.BooleanField(default=True)
     MarkPaid = serializers.BooleanField(default=True)
+
+
+@api_view(['POST'])
+def blue_lagoon_order_test(request):
+    try:
+        secret = request.META['HTTP_SECRET']
+        if secret != 'WKSqWWTjmD6p2yX7Am4y8m2N':
+            return Response({"success": False, "error": "authorization_failed"}, status=401)
+    except Exception as e:
+        return Response({"success": False, "error": "authorization_failed"}, status=401)
+    try:
+        body = json.loads(request.body)
+        BookingID = body['BookingID']
+        PickupLocationID = body['PickupLocationID']
+        PickupTime = body['PickupTime']
+        DropOffLocationID = body['DropOffLocationID']
+        PickupQuantityAdult = body['PickupQuantityAdult']
+        PickupQuantityChildren = body['PickupQuantityChildren']
+        Name = body['Name']
+        Email = body['Email']
+        PhoneNumber = body['PhoneNumber']
+        PickupDate = body['PickupDate']
+        PickupDate = datetime.datetime.strptime(PickupDate, "%Y-%m-%d")
+        return Response({"success": True, "error": None}, status=201)
+    except Exception as e:
+        return Response({"success": False, "error": "request_incomplete"}, status=400)
 
 
 

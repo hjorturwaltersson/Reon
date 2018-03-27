@@ -21,7 +21,7 @@ from rest_framework import routers
 from .views import ProductViewSet, PlaceViewSet, VendorViewSet
 from .views import get_availability, get_frontpage_products, get_cart, get_single_frontpage_product
 from .views import add_to_cart, add_extra_to_cart, pay, remove_extra_from_cart, get_cross_sale, add_cross_sale_to_cart, remove_activity_from_cart
-from .views import blue_lagoon_places, blue_lagoon_order
+from .views import blue_lagoon_places, blue_lagoon_order, blue_lagoon_order_test
 
 router = routers.DefaultRouter()
 router.register(r'products', ProductViewSet)
@@ -46,7 +46,9 @@ urlpatterns = [
     url(r'crosssale', get_cross_sale),
     url(r'blp', blue_lagoon_places),
     url(r'blue_lagoon_places', blue_lagoon_places),
-    url(r'blue_lagoon_order', blue_lagoon_order)
+    url(r'blue_lagoon_order', blue_lagoon_order),
+    url(r'test_blue_lagoon_order', blue_lagoon_order_test),
+
 ]
 
 urlpatterns += router.urls
