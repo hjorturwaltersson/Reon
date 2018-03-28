@@ -362,7 +362,7 @@ def add_to_cart(request):
     traveler_count_children = int(body.get('traveler_count_children', 0))
 
     flight_delay_guarantee = body.get('flight_delay_guarantee', False)
-    flight_number = body.get('flight_number', "")
+    flight_number = body.get('flight_number', '')
     flight_number_return = body.get('flight_number_return', '')
 
     extra_baggage_count = int(body.get('extra_baggage_count', 0))
@@ -371,8 +371,8 @@ def add_to_cart(request):
     child_seat_child_count = int(body.get('child_seat_child_count', 0))
     child_seat_infant_count = int(body.get('child_seat_infant_count', 0))
 
-    return_pickup_place_id = body.get('return_pickup_place_id', dropoff_place_id)
-    return_dropoff_place_id = body.get('return_dropoff_place_id', pickup_place_id)
+    return_pickup_place_id = body.get('return_pickup_place_id')
+    return_dropoff_place_id = body.get('return_dropoff_place_id')
 
     is_round_trip = (return_date is not None)
 
@@ -388,7 +388,7 @@ def add_to_cart(request):
     product = FrontPageProduct.objects.get(id=product_type_id)
     custom_locations = False
 
-    if product.luxury or product.private:
+    if product.kind in ['PRI', 'LUX']:
         main_product = product.bokun_product
         return_product = product.bokun_product
         traveler_count_children = 0

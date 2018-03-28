@@ -19,7 +19,6 @@ class FrontPageProductSerializer(serializers.ModelSerializer):
         else:
             self.fields['bokun_product'] = ProductSerializer()
 
-
     bokun_product = ProductSerializer(source='_bokun_product')
 
     return_product = ProductSerializer()
@@ -28,6 +27,8 @@ class FrontPageProductSerializer(serializers.ModelSerializer):
         model = FrontPageProduct
         fields = (
             'id',
+            'kind',
+            'single_seat_booking',
             'title',
             'excerpt',
             'description',
@@ -47,14 +48,22 @@ class FrontPageProductViewSet(viewsets.ModelViewSet):
         query = self.request.query_params
 
         traveler_count = int(query.get('traveler_count') or 0)
+        direction = query.get('direction')
+
+        if traveler_count:
+            count_filters = dict(min_people__lte=traveler_count, max_people__gte=traveler_count)
+        else:
+            count_filters = dict()
+
+        if direction:
+            direction_filters = dict(direction__in=['ANY', direction])
+        else:
+            direction_filters = dict()
 
         return super().get_queryset().filter(Q(
             # Private and Luxury:
-            Q(private=True) | Q(luxury=True),
-            min_people__lte=traveler_count,
-            max_people__gte=traveler_count,
-        ) | Q(
-            # Economy:
-            private=False,
-            luxury=False,
-        ), direction__in=['ANY', query.get('direction')])
+            kind__in=['PRI', 'LUX'],
+            **count_filters
+        ) | ~Q(
+            kind__in=['PRI', 'LUX']
+        ), **direction_filters)

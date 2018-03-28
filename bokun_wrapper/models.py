@@ -220,6 +220,13 @@ DIRECTION_CHOICES = (
     ('RVK-KEF', 'RVK-KEF'),
 )
 
+PRODUCT_TYPE_CHOICES = (
+    ('ECO', 'Economy'),
+    ('PRE', 'Premium'),
+    ('PRI', 'Private'),
+    ('LUX', 'Luxury'),
+)
+
 
 class FrontPageProduct(models.Model):
     bokun_product = models.ForeignKey(Product, null=True, blank=True,
@@ -229,20 +236,25 @@ class FrontPageProduct(models.Model):
     discount_product = models.ForeignKey(Product, null=True, blank=True,
                                          on_delete=models.SET_NULL, related_name='+')
 
+    kind = models.CharField(max_length=3, choices=PRODUCT_TYPE_CHOICES,
+                            db_column='type', default='ECO', db_index=True)
+
     direction = models.CharField(max_length=10, choices=DIRECTION_CHOICES, default='ANY')
 
     tagline = models.CharField(max_length=200, default='')
 
-    private = models.BooleanField(default=False)
-    luxury = models.BooleanField(default=False)
     photo_path = models.CharField(max_length=200, default='')
 
     title = models.CharField(max_length=200, default='')
 
-    ordering = models.IntegerField(default=0)
+    ordering = models.IntegerField(default=0, db_index=True)
 
-    min_people = models.IntegerField(default=0)
-    max_people = models.IntegerField(default=0)
+    min_people = models.IntegerField(default=0, db_index=True)
+    max_people = models.IntegerField(default=0, db_index=True)
+
+    @property
+    def single_seat_booking(self):
+        return self.kind in ['ECO', 'PRE']
 
     @property
     def _discount_product(self):
@@ -260,7 +272,7 @@ class FrontPageProduct(models.Model):
         if self.bokun_product:
             return self.bokun_product.title
         else:
-            return "untitled"
+            return 'untitled'
 
     class Meta:
         ordering = ['ordering', 'title']
