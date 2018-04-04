@@ -6,14 +6,14 @@ from rest_framework.decorators import detail_route
 from rest_framework.response import Response
 
 from ..get_data import bokun_api
-from ..models import Product
+from ..models import Activity
 
 
 class ProductSerializer(serializers.ModelSerializer):
     vendor = serializers.PrimaryKeyRelatedField(read_only=True)
 
     class Meta:
-        model = Product
+        model = Activity
         fields = (
             'id',
             'external_id',
@@ -28,7 +28,7 @@ class ProductSerializer(serializers.ModelSerializer):
 
 
 class ProductViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Product.objects.all()
+    queryset = Activity.objects.all()
     serializer_class = ProductSerializer
 
     @detail_route(methods=['get'])

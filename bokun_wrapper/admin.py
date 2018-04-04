@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import FrontPageProduct, FrontPageProductBullet, Place, Product
+from .models import Product, ProductBullet, Place, Activity
 
 
 @admin.register(Place)
@@ -11,11 +11,11 @@ class PlaceAdmin(admin.ModelAdmin):
 
 
 class BulletInline(admin.TabularInline):
-    model = FrontPageProductBullet
+    model = ProductBullet
     fields = ('icon', 'text')
 
 
-@admin.register(FrontPageProduct)
+@admin.register(Product)
 class FrontPageAdmin(admin.ModelAdmin):
     list_display = ('title', 'kind', 'direction', 'ordering')
     list_editable = ('ordering',)
@@ -26,4 +26,4 @@ class FrontPageAdmin(admin.ModelAdmin):
         BulletInline
     ]
 
-admin.site.register(Product)
+admin.site.register(Activity)

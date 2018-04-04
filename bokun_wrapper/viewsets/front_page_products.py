@@ -3,14 +3,14 @@ from rest_framework import viewsets, serializers
 from rest_framework.decorators import api_view, detail_route
 # from rest_framework.response import Response
 
-from ..models import FrontPageProduct, FrontPageProductBullet
+from ..models import Product, ProductBullet
 
 from .products import ProductSerializer
 
 
 class BulletSerializer(serializers.ModelSerializer):
     class Meta:
-        model = FrontPageProductBullet
+        model = ProductBullet
         fields = ('icon', 'bullet')
 
 
@@ -30,7 +30,7 @@ class FrontPageProductSerializer(serializers.ModelSerializer):
     return_product = ProductSerializer()
 
     class Meta:
-        model = FrontPageProduct
+        model = Product
         fields = (
             'id',
             'kind',
@@ -49,7 +49,7 @@ class FrontPageProductSerializer(serializers.ModelSerializer):
 
 class FrontPageProductViewSet(viewsets.ModelViewSet):
     serializer_class = FrontPageProductSerializer
-    queryset = FrontPageProduct.objects.all()\
+    queryset = Product.objects.all()\
         .select_related('bokun_product', 'return_product', 'discount_product')\
         .prefetch_related('bullets')
 

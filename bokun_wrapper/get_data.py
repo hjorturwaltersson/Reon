@@ -13,8 +13,8 @@ from bokun import BokunApi
 from bokun_wrapper.models import (
     Vendor,
     Place,
+    Activity,
     Product,
-    FrontPageProduct,
     CrossSaleItem,
     RequestLog,
 )
@@ -45,11 +45,11 @@ def update_vendor_products(vendor_id):
 
     for product_id in product_ids:
         try:
-            product = Product.objects.get(id=product_id)
+            product = Activity.objects.get(id=product_id)
             print("Found existing product: {}".format(product_id))
-        except Product.DoesNotExist as e:
+        except Activity.DoesNotExist as e:
             print("Creating new product: {}".format(product_id))
-            product = Product(id=product_id)
+            product = Activity(id=product_id)
 
         item_dict = get_product(product_id)
 
@@ -102,7 +102,7 @@ def create_or_update_place(places, vendor_id):
 
 
 def get_places(product_id, vendor_id):
-    product = Product.objects.get(id=product_id)
+    product = Activity.objects.get(id=product_id)
 
     data = bokun_api.get('/activity.json/{}/pickup-places'.format(product_id)).json()
 

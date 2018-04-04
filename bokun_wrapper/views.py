@@ -13,8 +13,8 @@ from .get_data import bokun_api, bokun_api_bl
 from .models import (
     Vendor,
     Place,
+    Activity,
     Product,
-    FrontPageProduct,
     CrossSaleItem,
     RequestLog,
 )
@@ -46,11 +46,11 @@ def get_extra(extra_id, qid=None, answer=None):
 
 
 class ProductViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Product.objects.all()
+    queryset = Activity.objects.all()
     serializer_class = ProductSerializer
 
     def get_queryset(self):
-        queryset = Product.objects.all()
+        queryset = Activity.objects.all()
         pickup_place = self.request.query_params.get('pickup_place', None)
         dropoff_place = self.request.query_params.get('dropoff_place', None)
         if pickup_place:
@@ -385,7 +385,7 @@ def add_to_cart(request):
         if product_type_id == 12:
             product_type_id = 18
 
-    product = FrontPageProduct.objects.get(id=product_type_id)
+    product = Product.objects.get(id=product_type_id)
     custom_locations = False
 
     if product.kind in ['PRI', 'LUX']:

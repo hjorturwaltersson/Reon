@@ -1,5 +1,5 @@
 from rest_framework import serializers, fields
-from .models import Vendor, Place, Product, FrontPageProduct
+from .models import Vendor, Place, Activity, Product
 
 
 class PlaceSerializer(serializers.ModelSerializer):
@@ -20,7 +20,7 @@ class ProductSerializer(serializers.ModelSerializer):
     json = fields.JSONField()
 
     class Meta:
-        model = Product
+        model = Activity
         fields = '__all__'
 
 
@@ -37,5 +37,5 @@ class FrontPageProductSerializer(serializers.ModelSerializer):
     return_product = ProductSerializer()
 
     class Meta:
-        model = FrontPageProduct
+        model = Product
         fields = '__all__'
