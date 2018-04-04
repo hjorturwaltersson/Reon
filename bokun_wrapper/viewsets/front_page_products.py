@@ -3,9 +3,15 @@ from rest_framework import viewsets, serializers
 from rest_framework.decorators import api_view, detail_route
 # from rest_framework.response import Response
 
-from ..models import FrontPageProduct
+from ..models import FrontPageProduct, FrontPageProductBullet
 
 from .products import ProductSerializer
+
+
+class BulletSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FrontPageProductBullet
+        fields = ('icon', 'bullet')
 
 
 class FrontPageProductSerializer(serializers.ModelSerializer):
@@ -32,6 +38,7 @@ class FrontPageProductSerializer(serializers.ModelSerializer):
             'title',
             'excerpt',
             'description',
+            'bullets',
             'tagline',
             'photo_path',
 
@@ -42,7 +49,9 @@ class FrontPageProductSerializer(serializers.ModelSerializer):
 
 class FrontPageProductViewSet(viewsets.ModelViewSet):
     serializer_class = FrontPageProductSerializer
-    queryset = FrontPageProduct.objects.all()
+    queryset = FrontPageProduct.objects.all()\
+        .select_related('bokun_product', 'return_product', 'discount_product')\
+        .prefetch_related('bullets')
 
     def get_queryset(self):
         query = self.request.query_params

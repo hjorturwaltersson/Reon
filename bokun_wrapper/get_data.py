@@ -38,12 +38,11 @@ def get_product(product_id):
 
 def update_vendor_products(vendor_id):
     product_ids = get_vendor_product_ids(vendor_id)
+
     print(product_ids)
+
     vendor = Vendor.objects.get(bokun_id=vendor_id)
-    # for product in Product.objects.all():
-    #     if product.id not in product_ids:
-    #         print("Deleting product: {}".format(product.id))
-    #         product.delete()
+
     for product_id in product_ids:
         try:
             product = Product.objects.get(id=product_id)
@@ -51,66 +50,64 @@ def update_vendor_products(vendor_id):
         except Product.DoesNotExist as e:
             print("Creating new product: {}".format(product_id))
             product = Product(id=product_id)
+
         item_dict = get_product(product_id)
-        product.title = item_dict['title']
-        product.excerpt = item_dict['excerpt']
-        product.price = item_dict['nextDefaultPrice']
-        product.photos = item_dict['photos']
+
+        product.external_id = item_dict['externalId'] or ''
+
+        product.title = item_dict['title'] or ''
+        product.excerpt = item_dict['excerpt'] or ''
+
         product.vendor = vendor
-        product.external_id = item_dict['externalId']
-        product.bookable_extras = item_dict['bookableExtras']
         product.json = item_dict
-        pricing_categories = item_dict['pricingCategories']
-        if len(pricing_categories) > 0:
-            product.default_price_category_id = pricing_categories[0]['id']
-        if len(pricing_categories) > 1:
-            product.child_price_category_id = pricing_categories[1]['id']
-        for bookable_extra in item_dict['bookableExtras']:
-            if bookable_extra['externalId'] == 'flightdelayguarantee' or bookable_extra['externalId'] == 'DelayGuarantee':
-                product.flight_delay_id = bookable_extra['id']
-                product.flight_delay_question_id = bookable_extra['questions'][0]['id']
-            if bookable_extra['externalId'] == 'ChildSeat14-36kg':
-                product.child_seat_child_id = bookable_extra['id']
-            if bookable_extra['externalId'] == 'ChildSeat0-13kg':
-                product.child_seat_infant_id = bookable_extra['id']
-            if bookable_extra['externalId'] == 'ExtraBaggage':
-                product.extra_baggage_id = bookable_extra['id']
-            if bookable_extra['externalId'] == 'OddSizeBaggage':
-                product.odd_size_id = bookable_extra['id']
+
         product.save()
+
         get_places(product_id, vendor_id)
 
 
 def create_or_update_place(places, vendor_id):
     indexed_places = {str(p['id']): p for p in places}
-    existing_places = list(Place.objects.filter(id__in=[p["id"] for p in places]))
+    existing_places = list(Place.objects.filter(id__in=[p['id'] for p in places]))
 
     for place in existing_places:
-        bokun_data = indexed_places[place.id]
-        place.title = bokun_data['title']
-        place.location = bokun_data['location']
-        place.json = bokun_data
-        place.vendor_id = vendor_id
-        place.save()
+        try:
+            bokun_data = indexed_places[place.id]
+        except KeyError:
+            place.delete()
+        else:
+            place.title = bokun_data['title']
+            place.location = bokun_data['location']
+            place.json = bokun_data
+            place.vendor_id = vendor_id
+            place.save()
+
     existing_places_ids = [p.id for p in existing_places]
+
     missing_places = []
+
     for place in places:
         if str(place['id']) in existing_places_ids:
             continue
+
         missing_places.append(Place(id=place['id'],
                                     title=place['title'],
                                     location=place['location'],
                                     json=place,
                                     vendor_id=vendor_id))
+
     print("Creating {} new places".format(len(missing_places)))
+
     Place.objects.bulk_create(missing_places)
 
 
 def get_places(product_id, vendor_id):
     product = Product.objects.get(id=product_id)
-    reply = bokun_api.get('/activity.json/{}/pickup-places'.format(product_id))
-    dropoff_places = reply.json()['dropoffPlaces']
-    pickup_places = reply.json()['pickupPlaces']
+
+    data = bokun_api.get('/activity.json/{}/pickup-places'.format(product_id)).json()
+
+    dropoff_places = data['dropoffPlaces']
+    pickup_places = data['pickupPlaces']
 
     def filter_function(x):
         return 'keflavík' in x['flags'] or 'economy' in x['flags'] or 'BLD' in x['flags']
@@ -295,40 +292,19 @@ def reserve_pay_confirm(session_id, address_city, address_country, address_line_
 
 def sync_cross_sale_products():
     cross_sale_lists = get_crosssale_products()
+
     for cross_sale_list in cross_sale_lists:
         for item in cross_sale_list['items']:
             activity = item['activity']
             bokun_id = activity['id']
+
             try:
                 product = CrossSaleItem.objects.get(id=bokun_id)
                 print("Found existing product: {}".format(bokun_id))
             except CrossSaleItem.DoesNotExist as e:
                 print("Creating new product: {}".format(bokun_id))
                 product = CrossSaleItem(id=bokun_id)
+
             product.json = activity
-            pricing_categories = activity['pricingCategories']
-            for category in pricing_categories:
-                if category['ticketCategory'] == 'ADULT':
-                    product.adult_category_id = category['id']
-                if category['ticketCategory'] == 'TEENAGER':
-                    product.teenager_category_id = category['id']
-                if category['ticketCategory'] == 'CHILD':
-                    product.child_category_id = category['id']
-                if category['ticketCategory'] == 'OTHER':
-                    product.child_category_id = category['id']
-            extras = activity['bookableExtras']
-            for extra in extras:
-                if "Earphones" in extra['title']:
-                    product.earphone_id = extra['id']
-                if "jacket" in extra['title']:
-                    product.jacket_id = extra['id']
-                    product.jacket_question_id = extra['questions'][0]['id']
-                if "boots" in extra['title']:
-                    product.boots_id = extra['id']
-                    product.boots_question_id = extra['questions'][0]['id']
-                if "Extra cost" in extra['title']:
-                    product.extra_person_id = extra['id']
-                if "Lunch" in extra['title']:
-                    product.lunch_id = extra['id']
-                    product.lunch_question_id = extra['questions'][0]['id']
+
             product.save()
