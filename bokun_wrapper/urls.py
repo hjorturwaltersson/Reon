@@ -40,6 +40,7 @@ from .views import (
     remove_activity_from_cart,
     blue_lagoon_places,
     blue_lagoon_order,
+    blue_lagoon_order_test,
 )
 
 

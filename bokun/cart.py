@@ -1,8 +1,9 @@
 import uuid
 from operator import itemgetter
-
 from datetime import time, timedelta
+
 import arrow
+from inflection import dasherize
 
 from .bokun_api import BokunApi, BokunApiException
 
@@ -117,8 +118,13 @@ class Cart:
 
     def reserve(self,
                 answers=None,
-                fields=None):
-        body = {}
+                fields=None,
+                discount_amount=0,
+                discount_percentage=0):
+        body = {
+            'discountAmount': discount_amount,
+            'discountPercentage': discount_percentage,
+        }
 
         self._merge_booking_fields(body, fields)
 
@@ -126,7 +132,7 @@ class Cart:
             body.update({
                 'answers': {
                     'answers': [{
-                        'type': key,
+                        'type': dasherize(key),
                         'answer': value,
                     } for key, value in answers.items()]
                 }
@@ -161,10 +167,28 @@ class Cart:
                     'currency': self.currency,
                     'paymentType': 'WEB_PAYMENT',
                     'confirmed': True,
-                    'paymentReferenceId': payment_reference_id,
+                    'paymentReferenceId': payment_reference_id or str(uuid.uuid4()),
                 },
                 'bookingPaidType': 'PAID_IN_FULL',
             })
+
+        # if charge_request:
+        #     body.update({
+        #         'chargeRequest': {
+        #             'card': {
+        #                 'addressCity': address_city,
+        #                 'addressCountry': address_country,
+        #                 'addressLine1': address_line_1,
+        #                 'addressLine2': address_line_2,
+        #                 'addressPostCode': address_post_code,
+        #                 'cardNumber': card_number,
+        #                 'cvc': cvc,
+        #                 'expMonth': exp_month,
+        #                 'expYear': exp_year,
+        #                 'name': name
+        #             }
+        #         },
+        #     })
 
         try:
             res = self.api.post('/booking.json/%s/confirm' % self.booking_id, body, {
@@ -182,7 +206,10 @@ class Cart:
 
     @property
     def totalAmount(self):
-        return self._state['customerInvoice']['totalAsMoney']['amount']
+        try:
+            return self._reservation_state['totalPrice']
+        except KeyError:
+            return self._state['customerInvoice']['totalAsMoney']['amount']
 
     @property
     def currency(self):

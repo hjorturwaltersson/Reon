@@ -131,6 +131,9 @@ class BlueLagoonOrderSerializer(serializers.Serializer):
     SendConfirmationEmail = serializers.BooleanField(default=True)
     MarkPaid = serializers.BooleanField(default=True)
 
+    DiscountAmount = serializers.IntegerField(min_value=0, default=0)
+    DiscountPercentage = serializers.IntegerField(min_value=0, max_value=100, default=0)
+
 
 @api_view(['POST'])
 def blue_lagoon_order_test(request):
@@ -235,16 +238,18 @@ def blue_lagoon_order(request):
         external_payment_id = data.get('PaymentID')
 
         cart.reserve(
-            fields={
-                'external_booking_id': external_booking_id,
-                'external_payment_id': external_payment_id,
-            },
-            answers={
-                'first-name': ' '.join(name_parts[:1]),
-                'last-name': ' '.join(name_parts[1:]),
-                'email': data.get('Email', '').strip(),
-                'phone-number': (data.get('PhoneNumber') or '').strip(),
-            }
+            fields=dict(
+                external_booking_id=external_booking_id,
+                external_payment_id=external_payment_id,
+            ),
+            answers=dict(
+                first_name=' '.join(name_parts[:1]),
+                last_name=' '.join(name_parts[1:]),
+                email=data.get('Email', '').strip(),
+                phone_number=data.get('PhoneNumber', '').strip(),
+            ),
+            discount_amount=data.get('DiscountAmount', 0),
+            discount_percentage=data.get('DiscountPercentage', 0),
         )
 
         cart.confirm(
