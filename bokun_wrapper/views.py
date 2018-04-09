@@ -9,6 +9,7 @@ from rest_framework.response import Response
 
 from bokun import Cart, BokunApiException
 from bokun_wrapper import get_data
+from .utils import deep_underscore
 from .get_data import bokun_api, bokun_api_bl
 from .models import (
     Vendor,
@@ -110,29 +111,38 @@ def blue_lagoon_places(request):
 
 
 class BlueLagoonOrderSerializer(serializers.Serializer):
-    BookingID = serializers.CharField(required=False)
-    PaymentID = serializers.CharField(required=False)
+    booking_id = serializers.CharField(required=False)
+    payment_id = serializers.CharField(required=False)
 
-    PickupLocationID = serializers.PrimaryKeyRelatedField(
+    pickup_location_id = serializers.PrimaryKeyRelatedField(
         queryset=Place.objects.filter(type__in=['airport', 'hotel']))
-    DropOffLocationID = serializers.PrimaryKeyRelatedField(
+    dropoff_location_id = serializers.PrimaryKeyRelatedField(
         queryset=Place.objects.filter(type__in=['airport', 'hotel']))
 
-    PickupDate = serializers.DateField()
-    PickupTime = serializers.TimeField()
+    pickup_date = serializers.DateField()
+    pickup_time = serializers.TimeField()
 
-    PickupQuantityAdult = serializers.IntegerField(min_value=0)
-    PickupQuantityChildren = serializers.IntegerField(min_value=0, default=0)
+    pickup_quantity_adult = serializers.IntegerField(min_value=0)
+    pickup_quantity_children = serializers.IntegerField(min_value=0, default=0)
 
-    Name = serializers.CharField()
-    Email = serializers.CharField()
-    PhoneNumber = serializers.CharField(required=False, allow_null=True, allow_blank=True)
+    name = serializers.CharField()
+    email = serializers.CharField()
+    phone_number = serializers.CharField(required=False, allow_null=True, allow_blank=True)
 
-    SendConfirmationEmail = serializers.BooleanField(default=True)
-    MarkPaid = serializers.BooleanField(default=True)
+    send_confirmation_email = serializers.BooleanField(default=True)
+    mark_paid = serializers.BooleanField(default=True)
 
-    DiscountAmount = serializers.IntegerField(min_value=0, default=0)
-    DiscountPercentage = serializers.IntegerField(min_value=0, max_value=100, default=0)
+    discount_amount = serializers.IntegerField(min_value=0, default=0)
+    discount_percentage = serializers.IntegerField(min_value=0, max_value=100, default=0)
+
+    @staticmethod
+    def normalize_input(data):
+        data = deep_underscore(data)
+
+        data['dropoff_location_id'] = data.get('dropoff_location_id',
+                                               data.get('drop_off_location_id'))
+
+        return data
 
 
 @api_view(['POST'])
@@ -172,11 +182,15 @@ def blue_lagoon_order(request):
             'success': False,
             'error': 'authorization_failed'
         }, status=401)
+
     log = RequestLog()
     log.incoming_body = request.data
     log.url = 'blo'
     log.save()
-    serializer = BlueLagoonOrderSerializer(data=request.data)
+
+    serializer = BlueLagoonOrderSerializer(
+        data=BlueLagoonOrderSerializer.normalize_input(request.data)
+    )
 
     if not serializer.is_valid():
         return Response({
@@ -187,11 +201,11 @@ def blue_lagoon_order(request):
 
     data = serializer.validated_data
 
-    pickup_dt = arrow.get(datetime.combine(data['PickupDate'], data['PickupTime']))
+    pickup_dt = arrow.get(datetime.combine(data['pickup_date'], data['pickup_time']))
     next_pickup_dt = pickup_dt.shift(hours=3)
 
-    pickup_place = data['PickupLocationID']
-    dropoff_place = data['DropOffLocationID']
+    pickup_place = data['pickup_location_id']
+    dropoff_place = data['dropoff_location_id']
 
     if pickup_place.type == 'airport':
         pickup_activity_id = 22287  # AD: Keflavík Airport to Blue Lagoon
@@ -208,8 +222,8 @@ def blue_lagoon_order(request):
         cart = Cart(api=bokun_api_bl)
 
         common_booking_data = {
-            'adults': data['PickupQuantityAdult'],
-            'children': data['PickupQuantityChildren'],
+            'adults': data['pickup_quantity_adult'],
+            'children': data['pickup_quantity_children'],
         }
 
         cart.add_activity(
@@ -232,10 +246,10 @@ def blue_lagoon_order(request):
             **common_booking_data
         )
 
-        name_parts = data.get('Name', '').strip().split()
+        name_parts = data.get('name', '').strip().split()
 
-        external_booking_id = data.get('BookingID')
-        external_payment_id = data.get('PaymentID')
+        external_booking_id = data.get('booking_id')
+        external_payment_id = data.get('payment_id')
 
         cart.reserve(
             fields=dict(
@@ -245,16 +259,16 @@ def blue_lagoon_order(request):
             answers=dict(
                 first_name=' '.join(name_parts[:1]),
                 last_name=' '.join(name_parts[1:]),
-                email=data.get('Email', '').strip(),
-                phone_number=data.get('PhoneNumber', '').strip(),
+                email=data.get('email', '').strip(),
+                phone_number=data.get('phone_number', '').strip(),
             ),
-            discount_amount=data.get('DiscountAmount', 0),
-            discount_percentage=data.get('DiscountPercentage', 0),
+            discount_amount=data.get('discount_amount', 0),
+            discount_percentage=data.get('discount_percentage', 0),
         )
 
         cart.confirm(
             mark_paid=True,
-            send_customer_notification=data['SendConfirmationEmail'],
+            send_customer_notification=data['send_confirmation_email'],
             reference_id=external_booking_id,
             payment_reference_id=external_payment_id,
         )
