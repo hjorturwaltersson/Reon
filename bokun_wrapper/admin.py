@@ -16,7 +16,7 @@ class BulletInline(admin.TabularInline):
 
 
 @admin.register(Product)
-class FrontPageAdmin(admin.ModelAdmin):
+class ProductAdmin(admin.ModelAdmin):
     list_display = ('title', 'kind', 'direction', 'ordering')
     list_editable = ('ordering',)
 

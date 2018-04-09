@@ -15,6 +15,13 @@ PRODUCT_TYPE_CHOICES = (
     ('LUX', 'Luxury'),
 )
 
+PRODUCT_TAGLINE_COLOR_CHOICES = (
+    ('green', 'Green'),
+    ('blue', 'Blue'),
+    ('purple', 'Purple'),
+    ('gold', 'Gold'),
+)
+
 
 class Product(models.Model):
     bokun_product = models.ForeignKey('Activity', null=True, blank=True,
@@ -30,6 +37,8 @@ class Product(models.Model):
     direction = models.CharField(max_length=10, choices=DIRECTION_CHOICES, default='ANY')
 
     tagline = models.CharField(max_length=200, default='')
+    tagline_color = models.CharField(max_length=10, default='green',
+                                     choices=PRODUCT_TAGLINE_COLOR_CHOICES)
 
     photo_path = models.CharField(max_length=200, default='')
 

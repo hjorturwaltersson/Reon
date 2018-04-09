@@ -144,6 +144,25 @@ class Cart:
 
         return self
 
+    def charge_card(self, card_number, cvc, exp_month, exp_year, card_holder_name, amount=None):
+        body = {
+            'amount': self.totalAmount if amount is None else amount,
+            'confirmBookingOnSuccess': False,
+            'card': {
+                'cardNumber': card_number,
+                'cvc': cvc,
+                'expMonth': exp_month,
+                'expYear': exp_year,
+                'name': card_holder_name,
+            },
+        }
+
+        res = self.api.post('/booking.json/%s/charge-card' % self.booking_id, body, {
+            'sendCustomerNotification': False,
+        })
+
+        # TODO: Check for errors
+
     def confirm(self,
                 fields=None,
                 mark_paid=False,
@@ -171,24 +190,6 @@ class Cart:
                 },
                 'bookingPaidType': 'PAID_IN_FULL',
             })
-
-        # if charge_request:
-        #     body.update({
-        #         'chargeRequest': {
-        #             'card': {
-        #                 'addressCity': address_city,
-        #                 'addressCountry': address_country,
-        #                 'addressLine1': address_line_1,
-        #                 'addressLine2': address_line_2,
-        #                 'addressPostCode': address_post_code,
-        #                 'cardNumber': card_number,
-        #                 'cvc': cvc,
-        #                 'expMonth': exp_month,
-        #                 'expYear': exp_year,
-        #                 'name': name
-        #             }
-        #         },
-        #     })
 
         try:
             res = self.api.post('/booking.json/%s/confirm' % self.booking_id, body, {
