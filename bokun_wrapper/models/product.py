@@ -24,19 +24,32 @@ PRODUCT_TAGLINE_COLOR_CHOICES = (
 
 
 class Product(models.Model):
-    activity_inbound = models.ForeignKey('Activity', verbose_name='Activity (KEF-RVK)',
+    activity_inbound = models.ForeignKey('Activity', verbose_name='KEF-RVK',
                                          on_delete=models.CASCADE, related_name='+')
-    activity_outbound = models.ForeignKey('Activity', verbose_name='Activity (RVK-KEF)',
+    activity_outbound = models.ForeignKey('Activity', verbose_name='RVK-KEF',
                                           on_delete=models.CASCADE, related_name='+')
 
-    activity_inbound_hc = models.ForeignKey('Activity', verbose_name='Activity (KEF-RVK + HC)',
+    activity_inbound_rt = models.ForeignKey('Activity', verbose_name='KEF-RVK (round trip)',
                                             null=True, blank=True, on_delete=models.SET_NULL,
                                             related_name='+')
-    activity_outbound_hc = models.ForeignKey('Activity', verbose_name='Activity (RVK-KEF + HC)',
+    activity_outbound_rt = models.ForeignKey('Activity', verbose_name='RVK-KEF (round trip)',
                                              null=True, blank=True, on_delete=models.SET_NULL,
                                              related_name='+')
 
-    round_trip_discount = models.CharField(max_length=10, blank=True)
+    activity_inbound_hc = models.ForeignKey('Activity', verbose_name='KEF-RVK + HC',
+                                            null=True, blank=True, on_delete=models.SET_NULL,
+                                            related_name='+')
+    activity_outbound_hc = models.ForeignKey('Activity', verbose_name='RVK-KEF + HC',
+                                             null=True, blank=True, on_delete=models.SET_NULL,
+                                             related_name='+')
+
+    activity_inbound_hc_rt = models.ForeignKey('Activity', verbose_name='KEF-RVK + HC (round trip)',
+                                               null=True, blank=True, on_delete=models.SET_NULL,
+                                               related_name='+')
+    activity_outbound_hc_rt = models.ForeignKey('Activity', verbose_name='RVK-KEF + HC (round trip)',
+                                                null=True, blank=True, on_delete=models.SET_NULL,
+                                                related_name='+')
+
     free_hotel_connection = models.BooleanField(default=False)
 
     kind = models.CharField(max_length=3, choices=PRODUCT_TYPE_CHOICES,
@@ -55,17 +68,22 @@ class Product(models.Model):
     min_people = models.IntegerField(default=0, db_index=True)
     max_people = models.IntegerField(default=0, db_index=True)
 
-    def get_activity(self, outbound=False, hotel_connection=False):
-        if outbound:
-            if hotel_connection:
-                return self.activity_outbound_hc or self.activity_outbound
-            else:
-                return self.activity_outbound
-        else:
-            if hotel_connection:
-                return self.activity_inbound_hc or self.activity_inbound
-            else:
-                return self.activity_inbound
+    def get_activity(self, outbound=False, hotel_connection=False, round_trip=False):
+        hotel_connection = False if self.free_hotel_connection else hotel_connection
+
+        def get(outbound, hotel_connection, round_trip):
+            attr = 'activity_%s%s%s' % (
+                'outbound' if outbound else 'inbound',
+                '_hc' if hotel_connection else '',
+                '_rt' if round_trip else '',
+            )
+            return getattr(self, attr)
+
+        return (
+            get(outbound, hotel_connection, round_trip) or
+            get(outbound, hotel_connection, False) or
+            get(outbound, False, False)
+        )
 
     @property
     def single_seat_booking(self):

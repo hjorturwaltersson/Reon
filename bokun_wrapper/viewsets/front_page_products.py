@@ -22,6 +22,7 @@ class FrontPageProductSerializer(serializers.ModelSerializer):
         activity = obj.get_activity(
             outbound=(query.get('direction', 'KEF-RVK') != 'KEF-RVK'),
             hotel_connection=query.get('hotel_connection', 'false') != 'false',
+            round_trip='return_date' in query,
         )
 
         return ProductSerializer(instance=activity).data
@@ -33,6 +34,7 @@ class FrontPageProductSerializer(serializers.ModelSerializer):
         activity = obj.get_activity(
             outbound=(query.get('direction', 'KEF-RVK') == 'KEF-RVK'),
             hotel_connection=query.get('hotel_connection', 'false') != 'false',
+            round_trip='return_date' in query,
         )
 
         return ProductSerializer(instance=activity).data
@@ -53,6 +55,8 @@ class FrontPageProductSerializer(serializers.ModelSerializer):
 
             'bokun_product',
             'return_product',
+
+            'free_hotel_connection',
         )
 
 

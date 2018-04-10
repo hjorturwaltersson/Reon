@@ -23,8 +23,12 @@ class ProductAdmin(admin.ModelAdmin):
     raw_id_fields = (
         'activity_inbound',
         'activity_outbound',
+        'activity_inbound_rt',
+        'activity_outbound_rt',
         'activity_inbound_hc',
         'activity_outbound_hc',
+        'activity_inbound_hc_rt',
+        'activity_outbound_hc_rt',
     )
 
     inlines = [

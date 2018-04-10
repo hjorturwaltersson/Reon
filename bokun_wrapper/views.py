@@ -404,13 +404,15 @@ def add_to_cart(request):
     custom_locations = False
 
     main_product = product.get_activity(
-        is_outbound,
-        hotel_pickup if is_outbound else hotel_dropoff
+        outbound=is_outbound,
+        hotel_connection=hotel_pickup if is_outbound else hotel_dropoff,
+        round_trip=is_round_trip,
     )
 
     return_product = product.get_activity(
-        not is_outbound,
-        hotel_dropoff if is_outbound else hotel_pickup
+        outbound=not is_outbound,
+        hotel_connection=hotel_dropoff if is_outbound else hotel_pickup,
+        round_trip=True,
     ) if is_round_trip else None
 
     print('----------------------')
