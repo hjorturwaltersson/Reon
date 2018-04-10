@@ -372,6 +372,7 @@ def add_to_cart(request):
     product_type_id = body['product_type_id']
 
     date = body['date']
+    direction = body.get('direction', 'KEF-RVK')
     return_date = body.get('return_date')
 
     pickup_place_id = body.get('pickup_place_id')
@@ -393,32 +394,35 @@ def add_to_cart(request):
     return_pickup_place_id = body.get('return_pickup_place_id')
     return_dropoff_place_id = body.get('return_dropoff_place_id')
 
+    hotel_dropoff = body.get('hotel_dropoff', False)
+    hotel_pickup = body.get('hotel_pickup', False)
+
     is_round_trip = (return_date is not None)
-
-    hotel_connection = body.get('hotel_connection', False)
-
-    if hotel_connection:
-        if product_type_id == 11:
-            product_type_id = 19
-
-        if product_type_id == 12:
-            product_type_id = 18
+    is_outbound = (direction == 'RVK-KEF')
 
     product = Product.objects.get(id=product_type_id)
     custom_locations = False
 
+    main_product = product.get_activity(
+        is_outbound,
+        hotel_pickup if is_outbound else hotel_dropoff
+    )
+
+    return_product = product.get_activity(
+        not is_outbound,
+        hotel_dropoff if is_outbound else hotel_pickup
+    ) if is_round_trip else None
+
+    print('----------------------')
+    print(direction)
+    print(main_product)
+    print(return_product)
+    print('----------------------')
+
     if product.kind in ['PRI', 'LUX']:
-        main_product = product.bokun_product
-        return_product = product.bokun_product
         traveler_count_children = 0
         traveler_count_adults = 1
         custom_locations = True
-    elif is_round_trip and product.discount_product:
-        main_product = product.discount_product
-        return_product = product.return_product
-    else:
-        main_product = product.bokun_product
-        return_product = product.return_product
 
     pricing_category_bookings = get_pricing_category_bookings(
         main_product,
@@ -456,7 +460,7 @@ def add_to_cart(request):
     except KeyError:
         return Response(reply1)
 
-    if is_round_trip:
+    if return_product:
         pricing_category_bookings = get_pricing_category_bookings(
             return_product,
             traveler_count_adults,

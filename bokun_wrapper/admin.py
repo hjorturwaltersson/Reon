@@ -17,10 +17,15 @@ class BulletInline(admin.TabularInline):
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ('title', 'kind', 'direction', 'ordering')
+    list_display = ('title', 'kind', 'ordering')
     list_editable = ('ordering',)
 
-    raw_id_fields = ('bokun_product', 'discount_product', 'return_product')
+    raw_id_fields = (
+        'activity_inbound',
+        'activity_outbound',
+        'activity_inbound_hc',
+        'activity_outbound_hc',
+    )
 
     inlines = [
         BulletInline

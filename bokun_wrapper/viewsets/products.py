@@ -19,8 +19,6 @@ class ProductSerializer(serializers.ModelSerializer):
             'external_id',
             'title',
             'vendor',
-            # 'pickup_places',
-            # 'dropoff_places',
             'default_price_category',
             'child_price_category',
             'extras',

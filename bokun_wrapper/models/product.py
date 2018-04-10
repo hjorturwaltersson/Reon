@@ -24,50 +24,64 @@ PRODUCT_TAGLINE_COLOR_CHOICES = (
 
 
 class Product(models.Model):
-    bokun_product = models.ForeignKey('Activity', null=True, blank=True,
-                                      on_delete=models.SET_NULL, related_name='+')
-    return_product = models.ForeignKey('Activity', null=True, blank=True,
-                                       on_delete=models.SET_NULL, related_name='+')
-    discount_product = models.ForeignKey('Activity', null=True, blank=True,
-                                         on_delete=models.SET_NULL, related_name='+')
+    activity_inbound = models.ForeignKey('Activity', verbose_name='Activity (KEF-RVK)',
+                                         on_delete=models.CASCADE, related_name='+')
+    activity_outbound = models.ForeignKey('Activity', verbose_name='Activity (RVK-KEF)',
+                                          on_delete=models.CASCADE, related_name='+')
+
+    activity_inbound_hc = models.ForeignKey('Activity', verbose_name='Activity (KEF-RVK + HC)',
+                                            null=True, blank=True, on_delete=models.SET_NULL,
+                                            related_name='+')
+    activity_outbound_hc = models.ForeignKey('Activity', verbose_name='Activity (RVK-KEF + HC)',
+                                             null=True, blank=True, on_delete=models.SET_NULL,
+                                             related_name='+')
+
+    round_trip_discount = models.CharField(max_length=10, blank=True)
+    free_hotel_connection = models.BooleanField(default=False)
 
     kind = models.CharField(max_length=3, choices=PRODUCT_TYPE_CHOICES,
                             db_column='type', default='ECO', db_index=True)
 
-    direction = models.CharField(max_length=10, choices=DIRECTION_CHOICES, default='ANY')
-
-    tagline = models.CharField(max_length=200, default='')
+    tagline = models.CharField(max_length=200, blank=True)
     tagline_color = models.CharField(max_length=10, default='green',
                                      choices=PRODUCT_TAGLINE_COLOR_CHOICES)
 
-    photo_path = models.CharField(max_length=200, default='')
+    photo_path = models.CharField(max_length=200, blank=True)
 
-    title = models.CharField(max_length=200, default='')
+    title = models.CharField(max_length=200, blank=True)
 
     ordering = models.IntegerField(default=0, db_index=True)
 
     min_people = models.IntegerField(default=0, db_index=True)
     max_people = models.IntegerField(default=0, db_index=True)
 
+    def get_activity(self, outbound=False, hotel_connection=False):
+        if outbound:
+            if hotel_connection:
+                return self.activity_outbound_hc or self.activity_outbound
+            else:
+                return self.activity_outbound
+        else:
+            if hotel_connection:
+                return self.activity_inbound_hc or self.activity_inbound
+            else:
+                return self.activity_inbound
+
     @property
     def single_seat_booking(self):
         return self.kind in ['ECO', 'PRE']
 
     @property
-    def _discount_product(self):
-        return self.discount_product or self.bokun_product
-
-    @property
     def description(self):
-        return self.bokun_product.json['description']
+        return self.activity_inbound.json['description']
 
     @property
     def excerpt(self):
-        return self.bokun_product.json['excerpt']
+        return self.activity_inbound.json['excerpt']
 
     def __str__(self):
-        if self.bokun_product:
-            return self.bokun_product.title
+        if self.activity_inbound:
+            return self.activity_inbound.title
         else:
             return 'untitled'
 

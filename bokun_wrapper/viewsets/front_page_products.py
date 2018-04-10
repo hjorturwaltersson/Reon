@@ -15,19 +15,27 @@ class BulletSerializer(serializers.ModelSerializer):
 
 
 class FrontPageProductSerializer(serializers.ModelSerializer):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    bokun_product = serializers.SerializerMethodField()
+    def get_bokun_product(self, obj):
+        query = self.context['request'].query_params
 
-        request = kwargs['context']['request']
+        activity = obj.get_activity(
+            outbound=(query.get('direction', 'KEF-RVK') != 'KEF-RVK'),
+            hotel_connection=query.get('hotel_connection', 'false') != 'false',
+        )
 
-        if request.query_params.get('is_round_trip', 'false') != 'false':
-            self.fields['bokun_product'] = ProductSerializer(source='_discount_product')
-        else:
-            self.fields['bokun_product'] = ProductSerializer()
+        return ProductSerializer(instance=activity).data
 
-    bokun_product = ProductSerializer(source='_bokun_product')
+    return_product = serializers.SerializerMethodField()
+    def get_return_product(self, obj):
+        query = self.context['request'].query_params
 
-    return_product = ProductSerializer()
+        activity = obj.get_activity(
+            outbound=(query.get('direction', 'KEF-RVK') == 'KEF-RVK'),
+            hotel_connection=query.get('hotel_connection', 'false') != 'false',
+        )
+
+        return ProductSerializer(instance=activity).data
 
     class Meta:
         model = Product
@@ -40,6 +48,7 @@ class FrontPageProductSerializer(serializers.ModelSerializer):
             'description',
             'bullets',
             'tagline',
+            'tagline_color',
             'photo_path',
 
             'bokun_product',
@@ -49,9 +58,12 @@ class FrontPageProductSerializer(serializers.ModelSerializer):
 
 class FrontPageProductViewSet(viewsets.ModelViewSet):
     serializer_class = FrontPageProductSerializer
-    queryset = Product.objects.all()\
-        .select_related('bokun_product', 'return_product', 'discount_product')\
-        .prefetch_related('bullets')
+    queryset = Product.objects.all().select_related(
+        'activity_inbound',
+        'activity_inbound_hc',
+        'activity_outbound',
+        'activity_outbound_hc',
+    ).prefetch_related('bullets')
 
     def get_queryset(self):
         query = self.request.query_params
@@ -64,15 +76,10 @@ class FrontPageProductViewSet(viewsets.ModelViewSet):
         else:
             count_filters = dict()
 
-        if direction:
-            direction_filters = dict(direction__in=['ANY', direction])
-        else:
-            direction_filters = dict()
-
         return super().get_queryset().filter(Q(
             # Private and Luxury:
             kind__in=['PRI', 'LUX'],
             **count_filters
         ) | ~Q(
             kind__in=['PRI', 'LUX']
-        ), **direction_filters)
+        ))
