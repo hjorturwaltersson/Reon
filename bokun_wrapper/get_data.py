@@ -233,19 +233,13 @@ def add_or_update_extra(session_id, booking_id, extra_id, unit_count):
     return reply.json()
 
 
-def reserve_pay_confirm(session_id, address_city, address_country, address_line_1,
-                        address_line_2, address_post_code, card_number, cvc, exp_month,
-                        exp_year, name, first_name, last_name, email, phone_number):
+def reserve_pay_confirm(session_id, card_number, cvc, exp_month, exp_year,
+                        name, first_name, last_name, email, phone_number):
     path = '/booking.json/guest/{}/reserve-pay-confirm'.format(session_id)
     body = {
         'chargeRequest': {
             'confirmBookingOnSuccess': True,
             'card': {
-                'addressCity': address_city,
-                'addressCountry': address_country,
-                'addressLine1': address_line_1,
-                'addressLine2': address_line_2,
-                'addressPostCode': address_post_code,
                 'cardNumber': card_number,  # todo vista í gagnagrunn
                 'cvc': cvc,
                 'expMonth': exp_month,

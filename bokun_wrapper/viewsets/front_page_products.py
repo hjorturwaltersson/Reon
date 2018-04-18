@@ -11,10 +11,12 @@ from .products import ProductSerializer
 class BulletSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductBullet
-        fields = ('icon', 'bullet')
+        fields = ('icon', 'image', 'text')
 
 
 class FrontPageProductSerializer(serializers.ModelSerializer):
+    bullets = BulletSerializer(many=True)
+
     bokun_product = serializers.SerializerMethodField()
     def get_bokun_product(self, obj):
         query = self.context['request'].query_params
@@ -51,6 +53,7 @@ class FrontPageProductSerializer(serializers.ModelSerializer):
             'bullets',
             'tagline',
             'tagline_color',
+            'link_url',
             'photo_path',
 
             'bokun_product',
@@ -73,7 +76,6 @@ class FrontPageProductViewSet(viewsets.ModelViewSet):
         query = self.request.query_params
 
         traveler_count = int(query.get('traveler_count') or 0)
-        direction = query.get('direction')
 
         if traveler_count:
             count_filters = dict(min_people__lte=traveler_count, max_people__gte=traveler_count)

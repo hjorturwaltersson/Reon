@@ -1,4 +1,5 @@
 import json
+import uuid
 from datetime import datetime
 
 import arrow
@@ -366,8 +367,8 @@ def get_pricing_category_bookings(
 
 @api_view(['POST'])
 def add_to_cart(request):
-    body = json.loads(request.body)
-    session_id = body.get('session_id')
+    body = deep_underscore(json.loads(request.body))
+    session_id = body.get('session_id') or str(uuid.uuid4())
 
     product_type_id = body['product_type_id']
 
@@ -403,23 +404,33 @@ def add_to_cart(request):
     product = Product.objects.get(id=product_type_id)
     custom_locations = False
 
-    main_product = product.get_activity(
+    main_activity = product.get_activity(
         outbound=is_outbound,
         hotel_connection=hotel_pickup if is_outbound else hotel_dropoff,
         round_trip=is_round_trip,
     )
 
-    return_product = product.get_activity(
+    return_activity = product.get_activity(
         outbound=not is_outbound,
         hotel_connection=hotel_dropoff if is_outbound else hotel_pickup,
         round_trip=True,
     ) if is_round_trip else None
 
     print('----------------------')
-    print(direction)
-    print(main_product)
-    print(return_product)
-    print('----------------------')
+    print('Direction: ..... %s' % direction)
+    print('Main activity: . %s' % main_activity)
+    print('Return activity: %s' % return_activity)
+
+    cart = get_data.get_cart(session_id)
+    print('Cart session id: %s' % session_id)
+
+    # Remove existing activity bookings from cart
+    for booking in cart['activityBookings']:
+        activity_id = booking['activity']['id']
+
+        if activity_id in product.activity_ids:
+            print('Removing activity "%s" from cart' % activity_id)
+            get_data.remove_activity_from_cart(session_id, booking['id'])
 
     if product.kind in ['PRI', 'LUX']:
         traveler_count_children = 0
@@ -427,7 +438,7 @@ def add_to_cart(request):
         custom_locations = True
 
     pricing_category_bookings = get_pricing_category_bookings(
-        main_product,
+        main_activity,
         traveler_count_adults,
         traveler_count_children,
         flight_delay_guarantee,
@@ -440,9 +451,10 @@ def add_to_cart(request):
 
     start_dt = arrow.get(date)
 
+    print('Adding activity "%s" to cart' % main_activity.id)
     reply1 = get_data.add_to_cart(
-        activity_id=main_product.id,
-        start_time_id=main_product.get_start_time_id(start_dt),
+        activity_id=main_activity.id,
+        start_time_id=main_activity.get_start_time_id(start_dt),
         date=start_dt.format('YYYY-MM-DD'),
         pricing_category_bookings=pricing_category_bookings,
         session_id=session_id,
@@ -457,14 +469,9 @@ def add_to_cart(request):
         bokun_response=reply1
     )
 
-    try:
-        session_id = reply1['sessionId']
-    except KeyError:
-        return Response(reply1)
-
-    if return_product:
+    if return_activity:
         pricing_category_bookings = get_pricing_category_bookings(
-            return_product,
+            return_activity,
             traveler_count_adults,
             traveler_count_children,
             flight_delay_guarantee,
@@ -477,9 +484,10 @@ def add_to_cart(request):
 
         return_start_dt = arrow.get(return_date)
 
+        print('Adding activity "%s" to cart' % return_activity.id)
         reply2 = get_data.add_to_cart(
-            activity_id=return_product.id,
-            start_time_id=return_product.get_start_time_id(return_start_dt),
+            activity_id=return_activity.id,
+            start_time_id=return_activity.get_start_time_id(return_start_dt),
             date=return_start_dt.format('YYYY-MM-DD'),
             pricing_category_bookings=pricing_category_bookings,
             session_id=session_id,
@@ -494,8 +502,10 @@ def add_to_cart(request):
             bokun_response=reply2,
         )
 
+        print('----------------------')
         return Response(reply2)
 
+    print('----------------------')
     return Response(reply1)
 
 
@@ -517,37 +527,24 @@ def get_cart(request):
 
 @api_view(['POST'])
 def pay(request):
-    body = json.loads(request.body)
-    session_id = body['session_id']
-    address_city = body['address_city']
-    address_country = body['address_country']
-    address_line_1 = body['address_line_1']
-    address_line_2 = body['address_line_2']
-    address_post_code = body['address_post_code']
-    card_number = body['card_number']
-    cvc = body['cvc']
-    exp_month = body['exp_month']
-    exp_year = body['exp_year']
-    name = body['name']
-    first_name = body.get('first_name')
-    last_name = body.get('last_name')
-    email = body.get('email')
-    phone_number = body.get('phone_number', '')
-    return Response(get_data.reserve_pay_confirm(session_id=session_id,
-                                                 address_city=address_city,
-                                                 address_country=address_country,
-                                                 address_line_1=address_line_1,
-                                                 address_line_2=address_line_2,
-                                                 address_post_code=address_post_code,
-                                                 card_number=card_number,
-                                                 cvc=cvc,
-                                                 exp_month=exp_month,
-                                                 exp_year=exp_year,
-                                                 name=name,
-                                                 first_name=first_name,
-                                                 last_name=last_name,
-                                                 email=email,
-                                                 phone_number=phone_number))
+    body = deep_underscore(json.loads(request.body))
+
+    return Response(get_data.reserve_pay_confirm(
+        session_id=body['session_id'],
+
+        # Payment:
+        card_number=body['card_number'],
+        cvc=body['cvc'],
+        exp_month=body['exp_month'],
+        exp_year=body['exp_year'],
+        name=body['name'],
+
+        # User info:
+        first_name=body.get('first_name', ''),
+        last_name=body.get('last_name', ''),
+        email=body.get('email', ''),
+        phone_number=body.get('phone_number', ''),
+    ))
 
 
 @api_view(['POST'])
@@ -574,7 +571,7 @@ def get_cross_sale(request):
 
 @api_view(['POST'])
 def add_cross_sale_to_cart(request):
-    body = json.loads(request.body)
+    body = deep_underscore(json.loads(request.body))
 
     session_id = body.get('session_id')
     activity_id = body.get('activity_id')

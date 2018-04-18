@@ -12,7 +12,7 @@ class PlaceAdmin(admin.ModelAdmin):
 
 class BulletInline(admin.TabularInline):
     model = ProductBullet
-    fields = ('icon', 'text')
+    fields = ('icon', 'image', 'text')
 
 
 @admin.register(Product)

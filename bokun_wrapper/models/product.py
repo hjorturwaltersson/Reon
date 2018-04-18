@@ -59,6 +59,8 @@ class Product(models.Model):
     tagline_color = models.CharField(max_length=10, default='green',
                                      choices=PRODUCT_TAGLINE_COLOR_CHOICES)
 
+    link_url = models.CharField(max_length=255, blank=True)
+
     photo_path = models.CharField(max_length=200, blank=True)
 
     title = models.CharField(max_length=200, blank=True)
@@ -86,6 +88,19 @@ class Product(models.Model):
         )
 
     @property
+    def activity_ids(self):
+        return [
+            self.activity_inbound_id,
+            self.activity_outbound_id,
+            self.activity_inbound_rt_id,
+            self.activity_outbound_rt_id,
+            self.activity_inbound_hc_id,
+            self.activity_outbound_hc_id,
+            self.activity_inbound_hc_rt_id,
+            self.activity_outbound_hc_rt_id,
+        ]
+
+    @property
     def single_seat_booking(self):
         return self.kind in ['ECO', 'PRE']
 
@@ -107,11 +122,37 @@ class Product(models.Model):
         ordering = ['ordering', 'title']
 
 
+ICON_CHOICES = (
+    ('airport', 'Airport'),
+    ('arrow-small', 'arrow-Small'),
+    ('back', 'Back'),
+    ('baggage', 'Baggage'),
+    ('burger', 'Burger'),
+    ('bus', 'Bus'),
+    ('terminal', 'Terminal'),
+    ('child', 'Child'),
+    ('close', 'Close'),
+    ('dropdown', 'Dropdown'),
+    ('edit', 'Edit'),
+    ('flight-delay', 'Flight Delay'),
+    ('hotel', 'Hotel'),
+    ('info', 'Info'),
+    ('minus', 'Minus'),
+    ('odd-baggage', 'Odd Sized Baggage'),
+    ('plus', 'Plus'),
+    ('search', 'Search'),
+    ('sport-baggage', 'Sport Baggage'),
+    ('unknown', 'Unknown'),
+)
+
 class ProductBullet(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE,
                                 related_name='bullets')
 
-    icon = models.CharField(max_length=100)
+    icon = models.CharField(max_length=50, choices=ICON_CHOICES, blank=True)
+
+    image = models.URLField(blank=True)
+
     text = models.CharField(max_length=100)
 
     def __str__(self):
