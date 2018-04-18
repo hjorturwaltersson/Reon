@@ -79,6 +79,7 @@ class Product(models.Model):
                 '_hc' if hotel_connection else '',
                 '_rt' if round_trip else '',
             )
+
             return getattr(self, attr)
 
         return (

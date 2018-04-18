@@ -23,8 +23,7 @@ class FrontPageProductSerializer(serializers.ModelSerializer):
 
         activity = obj.get_activity(
             outbound=(query.get('direction', 'KEF-RVK') != 'KEF-RVK'),
-            hotel_connection=query.get('hotel_connection', 'false') != 'false',
-            round_trip='return_date' in query,
+            round_trip=query.get('is_round_trip', 'false') != 'false',
         )
 
         return ProductSerializer(instance=activity).data
@@ -35,8 +34,7 @@ class FrontPageProductSerializer(serializers.ModelSerializer):
 
         activity = obj.get_activity(
             outbound=(query.get('direction', 'KEF-RVK') == 'KEF-RVK'),
-            hotel_connection=query.get('hotel_connection', 'false') != 'false',
-            round_trip='return_date' in query,
+            round_trip=query.get('is_round_trip', 'false') != 'false',
         )
 
         return ProductSerializer(instance=activity).data
@@ -67,9 +65,13 @@ class FrontPageProductViewSet(viewsets.ModelViewSet):
     serializer_class = FrontPageProductSerializer
     queryset = Product.objects.all().select_related(
         'activity_inbound',
-        'activity_inbound_hc',
         'activity_outbound',
+        'activity_inbound_rt',
+        'activity_outbound_rt',
+        'activity_inbound_hc',
         'activity_outbound_hc',
+        'activity_inbound_hc_rt',
+        'activity_outbound_hc_rt',
     ).prefetch_related('bullets')
 
     def get_queryset(self):
