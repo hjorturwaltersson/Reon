@@ -153,9 +153,21 @@ def get_cart(session_id=None, api=bokun_api):
     return reply.json()
 
 
-def add_to_cart(activity_id, start_time_id, date, pricing_category_bookings,
-                session_id=None, dropoff_place_id=None, pickup_place_id=None,
-                pickup=False, custom_locations=False, api=bokun_api):
+def add_to_cart(
+    activity_id,
+    start_time_id,
+    date,
+    pricing_category_bookings,
+    session_id=None,
+
+    dropoff_place_id=None,
+    pickup_place_id=None,
+
+    dropoff_address='',
+    pickup_address='',
+
+    api=bokun_api,
+):
     if not session_id:
         session_id = get_cart()['sessionId']
 
@@ -165,7 +177,7 @@ def add_to_cart(activity_id, start_time_id, date, pricing_category_bookings,
         'activityId': activity_id,
         'startTimeId': start_time_id,
         'date': date,
-        'pickup': pickup,
+
         'pricingCategoryBookings': [{
             'pricingCategoryId': pricing_category_booking['pricing_category_id'],
             'extras': [{
@@ -173,22 +185,14 @@ def add_to_cart(activity_id, start_time_id, date, pricing_category_bookings,
                 'extraId': extra['extra_id'],
                 'unitCount': extra['unit_count'],
             } for extra in pricing_category_booking['extras']],
-        } for pricing_category_booking in pricing_category_bookings]
+        } for pricing_category_booking in pricing_category_bookings],
+
+        'pickupPlaceId': pickup_place_id,
+        'dropoffPlaceId': dropoff_place_id,
+
+        'pickupPlaceDescription': pickup_address,
+        'dropoffPlaceDescription': dropoff_address,
     }
-
-    if not custom_locations:
-        body['pickupPlaceId'] = pickup_place_id
-        body['dropoffPlaceId'] = dropoff_place_id
-    else:
-        with suppress(Place.DoesNotExist):
-            pickup_place_id = Place.objects.get(pk=pickup_place_id).title
-
-        body['pickupPlaceDescription'] = pickup_place_id
-
-        with suppress(Place.DoesNotExist):
-            dropoff_place_id = Place.objects.get(pk=dropoff_place_id).title or None
-
-        body['dropoffPlaceDescription'] = dropoff_place_id
 
     reply = api.post(path, body)
 

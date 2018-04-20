@@ -367,6 +367,14 @@ def get_pricing_category_bookings(
 
 @api_view(['POST'])
 def add_to_cart(request):
+    KEF_ID = 42229
+
+    TERMINALS = {
+        'RVK': 42080,
+        'KOP': 43772,
+        'HLE': 43771,
+    }
+
     body = deep_underscore(json.loads(request.body))
     session_id = body.get('session_id') or str(uuid.uuid4())
 
@@ -376,11 +384,14 @@ def add_to_cart(request):
     direction = body.get('direction', 'KEF-RVK')
     return_date = body.get('return_date')
 
+    pickup_terminal = body.get('pickup_terminal') or 'RVK'
+    dropoff_terminal = body.get('dropoff_terminal') or 'RVK'
+
     pickup_place_id = body.get('pickup_place_id')
     dropoff_place_id = body.get('dropoff_place_id')
 
-    traveler_count_adults = int(body.get('traveler_count_adults', 0))
-    traveler_count_children = int(body.get('traveler_count_children', 0))
+    pickup_address = body.get('pickup_address')
+    dropoff_address = body.get('dropoff_address')
 
     flight_delay_guarantee = body.get('flight_delay_guarantee', False)
     flight_number = body.get('flight_number', '')
@@ -392,9 +403,6 @@ def add_to_cart(request):
     child_seat_child_count = int(body.get('child_seat_child_count', 0))
     child_seat_infant_count = int(body.get('child_seat_infant_count', 0))
 
-    return_pickup_place_id = body.get('return_pickup_place_id')
-    return_dropoff_place_id = body.get('return_dropoff_place_id')
-
     hotel_dropoff = body.get('hotel_dropoff', False)
     hotel_pickup = body.get('hotel_pickup', False)
 
@@ -402,7 +410,13 @@ def add_to_cart(request):
     is_outbound = (direction == 'RVK-KEF')
 
     product = Product.objects.get(id=product_type_id)
-    custom_locations = False
+
+    if product.kind in ['PRI', 'LUX']:
+        traveler_count_adults = 1
+        traveler_count_children = 0
+    else:
+        traveler_count_adults = int(body.get('traveler_count_adults', 0))
+        traveler_count_children = int(body.get('traveler_count_children', 0))
 
     main_activity = product.get_activity(
         outbound=is_outbound,
@@ -432,11 +446,6 @@ def add_to_cart(request):
             print('Removing activity "%s" from cart' % activity_id)
             get_data.remove_activity_from_cart(session_id, booking['id'])
 
-    if product.kind in ['PRI', 'LUX']:
-        traveler_count_children = 0
-        traveler_count_adults = 1
-        custom_locations = True
-
     pricing_category_bookings = get_pricing_category_bookings(
         main_activity,
         traveler_count_adults,
@@ -451,16 +460,32 @@ def add_to_cart(request):
 
     start_dt = arrow.get(date)
 
+    outbound_kwargs = dict(
+        pickup_place_id=(pickup_place_id if hotel_pickup else (
+            TERMINALS[pickup_terminal] if product.kind == 'ECO' else None)),
+        pickup_address=pickup_address if product.kind != 'ECO' else '',
+
+        dropoff_place_id=KEF_ID,
+    )
+
+    inbound_kwargs = dict(
+        dropoff_place_id=(dropoff_place_id if hotel_dropoff else (
+            TERMINALS[dropoff_terminal] if product.kind == 'ECO' else None)),
+        dropoff_address=dropoff_address if product.kind != 'ECO' else '',
+
+        pickup_place_id=KEF_ID,
+    )
+
     print('Adding activity "%s" to cart' % main_activity.id)
+
     reply1 = get_data.add_to_cart(
         activity_id=main_activity.id,
         start_time_id=main_activity.get_start_time_id(start_dt),
         date=start_dt.format('YYYY-MM-DD'),
         pricing_category_bookings=pricing_category_bookings,
         session_id=session_id,
-        dropoff_place_id=dropoff_place_id,
-        pickup_place_id=pickup_place_id,
-        custom_locations=custom_locations,
+
+        **(outbound_kwargs if is_outbound else inbound_kwargs)
     )
 
     RequestLog.objects.create(
@@ -491,9 +516,8 @@ def add_to_cart(request):
             date=return_start_dt.format('YYYY-MM-DD'),
             pricing_category_bookings=pricing_category_bookings,
             session_id=session_id,
-            dropoff_place_id=return_dropoff_place_id,
-            pickup_place_id=return_pickup_place_id,
-            custom_locations=custom_locations,
+
+            **(inbound_kwargs if is_outbound else outbound_kwargs)
         )
 
         RequestLog.objects.create(
