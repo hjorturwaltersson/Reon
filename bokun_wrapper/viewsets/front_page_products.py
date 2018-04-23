@@ -14,30 +14,35 @@ class BulletSerializer(serializers.ModelSerializer):
         fields = ('icon', 'image', 'text')
 
 
+def create_product_getter(direction, hotel_connection=False):
+    def get_product(self, obj):
+        query = self.context['request'].query_params
+
+        activity = obj.get_activity(
+            outbound=(query.get('direction', 'KEF-RVK') != direction),
+            round_trip=query.get('is_round_trip', 'false') != 'false',
+            hotel_connection=hotel_connection,
+        )
+
+        return ProductSerializer(instance=activity).data
+
+    return get_product
+
+
 class FrontPageProductSerializer(serializers.ModelSerializer):
     bullets = BulletSerializer(many=True)
 
     bokun_product = serializers.SerializerMethodField()
-    def get_bokun_product(self, obj):
-        query = self.context['request'].query_params
-
-        activity = obj.get_activity(
-            outbound=(query.get('direction', 'KEF-RVK') != 'KEF-RVK'),
-            round_trip=query.get('is_round_trip', 'false') != 'false',
-        )
-
-        return ProductSerializer(instance=activity).data
+    get_bokun_product = create_product_getter('KEF-RVK', False)
 
     return_product = serializers.SerializerMethodField()
-    def get_return_product(self, obj):
-        query = self.context['request'].query_params
+    get_return_product = create_product_getter('RVK-KEF', False)
 
-        activity = obj.get_activity(
-            outbound=(query.get('direction', 'KEF-RVK') == 'KEF-RVK'),
-            round_trip=query.get('is_round_trip', 'false') != 'false',
-        )
+    bokun_product_hc = serializers.SerializerMethodField()
+    get_bokun_product_hc = create_product_getter('KEF-RVK', True)
 
-        return ProductSerializer(instance=activity).data
+    return_product_hc = serializers.SerializerMethodField()
+    get_return_product_hc = create_product_getter('RVK-KEF', True)
 
     class Meta:
         model = Product
@@ -56,6 +61,9 @@ class FrontPageProductSerializer(serializers.ModelSerializer):
 
             'bokun_product',
             'return_product',
+
+            'bokun_product_hc',
+            'return_product_hc',
 
             'free_hotel_connection',
         )
