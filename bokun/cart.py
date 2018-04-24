@@ -24,10 +24,56 @@ class Cart:
 
         if session_id is None:
             self.session_id = uuid.uuid4()
+        else:
+            self.session_id = session_id
 
-        self._state = self.api.get('/shopping-cart.json/session/%s' % self.session_id).json()
+        self._update_state()
 
         self._reservation_state = {}
+
+    def _update_state(self):
+        """
+        Private method used to update the internal state of the Cart instance
+        """
+        self._state = self.api.get('/shopping-cart.json/session/%s' % self.session_id).json()
+
+    def _apply_promo_code(self, promo_code):
+        """
+        Private method used by the `promo_code` property setter to apply a promo code
+        """
+        if self.promo_code == promo_code:
+            return False
+
+        url = '/shopping-cart.json/session/%s/apply-promo-code' % self.session_id
+
+        res_code = self.api.get(url, {
+            'promoCode': promo_code,
+        }).json().get('code')
+
+        if res_code == promo_code:
+            self._update_state()
+            return True
+
+        return False
+
+    def _remove_promo_code(self):
+        """
+        Private method used by the `promo_code` property deleter to remove a promo code
+        """
+        if self.promo_code == None:
+            return False
+
+        url = '/shopping-cart.json/session/%s/remove-promo-code' % self.session_id
+
+        result = self.api.get(url, {
+            'promoCode': self.promo_code,
+        }).json().get('result')
+
+        if result == 'success':
+            self._update_state()
+            return True
+
+        return False
 
     def add_activity(
         self,
@@ -146,7 +192,7 @@ class Cart:
 
     def charge_card(self, card_number, cvc, exp_month, exp_year, card_holder_name, amount=None):
         body = {
-            'amount': self.totalAmount if amount is None else amount,
+            'amount': self.total_amount if amount is None else amount,
             'confirmBookingOnSuccess': False,
             'card': {
                 'cardNumber': card_number,
@@ -182,7 +228,7 @@ class Cart:
         if mark_paid:
             body.update({
                 'payment': {
-                    'amount': self.totalAmount,
+                    'amount': self.total_amount,
                     'currency': self.currency,
                     'paymentType': 'WEB_PAYMENT',
                     'confirmed': True,
@@ -206,15 +252,30 @@ class Cart:
         return self
 
     @property
-    def totalAmount(self):
+    def total_amount(self):
         try:
             return self._reservation_state['totalPrice']
         except KeyError:
-            return self._state['customerInvoice']['totalAsMoney']['amount']
+            return self._state['customerInvoice']['totalDiscountedAsMoney']['amount']
 
     @property
     def currency(self):
         return self._state['customerInvoice']['currency']
+
+    @property
+    def promo_code(self):
+        return (self._state.get('promoCode') or {}).get('code')
+
+    @promo_code.setter
+    def promo_code(self, promo_code):
+        if not promo_code:
+            self._remove_promo_code()
+        else:
+            self._apply_promo_code(promo_code)
+
+    @promo_code.deleter
+    def promo_code(self):
+        self._remove_promo_code()
 
     @property
     def booking_id(self):

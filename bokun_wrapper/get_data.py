@@ -165,6 +165,7 @@ def add_to_cart(
 
     dropoff_address='',
     pickup_address='',
+    tracking_code=None,
 
     api=bokun_api,
 ):
@@ -193,6 +194,9 @@ def add_to_cart(
         'pickupPlaceDescription': pickup_address,
         'dropoffPlaceDescription': dropoff_address,
     }
+
+    if tracking_code:
+        body['trackingCode'] = tracking_code
 
     reply = api.post(path, body)
 

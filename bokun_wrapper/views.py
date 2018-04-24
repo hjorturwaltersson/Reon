@@ -378,6 +378,8 @@ def add_to_cart(request):
     body = deep_underscore(json.loads(request.body))
     session_id = body.get('session_id') or str(uuid.uuid4())
 
+    tracking_code = body.get('tracking_code')
+
     product_type_id = body['product_type_id']
 
     date = body['date']
@@ -484,6 +486,7 @@ def add_to_cart(request):
         date=start_dt.format('YYYY-MM-DD'),
         pricing_category_bookings=pricing_category_bookings,
         session_id=session_id,
+        tracking_code=tracking_code,
 
         **(outbound_kwargs if is_outbound else inbound_kwargs)
     )
@@ -516,6 +519,7 @@ def add_to_cart(request):
             date=return_start_dt.format('YYYY-MM-DD'),
             pricing_category_bookings=pricing_category_bookings,
             session_id=session_id,
+            tracking_code=tracking_code,
 
             **(inbound_kwargs if is_outbound else outbound_kwargs)
         )
@@ -630,12 +634,11 @@ def add_cross_sale_to_cart(request):
         } for x in range(child_count)]
     }
 
-    from pprint import pprint
-    pprint(bokun_body)
-
     path = '/shopping-cart.json/session/%s/activity' % session_id
 
-    reply = get_data.bokun_api.post(path, bokun_body)
+    reply = get_data.bokun_api.post(path, bokun_body, {
+        'trackingCode': body.get('tracking_code')
+    })
 
     RequestLog.objects.create(
         url=request.get_full_path(),
