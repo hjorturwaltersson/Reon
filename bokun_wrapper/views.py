@@ -203,7 +203,7 @@ def blue_lagoon_order(request):
     data = serializer.validated_data
 
     pickup_dt = arrow.get(datetime.combine(data['pickup_date'], data['pickup_time']))
-    next_pickup_dt = pickup_dt.shift(hours=3)
+    next_pickup_dt = pickup_dt.shift(hours=4)
 
     pickup_place = data['pickup_location_id']
     dropoff_place = data['dropoff_location_id']
