@@ -65,6 +65,8 @@ class Product(models.Model):
 
     title = models.CharField(max_length=200, blank=True)
 
+    excerpt = models.TextField(blank=True)
+
     ordering = models.IntegerField(default=0, db_index=True)
 
     min_people = models.IntegerField(default=0, db_index=True)
@@ -108,10 +110,6 @@ class Product(models.Model):
     @property
     def description(self):
         return self.activity_inbound.json['description']
-
-    @property
-    def excerpt(self):
-        return self.activity_inbound.json['excerpt']
 
     def __str__(self):
         if self.activity_inbound:
