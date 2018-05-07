@@ -195,10 +195,12 @@ def add_to_cart(
         'dropoffPlaceDescription': dropoff_address,
     }
 
-    if tracking_code:
-        body['trackingCode'] = tracking_code
+    query = {}
 
-    reply = api.post(path, body)
+    if tracking_code:
+        query['trackingCode'] = tracking_code
+
+    reply = api.post(path, body, query)
 
     RequestLog.objects.create(
         outgoing_body=json.dumps(body),
