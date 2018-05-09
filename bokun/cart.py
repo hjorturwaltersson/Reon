@@ -281,5 +281,9 @@ class Cart:
     def booking_id(self):
         return self._reservation_state.get('bookingId')
 
+    @property
+    def confirmation_code(self):
+        return self._reservation_state.get('confirmationCode')
+
     class CartException(Exception):
         pass

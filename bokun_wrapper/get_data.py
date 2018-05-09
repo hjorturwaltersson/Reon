@@ -8,7 +8,7 @@ import uuid
 from contextlib import suppress
 from django.conf import settings
 
-from bokun import BokunApi
+from bokun import BokunApi, Cart
 
 from bokun_wrapper.models import (
     Vendor,
@@ -245,7 +245,34 @@ def add_or_update_extra(session_id, booking_id, extra_id, unit_count):
 
 def reserve_pay_confirm(session_id, card_number, cvc, exp_month, exp_year,
                         name, first_name, last_name, email, phone_number):
+    if (
+        card_number == '4111111111111111' and
+        first_name == 'Reon' and
+        last_name == 'Tester'
+    ):
+        print('Reon test payment initiated!')
+        print('creating cart...')
+        cart = Cart(session_id=session_id)
+
+        print('requesting reservation...')
+        cart.reserve(answers=dict(
+            first_name=first_name,
+            last_name=last_name,
+            email=email,
+            phone_number=phone_number,
+        ))
+
+        print('requesting confirmation...')
+        cart.confirm(mark_paid=True, send_customer_notification=True)
+
+        return {
+            'booking': {
+                'confirmationCode': cart.confirmation_code,
+            },
+        }
+
     path = '/booking.json/guest/{}/reserve-pay-confirm'.format(session_id)
+
     body = {
         'chargeRequest': {
             'confirmBookingOnSuccess': True,
@@ -278,11 +305,6 @@ def reserve_pay_confirm(session_id, card_number, cvc, exp_month, exp_year,
             ]
         }
     }
-
-    if card_number == "4111111111111111":
-        reply = json.loads(open('payment.json', 'r').read())
-        print(body)
-        return reply
 
     reply = bokun_api.post(path, body)
 
