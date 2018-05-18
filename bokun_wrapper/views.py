@@ -123,6 +123,8 @@ class BlueLagoonOrderSerializer(serializers.Serializer):
     pickup_date = serializers.DateField()
     pickup_time = serializers.TimeField()
 
+    departure_time = serializers.TimeField(required=False)  # Departure from the blue lagoon
+
     pickup_quantity_adult = serializers.IntegerField(min_value=0)
     pickup_quantity_children = serializers.IntegerField(min_value=0, default=0)
 
@@ -203,7 +205,12 @@ def blue_lagoon_order(request):
     data = serializer.validated_data
 
     pickup_dt = arrow.get(datetime.combine(data['pickup_date'], data['pickup_time']))
-    next_pickup_dt = pickup_dt.shift(hours=4)
+
+    departure_time = data.get('departure_time')
+    if departure_time:
+        departure_dt = arrow.get(datetime.combine(data['pickup_date'], departure_time))
+    else:
+        departure_dt = pickup_dt.shift(hours=4)
 
     pickup_place = data['pickup_location_id']
     dropoff_place = data['dropoff_location_id']
@@ -239,9 +246,9 @@ def blue_lagoon_order(request):
 
         cart.add_activity(
             activity_id=dropoff_activity_id,
-            start_date=next_pickup_dt.format('YYYY-MM-DD'),
-            start_time=next_pickup_dt.format('HH:mm'),
-            strict_time=False,
+            start_date=departure_dt.format('YYYY-MM-DD'),
+            start_time=departure_dt.format('HH:mm'),
+            strict_time=bool(departure_time),
             pickup_place_id=None,  # We know that this is the Blue Lagoon
             dropoff_place_id=dropoff_place.pk,
             **common_booking_data
