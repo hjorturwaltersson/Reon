@@ -8,7 +8,7 @@ import uuid
 from contextlib import suppress
 from django.conf import settings
 
-from bokun import BokunApi, Cart
+from bokun import BokunApi, BokunApiException, Cart
 
 from bokun_wrapper.models import (
     Vendor,
@@ -245,11 +245,7 @@ def add_or_update_extra(session_id, booking_id, extra_id, unit_count):
 
 def reserve_pay_confirm(session_id, card_number, cvc, exp_month, exp_year,
                         name, first_name, last_name, email, phone_number):
-    if (
-        card_number == '4111111111111111' and
-        first_name == 'Reon' and
-        last_name == 'Tester'
-    ):
+    if card_number == '4111111111111111' and name == 'Reon Tester':
         print('Reon test payment initiated!')
         print('creating cart...')
         cart = Cart(session_id=session_id)
@@ -306,14 +302,20 @@ def reserve_pay_confirm(session_id, card_number, cvc, exp_month, exp_year,
         }
     }
 
-    reply = bokun_api.post(path, body)
+    try:
+        reply = bokun_api.post(path, body).json()
+    except BokunApiException as e:
+        reply = {
+            'message': e.message,
+            'fields': e.fields,
+        }
 
     RequestLog.objects.create(
-        bokun_response=reply.json(),
-        url=path
+        bokun_response=reply,
+        url=path,
     )
 
-    return reply.json()
+    return reply
 
 
 def sync_cross_sale_products():
