@@ -30,15 +30,15 @@ class Activity(ActivityPropertyMixin, models.Model):
     title = models.CharField(max_length=255)
     excerpt = models.TextField(blank=True)
 
-    bookable_extras = JSONField(null=True)
-    photos = JSONField(null=True, blank=True)
+    bookable_extras = JSONField(default=[])
+    photos = JSONField(default=[])
 
     vendor = models.ForeignKey('Vendor', null=True, on_delete=models.SET_NULL)
 
     pickup_places = models.ManyToManyField('Place', related_name='+', blank=True)
     dropoff_places = models.ManyToManyField('Place', related_name='+', blank=True)
 
-    json = JSONField(null=True)
+    json = JSONField(default={})
 
     def get_availability(self, date):
         date = arrow.get(date)
