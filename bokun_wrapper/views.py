@@ -120,10 +120,13 @@ class BlueLagoonOrderSerializer(serializers.Serializer):
     dropoff_location_id = serializers.PrimaryKeyRelatedField(
         queryset=Place.objects.filter(type__in=['airport', 'hotel']))
 
+    # Pickup from the airport or rvk:
     pickup_date = serializers.DateField()
     pickup_time = serializers.TimeField()
 
-    departure_time = serializers.TimeField(required=False)  # Departure from the blue lagoon
+    # Departure from the blue lagoon:
+    departure_date = serializers.DateField(required=False, allow_null=True)
+    departure_time = serializers.TimeField(required=False, allow_null=True)
 
     pickup_quantity_adult = serializers.IntegerField(min_value=0)
     pickup_quantity_children = serializers.IntegerField(min_value=0, default=0)
@@ -204,14 +207,24 @@ def blue_lagoon_order(request):
 
     data = serializer.validated_data
 
-    pickup_dt = arrow.get(datetime.combine(data['pickup_date'], data['pickup_time']))
+    # Pickup date and time:
+    pickup_date = data['pickup_date']
+    pickup_time = data['pickup_time']
 
+    pickup_dt = arrow.get(datetime.combine(pickup_date, pickup_time))
+
+    # Departure date and time:
+    departure_date = data.get('departure_date')
     departure_time = data.get('departure_time')
-    if departure_time:
-        departure_dt = arrow.get(datetime.combine(data['pickup_date'], departure_time))
-    else:
-        departure_dt = pickup_dt.shift(hours=4)
 
+    departure_dt = arrow.get(datetime.combine(
+        departure_date or pickup_date,
+        departure_time or pickup_time,
+    ))
+    if pickup_dt == departure_dt:
+        departure_dt = departure_dt.shift(hours=4)
+
+    # Places:
     pickup_place = data['pickup_location_id']
     dropoff_place = data['dropoff_location_id']
 
