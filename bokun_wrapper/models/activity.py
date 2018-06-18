@@ -1,4 +1,5 @@
 from operator import itemgetter
+from collections import defaultdict
 import arrow
 
 from django.core.cache import cache
@@ -39,6 +40,72 @@ class Activity(ActivityPropertyMixin, models.Model):
     dropoff_places = models.ManyToManyField('Place', related_name='+', blank=True)
 
     json = JSONField(default={})
+
+    @property
+    def places(self):
+        cache_key = 'product:%s:places' % self.id
+
+        cached = cache.get(cache_key)
+        if cached is not None:
+            return cached
+
+        from bokun_wrapper.get_data import bokun_api
+
+        res = bokun_api.get('/activity.json/%s/pickup-places' % self.id).json()
+
+        places_dict = defaultdict(lambda **kwargs: {
+            'pickup': False,
+            'dropoff': False,
+            **kwargs,
+        })
+
+        for place in res['pickupPlaces']:
+            id = place['id']
+            places_dict[id] = {
+                **places_dict[id],
+                **place,
+                'pickup': True,
+            }
+
+        for place in res['dropoffPlaces']:
+            id = place['id']
+            places_dict[id] = {
+                **places_dict[id],
+                **place,
+                'dropoff': True,
+            }
+
+        def normalize_place(place):
+            _type = place['type'].lower().strip()
+
+            if _type in ['other', 'accommodation']:
+                icon = 'hotel'
+            else:
+                icon = _type
+
+            return {
+                **place,
+                'type': _type,
+                'icon': icon,
+            }
+
+        places = [normalize_place(place) for place in places_dict.values()]
+
+        # Ensure unique place names:
+        places = {place['title']: place for place in reversed(sorted(places, key=itemgetter('id')))}.values()
+
+        def places_sorter(place):
+            if place['type'] == 'airport':
+                return '0'
+            if place['type'] == 'terminal' or place['title'].startswith('*'):
+                return '1'
+            return place['title']
+
+        places = list(sorted(places, key=places_sorter))
+
+        cache.set(cache_key, places, 60 * 10)  # Cache for 10 minutes
+
+        return places
 
     def get_availability(self, date):
         date = arrow.get(date)

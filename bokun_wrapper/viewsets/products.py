@@ -22,6 +22,7 @@ class ProductSerializer(serializers.ModelSerializer):
             'default_price_category',
             'child_price_category',
             'extras',
+            'places',
         )
 
 
