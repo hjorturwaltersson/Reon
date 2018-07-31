@@ -59,7 +59,7 @@ def update_vendor_products(vendor_id):
         product.excerpt = item_dict['excerpt'] or ''
 
         product.vendor = vendor
-        product.json = item_dict
+        product.json = item_dict or {}
 
         product.save()
 

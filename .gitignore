@@ -12,6 +12,8 @@ venv
 .env/
 /env
 
+/collected_static
+
 # sub-directories or files within src/
 /test_results
 db.sqlite3
